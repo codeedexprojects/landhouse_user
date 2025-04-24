@@ -2,8 +2,30 @@ import React from 'react';
 import { MdLocationOn } from "react-icons/md";
 import { CiHeart, CiShare2 } from "react-icons/ci";
 import { useNavigate } from 'react-router-dom';
+import house7 from '/src/assets/house7.jpg'
+import house8 from '/src/assets/house8.jpg'
 
-const properties = []; // For demo purpose, leave it empty to show the fallback
+const properties = [
+   {
+      id: 7,
+      image: house7,
+      title: 'Single Family Residency 4 BHK',
+      beds: 4,
+      baths: 3,
+      sqft: 2500,
+      location: 'Kochi',
+    },
+    {
+      id: 8,
+      image: house8,
+      title: 'Single Family Residency 4 BHK',
+      beds: 4,
+      baths: 3,
+      sqft: 2500,
+      location: 'Kochi',
+    }
+
+]; 
 
 function Collections() {
   const navigate = useNavigate();
