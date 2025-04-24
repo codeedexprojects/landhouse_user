@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import Home from './Pages/Home'
+import Properties from './Pages/Properties'
 
 function App() {
 
@@ -8,6 +9,8 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/properties" element={<Properties />} />
+        
       </Routes>
         
     </>
