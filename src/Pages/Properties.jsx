@@ -9,6 +9,9 @@ import house7 from '/src/assets/house7.jpg'
 import house8 from '/src/assets/house8.jpg'
 import house9 from '/src/assets/house9.jpg'
 import { MdLocationOn } from "react-icons/md";
+import Header from '../Components/Header';
+import Footer from '../Components/Footer';
+import { useNavigate } from 'react-router-dom';
 
 const properties = [
   {
@@ -95,67 +98,76 @@ const properties = [
 ];
 
 const Properties = () => {
+
+  const navigate = useNavigate()
+  const handleViewClick=()=>{
+  navigate('/single')
+  }
   return (
-    <div className="px-4 py-8 md:px-12 lg:px-24 bg-white overflow-x-hidden">
-      {/* Heading */}
-      <h1 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-6 leading-tight">
-        Login to unlock <br />
-        <span className="text-600">property prices !</span>
-      </h1>
-
-      {/* Search Input */}
-      <input
-        type="text"
-        placeholder="Search City, Pincode, Address"
-        className="w-[300px] px-4 py-3 border rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-      />
-
-      {/* Price Dropdown */}
-      <div className="w-40 mb-8">
-        <select className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
-          <option>Price</option>
-          <option>Low to High</option>
-          <option>High to Low</option>
-        </select>
-      </div>
-
-      {/* Properties Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {properties.map((property) => (
-          <div
-            key={property.id}
-            className="border rounded-lg shadow-sm overflow-hidden w-full max-w-[360px] mx-auto"
-            style={{ border: "1px solid white", borderRadius: "2px", backgroundColor: "#E7F1FF" }}
-          >
-            {/* Image */}
-            <img
-              src={property.image}
-              alt={property.title}
-              className="w-full h-36 object-cover"
-            />
-
-            {/* Details */}
-            <div className="p-3 space-y-2">
-              <h2 className="text-xs font-semibold text-gray-700">{property.title}</h2>
-              <div className="text-xs text-gray-500 flex flex-wrap gap-1">
-                <span>{property.beds} Beds</span> | 
-                <span>{property.baths} Baths</span> | 
-                <span>{property.sqft} sqft</span>
-              </div>
-              <p className="text-xs text-gray-400 flex items-center gap-1">
-                <MdLocationOn className="text-base text-gray-400" />
-                {property.location}
-              </p>
-              {/* Right-aligned button */}
-              <div className="flex justify-end">
-                <button className="px-3 py-1 bg-[#5A85BFB2] text-white text-xs rounded hover:bg-indigo-700">
-                  View Details
-                </button>
+    <div>
+      <Header></Header>
+      <div className="px-4 py-8 md:px-12 lg:px-24 bg-white overflow-x-hidden">
+        {/* Heading */}
+        <h1 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-6 leading-tight">
+          Login to unlock <br />
+          <span className="text-600">property prices !</span>
+        </h1>
+  
+        {/* Search Input */}
+        <input
+          type="text"
+          placeholder="Search City, Pincode, Address"
+          className="w-[300px] px-4 py-3 border rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+  
+        {/* Price Dropdown */}
+        <div className="w-40 mb-8">
+          <select className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option>Price</option>
+            <option>Low to High</option>
+            <option>High to Low</option>
+          </select>
+        </div>
+  
+        {/* Properties Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {properties.map((property) => (
+            <div
+              key={property.id}
+              className="border rounded-lg shadow-sm overflow-hidden w-full max-w-[360px] mx-auto"
+              style={{ border: "1px solid white", borderRadius: "2px", backgroundColor: "#E7F1FF" }}
+            >
+              {/* Image */}
+              <img
+                src={property.image}
+                alt={property.title}
+                className="w-full h-36 object-cover"
+              />
+  
+              {/* Details */}
+              <div className="p-3 space-y-2">
+                <h2 className="text-xs font-semibold text-gray-700">{property.title}</h2>
+                <div className="text-xs text-gray-500 flex flex-wrap gap-1">
+                  <span>{property.beds} Beds</span> | 
+                  <span>{property.baths} Baths</span> | 
+                  <span>{property.sqft} sqft</span>
+                </div>
+                <p className="text-xs text-gray-400 flex items-center gap-1">
+                  <MdLocationOn className="text-base text-gray-400" />
+                  {property.location}
+                </p>
+                {/* Right-aligned button */}
+                <div className="flex justify-end">
+                  <button onClick={handleViewClick} className="px-3 py-1 bg-[#5A85BFB2] text-white text-xs rounded hover:bg-indigo-700">
+                    View Details
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
+      <Footer></Footer>
     </div>
   );
 };
