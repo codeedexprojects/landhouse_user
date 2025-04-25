@@ -16,13 +16,16 @@ import person4 from '/src/assets/person4.jpg'
 import bgimage from '/src/assets/bgimage.jpg'
 import Rimage from '/src/assets/roundimage.png'
 import { useNavigate } from 'react-router-dom';
+import house1 from '/src/assets/house1.jpg'
+import house2 from '/src/assets/house2.jpg'
+import house3 from '/src/assets/house2.jpg'
 import Header from '../Components/Header';
 import Footer from '../Components/Footer';
 
 const properties = [
   {
     id: 1,
-    image: '/src/assets/house1.jpg',
+    image: house1,
     title: 'Single Family Residency, 4 Cent',
     location: 'Palakkad, Kerala',
     beds: 4,
@@ -31,7 +34,7 @@ const properties = [
   },
   {
     id: 2,
-    image: '/src/assets/house2.jpg',
+    image: house2,
     title: 'Single Family Residency, 6 Cent',
     location: 'Palakkad, Kerala',
     beds: 4,
@@ -40,7 +43,7 @@ const properties = [
   },
   {
     id: 3,
-    image: '/src/assets/house3.jpg',
+    image: house3,
     title: 'Single Family Residency, 4 Cent',
     location: 'Palakkad, Kerala',
     beds: 4,
@@ -57,8 +60,8 @@ function Home() {
   
   return (
     <div>
-       <Header className="fixed top-0 left-0 w-full z-10 bg-transparent" /> {/* Header fixed at the top */}
-       <div className="bg-white  mt-[-70px] relative z-0">
+      <Header className="fixed top-0 left-0 w-full z-10 bg-transparent" /> {/* Header fixed at the top */}
+      <div className="bg-white mt-[-70px] relative z-0">
         {/* Banner */}
         <div className="relative w-full h-[650px] mb-12 rounded-xl overflow-hidden">
           {/* Background Image */}
@@ -81,13 +84,17 @@ function Home() {
         </div>
   
         {/* Properties Section Heading */}
-        <div className=" mb-8 ms-5">
-          <h3 className="text-2xl font-bold  mb-1 text-gray-800">Best Properties available</h3>
-          <p className="text-gray-600 text-sm">Each property design has it's own meaning and we ready to help you to got a property according to our taster . </p>
+        <div className="mb-8 ms-5">
+          <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 text-gray-800">
+            Best Properties Available
+          </h3>
+          <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-3xl">
+            Each property design has its own meaning, and we're ready to help you get a property that matches your taste.
+          </p>
         </div>
   
         {/* Property Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  justify-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 justify-center">
           {properties.map((property) => (
             <div
               key={property.id}
@@ -151,29 +158,27 @@ function Home() {
             <div className="flex flex-col md:flex-row justify-between items-start gap-8 py-8">
               {/* Who we are section */}
               <div className="md:w-1/2">
-                <h1 className="text-4xl font-bold text-indigo-900 mb-6">Who we are ?</h1>
-                <p className="text-gray-800 mb-8">
-                  We offer a range of servicing including buying selling and property Management
+                <h1 className="text-5xl font-bold text-indigo-900 mb-6">Who we are ?</h1>
+                <p className="text-gray-800 text-lg mb-8">
+                  We offer a range of servicing including buying, selling, and property management.
                 </p>
-                
+  
                 <div className="flex gap-12 mt-6">
                   <div className="text-center">
                     <h2 className="text-5xl font-bold text-blue-500">80+</h2>
-                    <p className="text-blue-800">Premium houses</p>
+                    <p className="text-blue-800 text-lg">Premium houses</p>
                   </div>
-                  
                   <div className="text-center">
                     <h2 className="text-5xl font-bold text-blue-500">500+</h2>
-                    <p className="text-blue-800">Agent Houses</p>
+                    <p className="text-blue-800 text-lg">Agent Houses</p>
                   </div>
-                  
                   <div className="text-center">
                     <h2 className="text-5xl font-bold text-blue-500">3K</h2>
-                    <p className="text-blue-800">Happy client</p>
+                    <p className="text-blue-800 text-lg">Happy client</p>
                   </div>
                 </div>
               </div>
-              
+  
               {/* Images grid */}
               <div className="md:w-1/2 grid grid-cols-2 gap-4">
                 <div className="rounded-lg overflow-hidden">
@@ -192,7 +197,7 @@ function Home() {
                       <img src={person1} alt="Team member" className="w-10 h-10 rounded-full border-2 border-white" />
                       <img src={person2} alt="Team member" className="w-10 h-10 rounded-full border-2 border-white" />
                       <img src={person3} alt="Team member" className="w-10 h-10 rounded-full border-2 border-white" />
-                      <img src={person4}alt="Team member" className="w-10 h-10 rounded-full border-2 border-white" />
+                      <img src={person4} alt="Team member" className="w-10 h-10 rounded-full border-2 border-white" />
                     </div>
                   </div>
                 </div>
@@ -218,8 +223,8 @@ function Home() {
                 
                 {/* Why Landouse Section */}
                 <div className="md:w-1/2 text-[#03004D]">
-                  <h2 className="text-4xl font-bold mb-6">Why Landouse is Your Best Choice</h2>
-                  <p className="leading-relaxed">
+                  <h2 className="text-5xl font-bold mb-6">Why Landouse is Your Best Choice</h2>
+                  <p className="leading-relaxed text-lg">
                     Finding the perfect property can be overwhelming, but Landouse makes the journey seamless and stress-free. Our secure platform offers transparency, convenience, and personalized features that help you make informed decisions with confidence.
                   </p>
                 </div>
@@ -233,8 +238,8 @@ function Home() {
                         <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                     </div>
-                    <h3 className="text-lg font-bold mb-2">Trusted Agency</h3>
-                    <p className="text-sm text-gray-600">
+                    <h3 className="text-xl font-bold mb-2">Trusted Agency</h3>
+                    <p className="text-base text-gray-600">
                       Safe and reliable property-buying experience by listing only verified properties from trusted sellers.
                     </p>
                   </div>
@@ -246,8 +251,8 @@ function Home() {
                         <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
                       </svg>
                     </div>
-                    <h3 className="text-lg font-bold mb-2">Legal & Documentation Support</h3>
-                    <p className="text-sm text-gray-600">
+                    <h3 className="text-xl font-bold mb-2">Legal & Documentation Support</h3>
+                    <p className="text-base text-gray-600">
                       Property transactions with verified legal assistance.
                     </p>
                   </div>
@@ -259,8 +264,8 @@ function Home() {
                         <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                       </svg>
                     </div>
-                    <h3 className="text-lg font-bold mb-2">Loan Assistance</h3>
-                    <p className="text-sm text-gray-600">
+                    <h3 className="text-xl font-bold mb-2">Loan Assistance</h3>
+                    <p className="text-base text-gray-600">
                       Get expert guidance on loan options and financing for your dream property.
                     </p>
                   </div>
@@ -269,18 +274,19 @@ function Home() {
             </div>
           </div>
         </div>
+        
         <div className="bg-blue-50 w-full flex items-center justify-center py-16 px-4">
           <div className="max-w-6xl w-full flex flex-col md:flex-row items-center justify-between">
             
             {/* Left side content */}
             <div className="md:w-1/2 p-4 md:p-8">
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
                 Get Your Dream Property
               </h1>
-              <p className="text-gray-700 mb-8 max-w-md">
+              <p className="text-base sm:text-lg md:text-xl text-gray-700 mb-8 max-w-md">
                 Discover the ideal property that suits your needs and lifestyle. Start your journey to the perfect home today!
               </p>
-              <button className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-6 rounded transition duration-300">
+              <button className="bg-blue-500 hover:bg-blue-600 text-white py-3 px-8 text-base sm:text-lg rounded transition duration-300">
                 Contact Now
               </button>
             </div>
@@ -304,7 +310,7 @@ function Home() {
           </div>
         </div>
       </div>
-      <Footer></Footer>
+      <Footer />
     </div>
   )
 }
