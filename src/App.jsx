@@ -12,6 +12,7 @@ import ProfilePage from './Pages/ProfilePage'
 import CompareListings from './Pages/CompareProper'
 import ComparePropertiesResult from './Pages/CompareResult'
 import InvitePage from './Pages/Referral'
+import MainDashboard from './Admin/Pages/Dashboard'
 
 function App() {
   return (
@@ -29,6 +30,12 @@ function App() {
         <Route path="/compare" element={<CompareListings />} />
         <Route path="/compare-result" element={<ComparePropertiesResult />} />
         <Route path="/invite" element={<InvitePage />} />
+
+
+        {/* Admin Panel */}
+        <Route path="/admin/*" element={<MainDashboard />} />
+
+
       </Routes>
     </>
   )
