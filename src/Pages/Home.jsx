@@ -57,8 +57,8 @@ function Home() {
   
   return (
     <div>
-      <Header></Header>
-      <div className=" bg-white">
+       <Header className="fixed top-0 left-0 w-full z-10 bg-transparent" /> {/* Header fixed at the top */}
+       <div className="bg-white  mt-[-70px] relative z-0">
         {/* Banner */}
         <div className="relative w-full h-[650px] mb-12 rounded-xl overflow-hidden">
           {/* Background Image */}
