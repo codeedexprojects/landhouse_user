@@ -49,7 +49,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   ];
 
   const footerItems = [
-    { name: 'Settings', path: '/settings' },
+    // { name: 'Settings', path: '/settings' },
     { name: 'Logout', path: '/admin/login' },
   ];
 
