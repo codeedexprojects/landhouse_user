@@ -14,10 +14,17 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       path: '/vendor/dashboard',
     },
     {
-      name: 'Property',
-      icon: <Home size={20} />,
-      path: '/vendor/property',
-    },
+          name: 'Property',
+          icon: <Home size={20} />,
+          dropdown: true,
+          isOpen: isPropertyOpen,
+          toggle: () => setPropertyOpen(!isPropertyOpen),
+          children: [
+            { name: 'Add Property', path: '/vendor/add-prop-vendor' },
+            { name: 'All Properties', path: '/vendor/prop-vendor' },
+            
+          ],
+        },
     
   ];
 

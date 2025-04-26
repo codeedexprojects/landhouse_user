@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import image from "../../assets/LoginHalf.png"
+import { useNavigate } from 'react-router-dom';
 
 export default function VendorLogin() {
   const [formData, setFormData] = useState({
@@ -8,6 +9,11 @@ export default function VendorLogin() {
     role: '',
     agreeToTerms: false,
   });
+  const navigate=useNavigate()
+
+  const handleClick=()=>{
+    navigate('/vendor/otp')
+  }
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -123,6 +129,7 @@ export default function VendorLogin() {
 
             <div className="pt-4">
               <button
+              onClick={handleClick}
                 type="submit"
                 className="w-full p-4 bg-blue-400 text-white font-medium rounded-md hover:bg-blue-500 transition-colors"
               >

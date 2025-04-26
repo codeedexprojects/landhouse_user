@@ -62,7 +62,7 @@ function MainDashboard() {
             <Route path="/profile" element={<AdminProfile />} />
             <Route path="/create-coupon" element={<CreateCouponForm />} />
             <Route path="/messages" element={<MessageList />} />
-            <Route path="*" element={<Navigate to="/dashboard" />} />
+            <Route path="*" element={<Navigate to="/admin/dashboard" />} />
           </Routes>
         </div>
       </div>

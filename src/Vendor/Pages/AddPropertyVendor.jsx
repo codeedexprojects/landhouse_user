@@ -10,9 +10,11 @@ function AddPropertyVendor() {
           {/* Property Type */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Property Type</label>
-            <div className="border rounded-md bg-gray-50 p-2 flex items-center">
-              <span className="text-gray-500">Office, Apartment, House</span>
-            </div>
+            <input 
+                type="text" 
+                placeholder="Office, Apartment, House" 
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
           </div>
           
           {/* Property Price */}
@@ -42,9 +44,11 @@ function AddPropertyVendor() {
           {/* What's nearby */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">What's nearby</label>
-            <div className="border rounded-md bg-gray-50 p-2 flex items-center">
-              <span className="text-gray-500">School, Hospital, House</span>
-            </div>
+            <input 
+              type="text" 
+              placeholder="School, Hospital, House" 
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
           
           {/* Build in */}
