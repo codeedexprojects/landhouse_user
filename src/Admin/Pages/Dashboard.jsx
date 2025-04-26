@@ -11,10 +11,16 @@ import UserDetailsPage from './UserDetails';
 import UserList from './AllUsers';
 import PropertyDetails from './PropertyDetails';
 import AgentDetails from './AgentDetails';
+import HomeLoanEnquiry from './HomeLoadEnq';
+import ReferralAffiliates from './Referrels';
+import AdminProfile from './AdminProfile';
+import CreateCouponForm from './AddCoupon';
+import AdminLogin from './AdminLogin';
+import MessageList from './Messages';
 
 function MainDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  
+
   useEffect(() => {
     const handleResize = () => {
       setSidebarOpen(window.innerWidth >= 768);
@@ -44,7 +50,6 @@ function MainDashboard() {
             <Route path="/" element={<Navigate to="/dashboard" />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/property" element={<AddProperty />} />
-            <Route path="*" element={<Navigate to="/dashboard" />} />
             <Route path="/view-property" element={<PropertyListingPage />} />
             <Route path="/view-agent" element={<AgentListingPage />} />
             <Route path="/add-agent" element={<AddAgentForm />} />
@@ -52,8 +57,12 @@ function MainDashboard() {
             <Route path="/user-list" element={<UserList />} />
             <Route path="/property-details" element={<PropertyDetails />} />
             <Route path="/agent-details" element={<AgentDetails />} />
-
-
+            <Route path="/loan-enquiry" element={<HomeLoanEnquiry />} />
+            <Route path="/referrels" element={<ReferralAffiliates />} />
+            <Route path="/profile" element={<AdminProfile />} />
+            <Route path="/create-coupon" element={<CreateCouponForm />} />
+            <Route path="/messages" element={<MessageList />} />
+            <Route path="*" element={<Navigate to="/dashboard" />} />
           </Routes>
         </div>
       </div>

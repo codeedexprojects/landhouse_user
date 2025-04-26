@@ -1,9 +1,9 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { FaBed, FaBath } from 'react-icons/fa';
 import { MdLocationOn } from 'react-icons/md';
 import { GiResize } from 'react-icons/gi';
 import { CiHeart } from "react-icons/ci";
-import { CiShare2 } from "react-icons/ci"; 
+import { CiShare2 } from "react-icons/ci";
 import home from '/src/assets/Home.png'
 import home1 from '/src/assets/smallhome1.jpg'
 import home2 from '/src/assets/smallhome2.jpg'
@@ -21,6 +21,8 @@ import house2 from '/src/assets/house2.jpg'
 import house3 from '/src/assets/house2.jpg'
 import Header from '../Components/Header';
 import Footer from '../Components/Footer';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 const properties = [
   {
@@ -54,37 +56,52 @@ const properties = [
 
 function Home() {
   const navigate = useNavigate()
-  const handleShow=()=>{
+  const handleShow = () => {
     navigate("/properties")
   }
-  
+  useEffect(() => {
+    AOS.init({
+      duration: 800,
+      once: true,
+    });
+  }, []);
+
   return (
     <div>
       <Header className="fixed top-0 left-0 w-full z-10 bg-transparent" /> {/* Header fixed at the top */}
       <div className="bg-white mt-[-70px] relative z-0">
         {/* Banner */}
-        <div className="relative w-full h-[650px] mb-12 rounded-xl overflow-hidden">
+        <div className="relative w-full h-[650px] mb-12 rounded-xl overflow-hidden" data-aos="fade-up">
           {/* Background Image */}
           <img src={home} alt="Banner" className="w-full h-full object-cover" />
-  
+
           {/* Overlay Content */}
           <div className="absolute inset-0 bg-opacity-40 flex items-center px-8 md:px-16">
-            <div className="text-[#3A7EDD] max-w-md mt-52">
-              <h2 className="text-3xl md:text-4xl font-bold mt-5">
+            <div className="text-[#3A7EDD] max-w-md mt-52" data-aos="fade-right" data-aos-delay="200">
+              <h2 className="text-3xl md:text-4xl font-bold mt-5" data-aos="fade-down" data-aos-delay="400">
                 Invest In Your Future Today
               </h2>
-              <p className="text-sm md:text-base mb-5 mt-5">
+              <p className="text-sm md:text-base mb-5 mt-5" data-aos="fade-up" data-aos-delay="600">
                 Discover Profitable properties with expert guidance
               </p>
-              <button className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-2 rounded shadow hover:from-indigo-600 hover:to-purple-700 transition">
+              <button
+                className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-2 rounded shadow hover:from-indigo-600 hover:to-purple-700 transition"
+                data-aos="zoom-in"
+                data-aos-delay="800"
+              >
                 Get Started
               </button>
             </div>
           </div>
         </div>
-  
+
+
         {/* Properties Section Heading */}
-        <div className="mb-8 ms-5">
+        <div
+          className="mb-8 ms-5"
+          data-aos="fade-down"
+          data-aos-duration="1000"
+        >
           <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 text-gray-800">
             Best Properties Available
           </h3>
@@ -92,13 +109,15 @@ function Home() {
             Each property design has its own meaning, and we're ready to help you get a property that matches your taste.
           </p>
         </div>
-  
+
         {/* Property Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 justify-center">
-          {properties.map((property) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 justify-center gap-6">
+          {properties.map((property, index) => (
             <div
               key={property.id}
               className="bg-[#EAF2FF] rounded-lg overflow-hidden shadow-sm w-full max-w-[360px] mx-auto"
+              data-aos="fade-up"
+              data-aos-delay={index * 100} // Staggered animation for each card
             >
               <div className="relative">
                 <img
@@ -114,15 +133,15 @@ function Home() {
                   <button className="text-gray-600"><CiShare2 /></button>
                 </div>
               </div>
-  
+
               <div className="p-4">
                 <h2 className="text-sm font-medium text-gray-700">{property.title}</h2>
-  
+
                 <div className="flex items-center text-xs text-gray-500 mt-1">
                   <MdLocationOn className="mr-1 text-sm text-indigo-500" />
                   {property.location}
                 </div>
-  
+
                 <div className="flex justify-between text-[11px] text-gray-500 mt-3">
                   <div className="flex items-center gap-1">
                     <FaBed className="text-sm text-gray-700" />
@@ -137,7 +156,7 @@ function Home() {
                     {property.sqft} <span className="text-[10px] text-gray-400">Sqft</span>
                   </div>
                 </div>
-  
+
                 <div className="flex justify-end mt-4">
                   <button className="px-4 py-1 bg-[#5A85BFB2] text-white text-xs rounded hover:bg-[#3b5e89]">
                     View Details
@@ -147,6 +166,7 @@ function Home() {
             </div>
           ))}
         </div>
+
         <div className="flex justify-center mt-8">
           <button className="px-6 py-2 border-[#000000b2] text-gray-700 bg-[#5A85BFB2] rounded-sm text-[white]" onClick={handleShow}>
             SHOW MORE
@@ -155,14 +175,19 @@ function Home() {
         <div className="bg-blue-50 min-h-screen mt-5">
           {/* Top Section */}
           <div className="max-w-6xl mx-auto p-6">
-            <div className="flex flex-col md:flex-row justify-between items-start gap-8 py-8">
+            <div className="flex flex-col md:flex-row justify-between items-start gap-8 py-8 overflow-hidden">
+
               {/* Who we are section */}
-              <div className="md:w-1/2">
+              <div
+                className="md:w-1/2"
+                data-aos="fade-right"
+                data-aos-duration="1000"
+              >
                 <h1 className="text-5xl font-bold text-indigo-900 mb-6">Who we are ?</h1>
                 <p className="text-gray-800 text-lg mb-8">
                   We offer a range of servicing including buying, selling, and property management.
                 </p>
-  
+
                 <div className="flex gap-12 mt-6">
                   <div className="text-center">
                     <h2 className="text-5xl font-bold text-blue-500">80+</h2>
@@ -178,9 +203,13 @@ function Home() {
                   </div>
                 </div>
               </div>
-  
+
               {/* Images grid */}
-              <div className="md:w-1/2 grid grid-cols-2 gap-4">
+              <div
+                className="md:w-1/2 grid grid-cols-2 gap-4"
+                data-aos="fade-left"
+                data-aos-duration="1000"
+              >
                 <div className="rounded-lg overflow-hidden">
                   <img src={home1} alt="House with porch" className="w-full h-full object-cover" />
                 </div>
@@ -202,37 +231,39 @@ function Home() {
                   </div>
                 </div>
               </div>
+
             </div>
           </div>
-  
+
+
           {/* Bottom Section - Light Blue Background */}
           <div className="relative w-full h-auto py-16 px-6">
             {/* Background Image */}
-            <img 
+            <img
               src={bgimage}
-              alt="Background" 
-              className="absolute inset-0 w-full h-full object-cover z-0" 
+              alt="Background"
+              className="absolute inset-0 w-full h-full object-cover z-0"
             />
-  
+
             {/* Light Blue Overlay */}
             <div className="absolute inset-0 bg-blue-300/30 backdrop-blur-md z-10"></div>
-  
+
             {/* Content */}
             <div className="relative z-20 max-w-6xl mx-auto text-indigo-900">
               <div className="flex flex-col md:flex-row justify-between gap-8">
-                
+
                 {/* Why Landouse Section */}
-                <div className="md:w-1/2 text-[#03004D]">
+                <div className="md:w-1/2 text-[#03004D]" data-aos="fade-right">
                   <h2 className="text-5xl font-bold mb-6">Why Landouse is Your Best Choice</h2>
                   <p className="leading-relaxed text-lg">
                     Finding the perfect property can be overwhelming, but Landouse makes the journey seamless and stress-free. Our secure platform offers transparency, convenience, and personalized features that help you make informed decisions with confidence.
                   </p>
                 </div>
-  
+
                 {/* Features Cards */}
                 <div className="md:w-1/2 grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Trusted Agency Card */}
-                  <div className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center">
+                  <div className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center" data-aos="zoom-in">
                     <div className="bg-indigo-900 p-2 rounded-full mb-4">
                       <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -243,9 +274,9 @@ function Home() {
                       Safe and reliable property-buying experience by listing only verified properties from trusted sellers.
                     </p>
                   </div>
-  
+
                   {/* Legal Documentation Card */}
-                  <div className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center">
+                  <div className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center" data-aos="zoom-in">
                     <div className="bg-indigo-900 p-2 rounded-full mb-4">
                       <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
@@ -256,9 +287,9 @@ function Home() {
                       Property transactions with verified legal assistance.
                     </p>
                   </div>
-  
+
                   {/* Loan Assistance Card */}
-                  <div className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center col-span-1 md:col-span-2">
+                  <div className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center col-span-1 md:col-span-2" data-aos="zoom-in">
                     <div className="bg-indigo-900 p-2 rounded-full mb-4">
                       <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
@@ -274,12 +305,12 @@ function Home() {
             </div>
           </div>
         </div>
-        
-        <div className="bg-blue-50 w-full flex items-center justify-center py-16 px-4">
+
+        <div className="bg-blue-50 w-full flex items-center justify-center py-16 px-4 overflow-hidden" data-aos="fade-up">
           <div className="max-w-6xl w-full flex flex-col md:flex-row items-center justify-between">
-            
+
             {/* Left side content */}
-            <div className="md:w-1/2 p-4 md:p-8">
+            <div className="md:w-1/2 p-4 md:p-8" data-aos="fade-right" data-aos-delay="200">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
                 Get Your Dream Property
               </h1>
@@ -290,25 +321,26 @@ function Home() {
                 Contact Now
               </button>
             </div>
-  
+
             {/* Right side image section */}
-            <div className="md:w-1/2 p-4 md:p-0 mt-8 md:mt-0 relative flex justify-center">
+            <div className="md:w-1/2 p-4 md:p-0 mt-8 md:mt-0 relative flex justify-center" data-aos="fade-left" data-aos-delay="400">
               <div className="w-72 h-72 rounded-full bg-blue-100/50 border-8 border-white/20 p-2 relative flex items-center justify-center">
                 {/* Blue circular rings */}
                 <div className="absolute inset-0 rounded-full border-2 border-blue-200 -m-2"></div>
                 <div className="absolute inset-0 rounded-full border-2 border-blue-200 -m-4"></div>
                 <div className="absolute inset-0 rounded-full border-2 border-blue-200 -m-6"></div>
-  
+
                 {/* Image */}
-                <img 
-                  src={Rimage} 
-                  alt="Modern dream home" 
+                <img
+                  src={Rimage}
+                  alt="Modern dream home"
                   className="w-64 h-64 rounded-full object-cover"
                 />
               </div>
             </div>
           </div>
         </div>
+
       </div>
       <Footer />
     </div>

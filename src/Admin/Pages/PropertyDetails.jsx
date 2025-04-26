@@ -10,6 +10,21 @@ import { MdOutlineDeleteOutline, MdOutlinePhoneInTalk } from "react-icons/md";
 function PropertyDetails() {
   return (
     <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
+      <div className="bg-white p-3 rounded-md shadow-sm mb-4">
+        <div className="flex items-center text-sm text-gray-500">
+          <span>property</span>
+          <span className="mx-2">/</span>
+          <span className="">propertylist</span>
+          <span className="mx-2">/</span>
+          <span className="text-blue-500">propertyDetails</span>
+          
+          <div className="ml-auto">
+            <div className="bg-gray-800 rounded-full w-8 h-8 flex items-center justify-center overflow-hidden">
+              <img src="/api/placeholder/32/32" alt="User profile" className="w-full h-full object-cover" />
+            </div>
+          </div>
+        </div>
+      </div>
       {/* Property Card */}
       <div className="rounded-lg overflow-hidden shadow-md bg-white">
         {/* Property Image */}

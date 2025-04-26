@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import house1 from '/src/assets/house1.jpg'
 import house2 from '/src/assets/house2.jpg'
 import house3 from '/src/assets/house3.jpg'
@@ -12,6 +12,9 @@ import { MdLocationOn } from "react-icons/md";
 import Header from '../Components/Header';
 import Footer from '../Components/Footer';
 import { useNavigate } from 'react-router-dom';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+
 
 const properties = [
   {
@@ -99,9 +102,16 @@ const properties = [
 
 const Properties = () => {
 
+  useEffect(() => {
+    AOS.init({
+      duration: 800,
+      once: true,
+    });
+  }, []);
+
   const navigate = useNavigate()
-  const handleViewClick=()=>{
-  navigate('/single')
+  const handleViewClick = () => {
+    navigate('/single')
   }
   return (
     <div>
@@ -112,14 +122,14 @@ const Properties = () => {
           Login to unlock <br />
           <span className="text-600">property prices !</span>
         </h1>
-  
+
         {/* Search Input */}
         <input
           type="text"
           placeholder="Search City, Pincode, Address"
           className="w-[300px] px-4 py-3 border rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
-  
+
         {/* Price Dropdown */}
         <div className="w-40 mb-8">
           <select className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -128,7 +138,7 @@ const Properties = () => {
             <option>High to Low</option>
           </select>
         </div>
-  
+
         {/* Properties Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {properties.map((property) => (
@@ -143,22 +153,22 @@ const Properties = () => {
                 alt={property.title}
                 className="w-full h-36 object-cover"
               />
-  
+
               {/* Details */}
               <div className="p-3 space-y-2">
-                <h2 className="text-xs font-semibold text-gray-700">{property.title}</h2>
-                <div className="text-xs text-gray-500 flex flex-wrap gap-1">
-                  <span>{property.beds} Beds</span> | 
-                  <span>{property.baths} Baths</span> | 
+                <h2 className="text-sm font-semibold text-gray-700">{property.title}</h2> {/* was text-xs */}
+                <div className="text-sm text-gray-500 flex flex-wrap gap-1"> {/* was text-xs */}
+                  <span>{property.beds} Beds</span> |
+                  <span>{property.baths} Baths</span> |
                   <span>{property.sqft} sqft</span>
                 </div>
-                <p className="text-xs text-gray-400 flex items-center gap-1">
+                <p className="text-sm text-gray-400 flex items-center gap-1"> {/* was text-xs */}
                   <MdLocationOn className="text-base text-gray-400" />
                   {property.location}
                 </p>
                 {/* Right-aligned button */}
                 <div className="flex justify-end">
-                  <button onClick={handleViewClick} className="px-3 py-1 bg-[#5A85BFB2] text-white text-xs rounded hover:bg-indigo-700">
+                  <button onClick={handleViewClick} className="px-3 py-1 bg-[#5A85BFB2] text-white text-sm rounded hover:bg-indigo-700"> {/* text-sm */}
                     View Details
                   </button>
                 </div>
@@ -166,6 +176,7 @@ const Properties = () => {
             </div>
           ))}
         </div>
+
       </div>
       <Footer></Footer>
     </div>
