@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Search, ChevronDown, Filter, ArrowLeft, ArrowRight, Download, Heart } from 'lucide-react';
 import image from "../../assets/house1.jpg"
+import { Link } from 'react-router-dom';
 
 
 export default function PropertyListingPage() {
@@ -20,7 +21,7 @@ export default function PropertyListingPage() {
           <span>property</span>
           <span className="mx-2">/</span>
           <span className="text-blue-500">property list</span>
-          
+
           <div className="ml-auto">
             <div className="bg-gray-800 rounded-full w-8 h-8 flex items-center justify-center overflow-hidden">
               <img src={image} alt="User profile" className="w-full h-full object-cover" />
@@ -35,9 +36,9 @@ export default function PropertyListingPage() {
           {/* Search Input */}
           <div className="relative flex-grow">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input 
-              type="text" 
-              placeholder="Search by property name, bedroom, place..." 
+            <input
+              type="text"
+              placeholder="Search by property name, bedroom, place..."
               className="w-full pl-10 py-2 pr-3 bg-transparent outline-none text-sm border-none focus:ring-0"
             />
           </div>
@@ -80,11 +81,15 @@ export default function PropertyListingPage() {
       {/* Property Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {properties.map((property, index) => (
-          <div key={index} className="bg-white rounded-md overflow-hidden shadow-sm">
+          <Link
+            key={index}
+            to='/admin/property-details'
+            className="bg-white rounded-md overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300"
+          >
             <div className="relative">
-              <img 
-                src={image} 
-                alt="Property" 
+              <img
+                src={image}
+                alt="Property"
                 className="w-full h-48 object-cover"
               />
               <button className="absolute top-2 left-2 bg-blue-100 text-blue-500 px-2 py-1 rounded-md text-xs">
@@ -111,9 +116,10 @@ export default function PropertyListingPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
+
 
       {/* Pagination */}
       <div className="flex justify-between items-center mt-6">
@@ -126,7 +132,7 @@ export default function PropertyListingPage() {
           <button className="p-2 text-gray-500">
             <ArrowLeft className="w-4 h-4" />
           </button>
-          
+
           <div className="flex space-x-2 mx-2">
             <button className="w-8 h-8 rounded-md bg-blue-500 text-white flex items-center justify-center text-sm">1</button>
             <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">2</button>
