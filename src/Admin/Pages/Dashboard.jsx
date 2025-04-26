@@ -10,6 +10,7 @@ import AddAgentForm from './AddAgent';
 import UserDetailsPage from './UserDetails';
 import UserList from './AllUsers';
 import PropertyDetails from './PropertyDetails';
+import AgentDetails from './AgentDetails';
 
 function MainDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -50,6 +51,7 @@ function MainDashboard() {
             <Route path="/user-details" element={<UserDetailsPage />} />
             <Route path="/user-list" element={<UserList />} />
             <Route path="/property-details" element={<PropertyDetails />} />
+            <Route path="/agent-details" element={<AgentDetails />} />
 
 
           </Routes>
