@@ -3,6 +3,11 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from '../Components/Sidebar';
 import VendorHeader from '../Components/HeaderVendor';
 import VendorDashboard from '../Components/Dashboard/OverView';
+import AddPropertyVendor from './AddPropertyVendor';
+import PropertyDetailsVendor from './PropertyDetailsVendor';
+import PropertyVendor from './PropertyVendor';
+import EnquireVendor from './EnquireVendor';
+import ProfileVendor from './ProfileVendor';
 
 function MainVendorDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -35,6 +40,11 @@ function MainVendorDashboard() {
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" />} />
             <Route path="/dashboard" element={<VendorDashboard />} />
+            <Route path="/add-prop-vendor" element={<AddPropertyVendor />} />
+            <Route path="/prop-details-vendor" element={<PropertyDetailsVendor />} />
+            <Route path="/prop-vendor" element={<PropertyVendor />} />
+            <Route path="/enguire" element={<EnquireVendor />} />
+            <Route path="/profile-vendor" element={<ProfileVendor />} />
             
             <Route path="*" element={<Navigate to="/vendor/dashboard" />} />
             
