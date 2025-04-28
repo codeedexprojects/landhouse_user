@@ -1,7 +1,12 @@
 import { ArrowLeft, ArrowRight, Download } from 'lucide-react';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function ReferralAffiliates() {
+    const navigate=useNavigate()
+    const handleAddAffliates=()=>{
+        navigate('/admin/create-coupon')
+    }
     // Sample data for the table
     const affiliatesData = [
         { affiliate: "Kadar muhammed", referralId: "ysdgc2626", userCount: "150", amount: "50000" },
@@ -19,7 +24,7 @@ export default function ReferralAffiliates() {
                     <span className="text-blue-500">Referrals</span>
 
                     <div className="ml-auto flex items-center space-x-3">
-                        <button className="bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold px-5 py-2 rounded-md">
+                        <button onClick={handleAddAffliates} className="bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold px-5 py-2 rounded-md">
                             Add Affiliates
                         </button>
                        
