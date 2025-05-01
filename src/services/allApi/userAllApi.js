@@ -38,3 +38,25 @@ export const getProperties = async () => {
         return [];
     }
 };
+
+
+// get single property 
+export const getSingleProperty = async (propertyId) => {
+    try {
+      const token = localStorage.getItem('token'); 
+      const response = await axios.get(`${BASE_URL}/user/property/get/${propertyId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      console.log("Raw API response:", response); // Add this
+      if (response.data.success) {
+        return response.data.property; // Note: your API returns "property" not "properties"
+      } else {
+        throw new Error(response.data.message || 'Failed to fetch property');
+      }
+    } catch (error) {
+      console.error('Error fetching property:', error);
+      throw error;
+    }
+  };

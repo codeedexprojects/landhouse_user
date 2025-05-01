@@ -26,8 +26,8 @@ const Properties = () => {
     setProperties(data);
   };
 
-  const handleViewClick = (id) => {
-    navigate(`/single/${id}`);
+  const handleViewClick = (propertyId) => {
+    navigate(`/single/${propertyId}`);
   };
 
   const toggleWishlist = (id) => {
@@ -90,7 +90,7 @@ const Properties = () => {
               {/* Property Image */}
               <div className="relative">
                 <img
-                  src={`https://landouse-backend.onrender.com/${property.photos[0]?.replace(/\\/g, "/")}`}
+                  src={`http://localhost:3005/${property.photos[0]?.replace(/\\/g, "/")}`}
                   alt={property.property_type}
                   className="w-full h-36 object-cover"
                 />

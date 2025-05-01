@@ -28,7 +28,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/properties" element={<Properties />} />
         <Route path="/favorites" element={<Collections />} />
-        <Route path="/single" element={<SingleView />} />
+        <Route path="/single/:propertyId" element={<SingleView />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/register" element={<SignupForm />} />
