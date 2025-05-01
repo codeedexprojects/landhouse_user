@@ -57,10 +57,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     },
   ];
 
-  const footerItems = [
-    { name: "Settings", path: "/settings" },
-    { name: "Logout", path: "/admin/login" },
-  ];
+ const footerItems = [
+  { name: "Logout", path: "/admin/login" },
+];
+
 
   const isActive = (path) => location.pathname === path;
 

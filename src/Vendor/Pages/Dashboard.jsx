@@ -43,8 +43,8 @@ function MainVendorDashboard() {
             <Route path="/add-prop-vendor" element={<AddPropertyVendor />} />
             <Route path="/prop-details-vendor" element={<PropertyDetailsVendor />} />
             <Route path="/prop-vendor" element={<PropertyVendor />} />
-            <Route path="/enguire" element={<EnquireVendor />} />
-            <Route path="/profile-vendor" element={<ProfileVendor />} />
+            <Route path="/enquire" element={<EnquireVendor />} />
+            <Route path="/profile" element={<ProfileVendor />} />
             
             <Route path="*" element={<Navigate to="/vendor/dashboard" />} />
             

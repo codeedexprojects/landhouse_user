@@ -17,6 +17,7 @@ import AdminProfile from './AdminProfile';
 import CreateCouponForm from './AddCoupon';
 import AdminLogin from './AdminLogin';
 import MessageList from './Messages';
+import Affiliates from './Affiliates';
 
 function MainDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -62,7 +63,9 @@ function MainDashboard() {
             <Route path="/profile" element={<AdminProfile />} />
             <Route path="/create-coupon" element={<CreateCouponForm />} />
             <Route path="/messages" element={<MessageList />} />
-            <Route path="*" element={<Navigate to="/dashboard" />} />
+            <Route path="/affiliates" element={<Affiliates />} />
+
+            <Route path="*" element={<Navigate to="/admin/dashboard" />} />
           </Routes>
         </div>
       </div>
