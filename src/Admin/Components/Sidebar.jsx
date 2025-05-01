@@ -1,6 +1,15 @@
-import React, { useState } from 'react';
-import { Link as RouterLink, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Home, Users, User, Link, ChevronDown, ChevronUp, X } from 'lucide-react';
+import React, { useState } from "react";
+import { Link as RouterLink, useLocation } from "react-router-dom";
+import {
+  LayoutDashboard,
+  Home,
+  Users,
+  User,
+  Link,
+  ChevronDown,
+  ChevronUp,
+  X,
+} from "lucide-react";
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const location = useLocation();
@@ -9,49 +18,49 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
   const menuItems = [
     {
-      name: 'Dashboard',
+      name: "Dashboard",
       icon: <LayoutDashboard size={20} />,
-      path: '/admin/dashboard',
+      path: "/admin/dashboard",
     },
     {
-      name: 'Property',
+      name: "Property",
       icon: <Home size={20} />,
       dropdown: true,
       isOpen: isPropertyOpen,
       toggle: () => setPropertyOpen(!isPropertyOpen),
       children: [
-        { name: 'Add Property', path: '/admin/property' },
-        { name: 'All Properties', path: '/admin/view-property' },
-        { name: 'Home Loan', path: '/admin/loan-enquiry' },
+        { name: "Add Property", path: "/admin/property" },
+        { name: "All Properties", path: "/admin/view-property" },
+        { name: "Home Loan", path: "/admin/loan-enquiry" },
       ],
     },
     {
-      name: 'Agent',
+      name: "Agent",
       icon: <Users size={20} />,
       dropdown: true,
       isOpen: isAgentOpen,
       toggle: () => setAgentOpen(!isAgentOpen),
       children: [
-        { name: 'Add Agent', path: '/admin/add-agent' },
-        { name: 'All Agents', path: '/admin/view-agent' },
+        { name: "Add Agent", path: "/admin/add-agent" },
+        { name: "All Agents", path: "/admin/view-agent" },
       ],
     },
     {
-      name: 'User',
+      name: "User",
       icon: <User size={20} />,
-      path: '/admin/user-list',
+      path: "/admin/user-list",
     },
     {
-      name: 'Referral',
+      name: "Referral",
       icon: <Link size={20} />,
-      path: '/admin/referrels',
+      path: "/admin/referrels",
     },
   ];
 
-  const footerItems = [
-    // { name: 'Settings', path: '/settings' },
-    { name: 'Logout', path: '/admin/login' },
-  ];
+ const footerItems = [
+  { name: "Logout", path: "/admin/login" },
+];
+
 
   const isActive = (path) => location.pathname === path;
 
@@ -59,7 +68,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     <div
       className={`bg-white border-r border-gray-200 w-64 flex flex-col fixed inset-y-0 z-30
       transition-transform duration-300 ease-in-out ${
-        isOpen ? 'translate-x-0' : '-translate-x-full'
+        isOpen ? "translate-x-0" : "-translate-x-full"
       } md:relative md:translate-x-0`}
     >
       {/* Mobile close button */}
@@ -74,12 +83,21 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       <div className="p-6">
         <div className="flex items-center">
           <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              strokeWidth="2"
+            >
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"></path>
               <polyline points="9 22 9 12 15 12 15 22"></polyline>
             </svg>
           </div>
-          <span className="ml-2 text-blue-500 font-bold text-lg">LANDHOUSE</span>
+          <span className="ml-2 text-blue-500 font-bold text-lg">
+            LANDHOUSE
+          </span>
         </div>
       </div>
 
@@ -95,15 +113,19 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                       onClick={item.toggle}
                       className={`flex items-center justify-between w-full px-4 py-3 rounded-lg text-left ${
                         item.children.some((child) => isActive(child.path))
-                          ? 'bg-blue-50 text-blue-500 border-l-4 border-blue-500'
-                          : 'text-gray-600 hover:bg-gray-100'
+                          ? "bg-blue-50 text-blue-500 border-l-4 border-blue-500"
+                          : "text-gray-600 hover:bg-gray-100"
                       }`}
                     >
                       <div className="flex items-center">
                         <span className="mr-3">{item.icon}</span>
                         <span>{item.name}</span>
                       </div>
-                      {item.isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                      {item.isOpen ? (
+                        <ChevronUp size={16} />
+                      ) : (
+                        <ChevronDown size={16} />
+                      )}
                     </button>
                     {item.isOpen && (
                       <ul className="pl-12 mt-1">
@@ -114,8 +136,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                               onClick={toggleSidebar}
                               className={`block py-2 text-sm rounded ${
                                 isActive(child.path)
-                                  ? 'text-blue-600 font-medium'
-                                  : 'text-gray-600 hover:text-gray-800'
+                                  ? "text-blue-600 font-medium"
+                                  : "text-gray-600 hover:text-gray-800"
                               }`}
                             >
                               {child.name}
@@ -131,8 +153,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                     onClick={toggleSidebar}
                     className={`flex items-center px-4 py-3 rounded-lg ${
                       isActive(item.path)
-                        ? 'bg-blue-50 text-blue-500 border-l-4 border-blue-500'
-                        : 'text-gray-600 hover:bg-gray-100'
+                        ? "bg-blue-50 text-blue-500 border-l-4 border-blue-500"
+                        : "text-gray-600 hover:bg-gray-100"
                     }`}
                   >
                     <span className="mr-3">{item.icon}</span>

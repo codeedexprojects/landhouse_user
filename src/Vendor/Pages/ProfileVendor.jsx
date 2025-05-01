@@ -96,10 +96,9 @@ function ProfileVendor() {
             </div>
           </div>
         </div>
-
       </div>
     </div>
-  )
+  );
 }
 
 export default ProfileVendor;
