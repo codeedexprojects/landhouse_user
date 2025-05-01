@@ -70,7 +70,7 @@ function ProfileVendor() {
             
             {/* City field with dimensions */}
             <div className="relative">
-              <div className="bg-blue-100 rounded-md p-3 pr-10 relative">
+              <div className="bg-blue-100 rounded-md p-3  pr-10 relative">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-700">Enter your city</span>
                   <div className="flex items-center">
