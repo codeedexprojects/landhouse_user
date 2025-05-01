@@ -1,6 +1,8 @@
-import { useState } from 'react';
-import { Mail, User, Phone, Lock, CheckSquare } from 'lucide-react';
-import image1 from "../assets/Sign up.png"
+import { useEffect, useState } from 'react';
+import { Mail, User, Phone, Lock } from 'lucide-react';
+import image1 from "../assets/Sign up.png";
+import { useLocation } from 'react-router-dom';
+import { registerUser } from '../services/allApi/userAllApi';
 
 export default function LandouseSignupForm() {
   const [formData, setFormData] = useState({
@@ -10,50 +12,71 @@ export default function LandouseSignupForm() {
     email: '',
     address: '',
     invitationCode: '',
-    agreeToTerms: false
+    agreeToTerms: false,
   });
+
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const referrerId = queryParams.get('referrerId');
+  const referralCode = queryParams.get('referralCode');
+  const productId = queryParams.get('productId');
+
+  useEffect(() => {
+    if (referralCode) {
+      setFormData(prev => ({ ...prev, invitationCode: referralCode }));
+    }
+  }, [referralCode]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prevData => ({
       ...prevData,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Handle submission logic here
+
+    if (!formData.agreeToTerms) {
+      alert("Please agree to the Terms & Conditions.");
+      return;
+    }
+
+    const payload = {
+      ...formData,
+      productId: productId || null,
+    };
+
+    try {
+      const data = await registerUser(payload); 
+      alert(data.message);
+      console.log('Registered user:', data.user);
+    } catch (error) {
+      alert(error.message || 'Registration failed.');
+      console.error('Error:', error);
+    }
   };
 
   return (
     <div className="min-h-screen w-full bg-blue-50 overflow-auto">
-      {/* Container with proper overflow handling */}
       <div className="relative w-full min-h-screen">
-        {/* Background Image */}
         <div className="fixed inset-0 z-0">
-          <img 
-            src={image1}
-            alt="Modern luxury home" 
-            className="w-full h-full object-cover"
-          />
-          
+          <img src={image1} alt="Modern luxury home" className="w-full h-full object-cover" />
         </div>
-        
-        {/* Form Content with proper scrolling */}
+
         <div className="relative z-10 p-6 md:p-12 lg:p-16 flex justify-center lg:justify-start">
           <div className="w-full max-w-md lg:max-w-lg xl:max-w-xl py-8">
             <h1 className="text-4xl font-bold text-black mb-2">Create Your <br /> Landouse <br /> Account</h1>
             <p className="text-black/90 mb-8">View prices, save your favorite properties, and more.</p>
-            
+
             <div className="mb-6">
               <p className="text-black mb-1">
-                Already A Member? 
+                Already A Member?
                 <a href="#" className="ml-2 text-white font-medium hover:underline">Log in</a>
               </p>
             </div>
-            
+
             <form onSubmit={handleSubmit} className="w-full">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div className="relative">
@@ -68,7 +91,7 @@ export default function LandouseSignupForm() {
                   />
                   <User className="absolute right-3 top-3 h-5 w-5 text-white/70" />
                 </div>
-                
+
                 <div className="relative">
                   <input
                     type="text"
@@ -82,7 +105,7 @@ export default function LandouseSignupForm() {
                   <User className="absolute right-3 top-3 h-5 w-5 text-white/70" />
                 </div>
               </div>
-              
+
               <div className="mb-4 relative">
                 <input
                   type="tel"
@@ -95,7 +118,7 @@ export default function LandouseSignupForm() {
                 />
                 <Phone className="absolute right-3 top-3 h-5 w-5 text-white/70" />
               </div>
-              
+
               <div className="mb-4 relative">
                 <input
                   type="email"
@@ -107,7 +130,7 @@ export default function LandouseSignupForm() {
                 />
                 <Mail className="absolute right-3 top-3 h-5 w-5 text-white/70" />
               </div>
-              
+
               <div className="mb-4 relative">
                 <input
                   type="text"
@@ -119,8 +142,7 @@ export default function LandouseSignupForm() {
                 />
                 <Lock className="absolute right-3 top-3 h-5 w-5 text-white/70" />
               </div>
-              
-              {/* Invitation code and submit button in same row with 50/50 split */}
+
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="relative">
                   <input
@@ -132,7 +154,7 @@ export default function LandouseSignupForm() {
                     className="w-full p-3 pl-4 pr-10 bg-black/20 backdrop-blur-sm border border-white/30 rounded text-white placeholder-white/70"
                   />
                 </div>
-                
+
                 <button
                   type="submit"
                   className="w-full bg-white text-blue-600 font-medium p-3 rounded hover:bg-blue-50 transition duration-200"
@@ -140,7 +162,7 @@ export default function LandouseSignupForm() {
                   Create Account
                 </button>
               </div>
-              
+
               <div className="flex items-center mb-6">
                 <input
                   type="checkbox"
@@ -155,8 +177,7 @@ export default function LandouseSignupForm() {
                   I agree with your <a href="#" className="underline">Terms & Conditions</a>
                 </label>
               </div>
-              
-              {/* Add bottom padding to ensure scrolling works properly */}
+
               <div className="h-6"></div>
             </form>
           </div>

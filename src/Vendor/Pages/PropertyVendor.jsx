@@ -83,7 +83,7 @@ function PropertyVendor() {
         {properties.map((property, index) => (
           <Link
             key={index}
-            to='/admin/property-details'
+            to='/vendor/prop-details-vendor'
             className="bg-white rounded-md overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300"
           >
             <div className="relative">

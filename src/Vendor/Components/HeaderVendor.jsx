@@ -1,7 +1,17 @@
 import React from 'react';
 import { Menu, Search, Bell } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const VendorHeader = ({ toggleSidebar }) => {
+    const navigate = useNavigate();
+
+    const handleProfileClick = () => {
+        navigate('/vendor/profile');
+      };
+      const handleMessageClick = () => {
+        navigate('/vendor/enquire');
+      };
+    
   return (
     <header className="bg-white border-b border-gray-200 flex items-center justify-between p-4">
       <div className="flex items-center">
@@ -24,16 +34,11 @@ const VendorHeader = ({ toggleSidebar }) => {
         </div>
       </div>
       <div className="flex items-center space-x-4">
-        <button className="p-2 text-blue-500 bg-blue-100 rounded-lg">
+        <button className="p-2 text-blue-500 bg-blue-100 rounded-lg cursor-pointer" onClick={handleMessageClick}>
           <Bell size={20} />
         </button>
-        <button className="p-2 bg-blue-100 text-blue-500 rounded-lg">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-          </svg>
-        </button>
-        <div className="flex items-center">
+       
+        <div className="flex items-center cursor-pointer" onClick={handleProfileClick}>
           <div className="mr-2 text-right hidden sm:block">
             <p className="text-sm font-medium">Pathu P</p>
             <p className="text-xs text-gray-500">Admin</p>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Download, ArrowLeft, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function AgentListingPage() {
   const agents = [
@@ -36,6 +37,10 @@ export default function AgentListingPage() {
       description: "Senior property agent specializing in residential listings across Palakkad and Malappuram. With over 5 years of experience."
     }
   ];
+  const navigate = useNavigate()
+  const handleViewClick =()=>{
+    navigate('/admin/agent-details')
+  }
 
   return (
     <div className="p-4 bg-blue-100 min-h-screen">
@@ -86,7 +91,7 @@ export default function AgentListingPage() {
                   </div>
                 </div>
 
-                <button className="bg-blue-100 text-blue-600 px-4 py-2 rounded-md text-sm">
+                <button onClick={handleViewClick} className="bg-blue-100 text-blue-600 px-4 py-2 rounded-md text-sm">
                   View Profile
                 </button>
               </div>
