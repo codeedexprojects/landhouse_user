@@ -31,7 +31,7 @@ function App() {
         <Route path="/single" element={<SingleView />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/contact" element={<ContactUs />} />
-        <Route path="/signup" element={<SignupForm />} />
+        <Route path="/register" element={<SignupForm />} />
         <Route path="/login" element={<LandouseLoginForm />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/compare" element={<CompareListings />} />

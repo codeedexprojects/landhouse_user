@@ -2,8 +2,13 @@ import React from "react";
 import { FiHeart, FiPlusCircle, FiXCircle } from "react-icons/fi";
 import Header from "../Components/Header";
 import Footer from "../Components/Footer";
+import { useNavigate } from "react-router-dom";
 
 const CompareListings = () => {
+  const navigate=useNavigate()
+  const handleCompareClick=()=>{
+    navigate('/compare-result')
+  }
   return (
     <div>
         <Header></Header>
@@ -44,7 +49,7 @@ const CompareListings = () => {
     
             {/* Action Buttons */}
             <div className="flex justify-center mt-8 gap-4">
-              <button className="bg-[#131A5A] text-white px-6 py-2 rounded hover:bg-[#0f154a] transition">
+              <button onClick={handleCompareClick} className="bg-[#131A5A] text-white px-6 py-2 rounded hover:bg-[#0f154a] transition">
                 Compare
               </button>
               <button className="border border-gray-300 px-6 py-2 rounded hover:bg-gray-100 transition">
