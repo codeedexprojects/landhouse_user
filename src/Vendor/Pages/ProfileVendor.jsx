@@ -64,23 +64,6 @@ function ProfileVendor() {
                 className="w-full bg-blue-100 p-3 rounded-md text-gray-700"
               />
             </div>
-<<<<<<< HEAD
-            
-            {/* City field with dimensions */}
-            <div className="relative">
-              <div className="bg-blue-100 rounded-md p-3  pr-10 relative">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-700">Enter your city</span>
-                  <div className="flex items-center">
-                    <button className="text-gray-500">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-=======
 
             {/* City field */}
             <div>
@@ -90,7 +73,6 @@ function ProfileVendor() {
                 placeholder="Enter your city"
                 className="w-full bg-blue-100 p-3 rounded-md text-gray-700"
               />
->>>>>>> be2a5d7f46eaa8cffcce87d0d3b0b2bbe95207fd
             </div>
 
             {/* About Profession */}
@@ -114,10 +96,9 @@ function ProfileVendor() {
             </div>
           </div>
         </div>
-
       </div>
     </div>
-  )
+  );
 }
 
 export default ProfileVendor;
