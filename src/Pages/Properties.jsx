@@ -1,52 +1,184 @@
 import React, { useEffect, useState } from 'react';
 import { MdLocationOn } from "react-icons/md";
-import { FaHeart, FaShareAlt } from "react-icons/fa";
+import { FaFacebook, FaHeart, FaShareAlt, FaTimes, FaTwitter, FaWhatsapp, FaSearch } from "react-icons/fa";
 import Header from '../Components/Header';
 import Footer from '../Components/Footer';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import { getProperties } from '../services/allApi/userAllApi';
+import { getProperties, addToFavorites, getFavorites, deleteFavourite } from '../services/allApi/userAllApi';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import LoginRequiredModal from '../Components/LoginRequired';
+import { Toast } from '../Components/Toast';
 
 const Properties = () => {
   const [wishlist, setWishlist] = useState([]);
   const [properties, setProperties] = useState([]);
+  const [filteredProperties, setFilteredProperties] = useState([]);
   const [showShareModal, setShowShareModal] = useState(false);
   const [referralLink, setReferralLink] = useState("");
-
+  const [loadingFavorites, setLoadingFavorites] = useState(false);
+  const location = useLocation();
   const navigate = useNavigate();
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [priceFilter, setPriceFilter] = useState('');
+      const [toast, setToast] = useState({ show: false, message: '', type: '' });
+  
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(referralLink);
+    setToastMessage('Link copied to clipboard!');
+  };
+
+  const handlePriceClick = () => {
+    const isLoggedIn = localStorage.getItem('userId') && localStorage.getItem('token');
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+    }
+  };
+
+  const closeModal = () => setShowLoginModal(false);
+
+  const goToLogin = () => {
+    closeModal();
+    navigate('/login');
+  };
+  const showToast = (message, type) => {
+    setToast({ show: true, message, type });
+    setTimeout(() => {
+        setToast(prev => ({ ...prev, show: false }));
+    }, 3000);
+};
+
 
   useEffect(() => {
     AOS.init({ duration: 800, once: true });
     fetchPropertyData();
+    fetchUserFavorites();
   }, []);
+
+  useEffect(() => {
+    // Apply filters whenever properties, searchTerm, or priceFilter changes
+    filterProperties();
+  }, [properties, searchTerm, priceFilter]);
 
   const fetchPropertyData = async () => {
     const data = await getProperties();
     setProperties(data);
+    setFilteredProperties(data);
   };
 
-  const handleViewClick = (propertyId) => {
-    navigate(`/single/${propertyId}`);
+  const fetchUserFavorites = async () => {
+    try {
+      const userId = localStorage.getItem('userId');
+      if (userId) {
+        setLoadingFavorites(true);
+        const response = await getFavorites(userId);
+
+        // Extract property IDs from the nested structure
+        const favoriteIds = response.favourites.map(fav => fav.propertyId._id);
+
+        setWishlist(favoriteIds);
+        setLoadingFavorites(false);
+      }
+    } catch (error) {
+      console.error('Error fetching favorites:', error);
+      setLoadingFavorites(false);
+    }
   };
 
-  const toggleWishlist = (id) => {
-    setWishlist((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+  const filterProperties = () => {
+    let filtered = [...properties];
+    
+    // Apply search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(property => 
+        property.address?.toLowerCase().includes(term) || 
+        property.property_type?.toLowerCase().includes(term) ||
+        property.city?.toLowerCase().includes(term) ||
+        property.pincode?.toString().includes(term)
+      );
+    }
+    
+    // Apply price filter
+    if (priceFilter === 'lowToHigh') {
+      filtered.sort((a, b) => (a.property_price || 0) - (b.property_price || 0));
+    } else if (priceFilter === 'highToLow') {
+      filtered.sort((a, b) => (b.property_price || 0) - (a.property_price || 0));
+    }
+    
+    setFilteredProperties(filtered);
   };
 
-  const generateReferralLink = (userId, referralCode, productId) => {
-    return `${window.location.origin}/register?referrerId=${userId}&referralCode=${referralCode}&productId=${productId}`;
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
   };
 
+  const handlePriceFilterChange = (e) => {
+    setPriceFilter(e.target.value);
+  };
+
+  const handleViewClick = async (propertyId) => {
+    const isLoggedIn = localStorage.getItem('userId') && localStorage.getItem('token');
+
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      navigate(`/single/${propertyId}`);
+      window.scrollTo(0, 0);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const toggleWishlist = async (propertyId) => {
+    try {
+      const userId = localStorage.getItem('userId');
+      const token = localStorage.getItem('token');
+
+      if (!userId || !token) {
+        showToast('Please login to add favorites', 'error');
+        return;
+      }
+
+      const isFavorite = wishlist.includes(propertyId);
+
+      if (isFavorite) {
+        // REMOVE from wishlist
+        await deleteFavourite(propertyId, { userId });
+        setWishlist((prev) => prev.filter((id) => id !== propertyId));
+        showToast('Removed from favorites', 'success');
+      } else {
+        // ADD to wishlist
+        await addToFavorites(userId, propertyId);
+        setWishlist((prev) => [...prev, propertyId]);
+        showToast('Added to favorites', 'success');
+      }
+    } catch (error) {
+      console.error('Favorite error:', error);
+      showToast(error.response?.data?.message || 'Failed to update favorites', 'error');
+    }
+  };
+
+  const generateReferralLink = (userId, referralCode, propertyId) => {
+    return `${window.location.origin}/register?referrerId=${userId}&referralCode=${referralCode}&productId=${propertyId}`;
+  };
 
   const handleShare = (propertyId) => {
     const userId = localStorage.getItem('userId');
     const referralCode = localStorage.getItem('referralId');
 
     if (!userId || !referralCode) {
-      console.error('User ID or Referral Code not found in localStorage');
+      toast.error('Please login to share properties');
       return;
     }
 
@@ -55,37 +187,74 @@ const Properties = () => {
     setShowShareModal(true);
   };
 
-
-
   return (
     <div>
       <Header />
+      <ToastContainer position="bottom-right" autoClose={3000} />
       <div className="px-4 py-8 md:px-12 lg:px-24 bg-white overflow-x-hidden">
-        <h1 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-6 leading-tight">
+        <h1 className="text-3xl md:text-4xl font-semibold mb-6 leading-tight" style={{color:"#03004D"}}>
           Login to unlock <br />
           <span className="text-600">property prices !</span>
         </h1>
 
-        <input
-          type="text"
-          placeholder="Search City, Pincode, Address"
-          className="w-[300px] px-4 py-3 border rounded-md mb-4"
-        />
+        {/* Full-width search with icon */}
+        <div className="relative w-full mb-4">
+          <input
+            type="text"
+            placeholder="Search City, Pincode, Address"
+            value={searchTerm}
+            onChange={handleSearchChange}
+            className="w-full px-4 py-3 pl-10 border rounded-md"
+          />
+          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <FaSearch className="text-gray-400" />
+          </div>
+        </div>
 
-        <div className="w-40 mb-8">
-          <select className="w-full px-3 py-2 border rounded-md">
-            <option>Price</option>
-            <option>Low to High</option>
-            <option>High to Low</option>
+        {/* Price filter */}
+        <div className="w-full mb-8 md:w-64">
+          <select 
+            className="w-full px-3 py-2 border rounded-md"
+            value={priceFilter}
+            onChange={handlePriceFilterChange}
+          >
+            <option value="">Sort by Price</option>
+            <option value="lowToHigh">Price: Low to High</option>
+            <option value="highToLow">Price: High to Low</option>
           </select>
         </div>
 
+        {/* Property count */}
+        {filteredProperties.length > 0 && (
+          <p className="mb-4 text-sm text-gray-600">
+            Showing {filteredProperties.length} {filteredProperties.length === 1 ? 'property' : 'properties'}
+            {searchTerm && ` for "${searchTerm}"`}
+          </p>
+        )}
+
+        {/* No results message */}
+        {filteredProperties.length === 0 && (
+          <div className="text-center py-8">
+            <p className="text-lg text-gray-600">No properties found matching your search.</p>
+            <button 
+              onClick={() => {
+                setSearchTerm('');
+                setPriceFilter('');
+              }}
+              className="mt-2 text-blue-600 hover:underline"
+            >
+              Clear filters
+            </button>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {properties.map((property) => (
+          {filteredProperties.map((property) => (
             <div
               key={property._id}
               className="border rounded-lg shadow-sm overflow-hidden w-full max-w-[360px] mx-auto relative"
               style={{ backgroundColor: "#E7F1FF" }}
+              data-aos="fade-up"
             >
               {/* Property Image */}
               <div className="relative">
@@ -94,18 +263,54 @@ const Properties = () => {
                   alt={property.property_type}
                   className="w-full h-36 object-cover"
                 />
+                <div
+                  className="absolute top-2 left-2 bg-[#EAF2FF] text-xs text-gray-600 font-semibold px-2 py-1 rounded cursor-pointer hover:bg-[#D5E3FF]"
+                  onClick={handlePriceClick}
+                >
+                  {localStorage.getItem('userId') && localStorage.getItem('token') ? (
+                    `Price: ₹${property.property_price?.toLocaleString() || 'N/A'}`
+                  ) : (
+                    'Login to view Price'
+                  )}
+                </div>
                 <div className="absolute top-2 right-2 flex space-x-2">
+                  {/* Favorite Button */}
                   <button
-                    onClick={() => toggleWishlist(property._id)}
+                    onClick={() => {
+                      const isLoggedIn = localStorage.getItem('userId') && localStorage.getItem('token');
+                      if (!isLoggedIn) {
+                        setShowLoginModal(true);
+                        return;
+                      }
+                      toggleWishlist(property._id);
+                    }}
                     className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
+                    disabled={loadingFavorites}
                   >
-                    <FaHeart
-                      className={wishlist.includes(property._id) ? "text-red-500" : "text-gray-500"}
-                      size={14}
-                    />
+                    {loadingFavorites ? (
+                      <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+                    ) : (
+                      <FaHeart
+                        className={
+                          wishlist.includes(property._id)
+                            ? 'text-red-500 fill-current'
+                            : 'text-gray-500'
+                        }
+                        size={14}
+                      />
+                    )}
                   </button>
+
+                  {/* Share Button */}
                   <button
-                    onClick={() => handleShare(property._id)}
+                    onClick={() => {
+                      const isLoggedIn = localStorage.getItem('userId') && localStorage.getItem('token');
+                      if (!isLoggedIn) {
+                        setShowLoginModal(true);
+                        return;
+                      }
+                      handleShare(property._id);
+                    }}
                     className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
                   >
                     <FaShareAlt className="text-gray-500" size={14} />
@@ -128,9 +333,21 @@ const Properties = () => {
                 <div className="flex justify-end">
                   <button
                     onClick={() => handleViewClick(property._id)}
-                    className="px-3 py-1 bg-[#5A85BFB2] text-white text-sm rounded hover:bg-indigo-700"
+                    className={`px-3 py-1 bg-[#5A85BFB2] text-white text-sm rounded hover:bg-indigo-700 transition-colors ${isLoading ? 'opacity-75 cursor-not-allowed' : ''
+                      }`}
+                    disabled={isLoading}
                   >
-                    View Details
+                    {isLoading ? (
+                      <span className="inline-flex items-center">
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Loading...
+                      </span>
+                    ) : (
+                      'View Details'
+                    )}
                   </button>
                 </div>
               </div>
@@ -139,28 +356,75 @@ const Properties = () => {
         </div>
       </div>
       {showShareModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-md p-6 w-80 shadow-md">
-            <h2 className="text-lg font-semibold mb-4">Share Property</h2>
-            <input
-              type="text"
-              value={referralLink}
-              readOnly
-              className="w-full px-3 py-2 border rounded mb-4 text-sm"
-            />
-            <div className="flex justify-between">
+        <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-6 rounded-xl max-w-md w-full relative shadow-xl animate-fade-in">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowShareModal(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              <FaTimes className="text-lg" />
+            </button>
+
+            {/* Modal Content */}
+            <div className="text-center mb-6">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
+                <svg
+                  className="h-6 w-6 text-blue-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                  />
+                </svg>
+              </div>
+
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Share Property</h3>
+              <p className="text-gray-600 mb-4">
+                Share this property with friends and family
+              </p>
+            </div>
+
+            {/* Link Input */}
+            <div className="relative mb-6">
+              <input
+                type="text"
+                value={referralLink}
+                readOnly
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                onClick={(e) => e.target.select()}
+              />
               <button
-                onClick={() => {
-                  navigator.clipboard.writeText(referralLink);
-                  alert("Link copied to clipboard!");
-                }}
-                className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
+                onClick={handleCopy}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1 bg-blue-100 text-blue-600 text-xs rounded hover:bg-blue-200 transition-colors"
               >
-                Copy Link
+                Copy
               </button>
+            </div>
+
+            {/* Social Share Buttons (Optional) */}
+            <div className="flex justify-center space-x-4 mb-6">
+              <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                <FaFacebook className="text-blue-600" />
+              </button>
+              <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                <FaTwitter className="text-blue-400" />
+              </button>
+              <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                <FaWhatsapp className="text-green-500" />
+              </button>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-center">
               <button
                 onClick={() => setShowShareModal(false)}
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded text-sm"
+                className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all"
               >
                 Close
               </button>
@@ -168,6 +432,17 @@ const Properties = () => {
           </div>
         </div>
       )}
+      {toastMessage && (
+        <Toast
+          message={toastMessage}
+          onClose={() => setToastMessage('')}
+        />
+      )}
+      <LoginRequiredModal
+        show={showLoginModal}
+        onClose={closeModal}
+        onLogin={goToLogin}
+      />
 
       <Footer />
     </div>

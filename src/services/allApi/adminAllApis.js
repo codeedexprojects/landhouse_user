@@ -14,46 +14,29 @@ export const AdminLogin = async (email, password) => {
   }
 };
 
-
-//addproperty
-
-export const addProperty = async (propertyData) => {
-  console.log(propertyData);
-
-    try {
-      const token = localStorage.getItem('admintoken');
-      const formData = new FormData();
-  
-      Object.entries(propertyData).forEach(([key, value]) => {
-        if (Array.isArray(value)) {
-          value.forEach((file) => formData.append(key, file));
-        } else {
-          formData.append(key, value);
-        }
-      });
-
-      const response = await axios.post(`${BASE_URL}/admin/property/add`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
-      
-      return response.data;
-    } catch (error) {
-      console.log(error);
-
-      throw error.response?.data || { message: 'Something went wrong' };
-    }
+// add property
+export const addProperty = async (formData) => {
+  try {
+    const token = localStorage.getItem('admintoken');
+    const response = await axios.post(
+      `${BASE_URL}/admin/property/add`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("API Error:", error);
+    throw error.response?.data || { message: 'Something went wrong' };
+  }
 };
 
-
-//getAllProperties
-
-export const getAllProperties = async()=>{
+// get all properties
+export const getAllProperties = async () => {
   try {
     const token = localStorage.getItem('admintoken'); 
     const response = await axios.get(`${BASE_URL}/admin/property/get`, {
@@ -71,8 +54,7 @@ export const getAllProperties = async()=>{
     alert('Fetching Error: ' + error.message);
     return []; 
   }
-
-}
+};
 
 // delete property
 export const deletePropertyAPI = async (id) => {
@@ -83,26 +65,53 @@ export const deletePropertyAPI = async (id) => {
         Authorization: `Bearer ${token}`
       }
     });
-
     return response;
   } catch (error) {
     console.log(error);
   }
-}
+};
 
-
-// edit property
-export const EditPropertyAPI = async (id)=>{
-  try{
+// edit property (you probably meant PATCH or PUT, not "edit" method)
+export const EditPropertyAPI = async (id, updateData) => {
+  try {
     const token = localStorage.getItem('admintoken');
-    const response = await axios.edit(`${BASE_URL}/admin/property/edit/${id}`,{
-      headers:{
+    const response = await axios.patch(`${BASE_URL}/admin/property/edit/${id}`, updateData, {
+      headers: {
         Authorization: `Bearer ${token}`
       }
-    })
+    });
     return response;
-  }catch(error){
+  } catch (error) {
     console.log(error);
-    
   }
-}
+};
+
+// get home loan enquiries
+export const getLoanEnquiries = async () => {
+  try {
+    const token = localStorage.getItem('admintoken'); 
+    const response = await axios.get(`${BASE_URL}/admin/homeloan/all`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data.enquiries;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// get user list
+export const getUserList = async () => {
+  try {
+    const token = localStorage.getItem('admintoken'); 
+    const response = await axios.get(`${BASE_URL}/admin/user/view`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data.users;
+  } catch (error) {
+    console.log(error);
+  }
+};

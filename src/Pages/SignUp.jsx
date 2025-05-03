@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Mail, User, Phone, Lock } from 'lucide-react';
 import image1 from "../assets/Sign up.png";
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { registerUser } from '../services/allApi/userAllApi';
 
 export default function LandouseSignupForm() {
@@ -20,6 +20,28 @@ export default function LandouseSignupForm() {
   const referrerId = queryParams.get('referrerId');
   const referralCode = queryParams.get('referralCode');
   const productId = queryParams.get('productId');
+  const navigate=useNavigate()
+  useEffect(() => {
+      const params = new URLSearchParams(location.search);
+      const productId = params.get('productId');
+  
+      const userId = localStorage.getItem('userId');
+      const token = localStorage.getItem('token');
+      const referralCode = localStorage.getItem('referralId');
+  
+      // Check if user is already registered/logged in
+      if (userId && token && referralCode) {
+        if (productId) {
+          // Redirect to product single page
+          navigate(`/single/${productId}`);
+        } else {
+          // If no productId, fallback to dashboard or home
+          navigate('/');
+        }
+      }
+  
+      // Else → stay on register page
+    }, [location, navigate]);
 
   useEffect(() => {
     if (referralCode) {
@@ -37,26 +59,36 @@ export default function LandouseSignupForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!formData.agreeToTerms) {
       alert("Please agree to the Terms & Conditions.");
       return;
     }
-
+  
     const payload = {
       ...formData,
       productId: productId || null,
     };
-
+  
     try {
-      const data = await registerUser(payload); 
+      const data = await registerUser(payload);
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userId', data.userId);
+      localStorage.setItem('referralId', data.referralCode);
       alert(data.message);
       console.log('Registered user:', data.user);
+  
+      if (productId) {
+        navigate(`/single/${productId}`);
+      } else {
+        navigate('/');
+      }
     } catch (error) {
       alert(error.message || 'Registration failed.');
       console.error('Error:', error);
     }
   };
+  
 
   return (
     <div className="min-h-screen w-full bg-blue-50 overflow-auto">

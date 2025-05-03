@@ -1,31 +1,47 @@
 import React, { useState } from 'react';
 import { FiHome, FiInfo, FiPhone, FiMap } from 'react-icons/fi';
 import logo from '../assets/logo.png';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import LoginRequiredModal from './LoginRequired';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const isHome = location.pathname === '/';
 
-  const toggleSidebar = () => setIsOpen(!isOpen);
+  const toggleSidebar = () => {
+    const isLoggedIn = localStorage.getItem('userId') && localStorage.getItem('token');
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+      return;
+    }
+    setIsOpen(!isOpen);
+  };
 
-  // Helper function to check if the current link is active
+  const closeModal = () => setShowLoginModal(false);
+  
+  const goToLogin = () => {
+    closeModal();
+    navigate('/login');
+  };
+
   const isActive = (path) => location.pathname === path ? 'text-blue-500 font-semibold' : 'text-gray-900 hover:text-gray-700';
 
   return (
     <>
-      <header className={`${isHome ? 'bg-transparent' : 'bg-white shadow-sm'} relative z-50  `}>
+      <header className={`${isHome ? 'bg-transparent' : 'bg-white shadow-sm'} relative z-50`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Logo on the left */}
+            {/* Logo */}
             <div className="flex-shrink-0">
               <a href="/" className="flex items-center">
                 <img src={logo} alt="Company Logo" className="h-8 w-auto" />
               </a>
             </div>
 
-            {/* Desktop Nav (hidden on mobile) */}
+            {/* Desktop Nav */}
             <nav className="hidden md:flex items-center space-x-20 ml-auto">
               <a href="/" className={`font-medium ${isActive('/')}`}>Home</a>
               <a href="/properties" className={`font-medium ${isActive('/properties')}`}>Properties</a>
@@ -33,7 +49,7 @@ export default function Header() {
               <a href="/contact" className={`font-medium ${isActive('/contact')}`}>Contact</a>
             </nav>
 
-            {/* Menu Toggle (only visible on desktop) */}
+            {/* Menu Toggle */}
             <button
               onClick={toggleSidebar}
               className="text-gray-800 hover:text-gray-600 focus:outline-none ml-10"
@@ -45,7 +61,7 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Sidebar (optional toggle) */}
+        {/* Sidebar - Only shows when logged in */}
         {isOpen && (
           <div className="fixed inset-0 z-50">
             <div className="fixed inset-0 bg-black opacity-30" onClick={toggleSidebar} />
@@ -57,7 +73,15 @@ export default function Header() {
                 <a href="/profile" className="block text-gray-800 border-b py-2">Profile</a>
               </div>
               <div className="p-4 border-t">
-                <button onClick={() => alert('Logging out...')} className="w-full text-left text-gray-800">
+                <button 
+                  onClick={() => {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('userId');
+                    localStorage.removeItem('referralId');
+                    window.location.reload();
+                  }} 
+                  className="w-full text-left text-gray-800"
+                >
                   Logout
                 </button>
               </div>
@@ -66,7 +90,7 @@ export default function Header() {
         )}
       </header>
 
-      {/* Bottom Navigation (only mobile) */}
+      {/* Bottom Navigation (mobile) */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white shadow-inner md:hidden flex justify-around items-center py-2 z-50">
         <a href="/" className="flex flex-col items-center text-blue-500">
           <FiHome className="h-6 w-6" />
@@ -85,6 +109,13 @@ export default function Header() {
           <span className="text-xs mt-1">Contact</span>
         </a>
       </nav>
+
+      {/* Login Required Modal */}
+      <LoginRequiredModal 
+        show={showLoginModal}
+        onClose={closeModal}
+        onLogin={goToLogin}
+      />
     </>
   );
 }

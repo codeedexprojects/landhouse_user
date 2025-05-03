@@ -9,7 +9,7 @@ export default function LandouseLoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const navigate=useNavigate()
+  const navigate = useNavigate()
 
   const handleChange = (e) => {
     setFormData({ phoneNumber: e.target.value });
@@ -30,7 +30,7 @@ export default function LandouseLoginForm() {
       localStorage.setItem('referralId', data.user.referralId);
 
       setSuccess('Login successful!');
-      // Optionally redirect here
+      navigate('/properties')
     } catch (err) {
       setError(err.message || 'Something went wrong');
     } finally {
@@ -39,11 +39,10 @@ export default function LandouseLoginForm() {
   };
 
   return (
-    <div className="min-h-screen w-full overflow-auto">
+    <div className="min-h-screen w-full bg-blue-50 overflow-auto">
       <div className="relative w-full min-h-screen">
         <div className="fixed inset-0 z-0">
           <img src={image1} alt="Modern luxury home" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-blue-600/60"></div>
         </div>
 
         <div className="relative z-10 p-6 md:p-12 lg:p-16 flex justify-center lg:justify-start">
@@ -51,6 +50,12 @@ export default function LandouseLoginForm() {
             <h1 className="text-4xl font-bold text-black mb-2">Find Your <br /> Next Home <br /> Just Log In</h1>
             <p className="text-black/90 mb-8">Stay updated on new properties, price changes, and more..</p>
 
+            <div className="mb-6">
+              <p className="text-black mb-1">
+                Don't have an account ?
+                <a href="/register" className="ml-2 text-white font-medium hover:underline">Create Account</a>
+              </p>
+            </div>
             {error && <p className="text-red-500 mb-4">{error}</p>}
             {success && <p className="text-green-500 mb-4">{success}</p>}
 
