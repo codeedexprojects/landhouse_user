@@ -57,6 +57,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     },
   ];
 
+
  const footerItems = [
   { name: "Logout", path: "/admin/login" },
 ];
