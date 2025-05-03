@@ -72,6 +72,9 @@ export default function LandouseSignupForm() {
   
     try {
       const data = await registerUser(payload);
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userId', data.userId);
+      localStorage.setItem('referralId', data.referralCode);
       alert(data.message);
       console.log('Registered user:', data.user);
   

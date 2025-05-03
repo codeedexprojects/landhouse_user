@@ -26,6 +26,8 @@ const Properties = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [priceFilter, setPriceFilter] = useState('');
+      const [toast, setToast] = useState({ show: false, message: '', type: '' });
+  
 
   const handleCopy = () => {
     navigator.clipboard.writeText(referralLink);
@@ -45,6 +47,13 @@ const Properties = () => {
     closeModal();
     navigate('/login');
   };
+  const showToast = (message, type) => {
+    setToast({ show: true, message, type });
+    setTimeout(() => {
+        setToast(prev => ({ ...prev, show: false }));
+    }, 3000);
+};
+
 
   useEffect(() => {
     AOS.init({ duration: 800, once: true });
@@ -250,7 +259,7 @@ const Properties = () => {
               {/* Property Image */}
               <div className="relative">
                 <img
-                  src={`https://landouse-backend.onrender.com/${property.photos[0]?.replace(/\\/g, "/")}`}
+                  src={`http://localhost:3005/${property.photos[0]?.replace(/\\/g, "/")}`}
                   alt={property.property_type}
                   className="w-full h-36 object-cover"
                 />

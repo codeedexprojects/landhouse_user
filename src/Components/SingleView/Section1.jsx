@@ -21,7 +21,7 @@ export default function SingleProperty() {
     const [showShareModal, setShowShareModal] = useState(false);
     const [referralLink, setReferralLink] = useState('');
     const [loadingFavorites, setLoadingFavorites] = useState(false);
-    const BASE_URL = "https://landouse-backend.onrender.com";
+    const BASE_URL = "http://localhost:3005";
 
     useEffect(() => {
         const fetchProperty = async () => {

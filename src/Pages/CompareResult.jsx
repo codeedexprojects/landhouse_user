@@ -7,7 +7,7 @@ const CompareProperties = () => {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const BASE_URL="https://landouse-backend.onrender.com"
+  const BASE_URL="http://localhost:3005"
 
   useEffect(() => {
     const fetchCompareData = async () => {
