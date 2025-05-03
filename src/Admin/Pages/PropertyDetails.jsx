@@ -45,6 +45,7 @@ function PropertyDetails() {
   }
 
   const handleEdit = (property) => {
+   
     navigate('/admin/edit-property', { state: { property } });
   }
 

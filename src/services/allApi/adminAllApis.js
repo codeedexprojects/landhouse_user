@@ -1,6 +1,5 @@
 import axios from "axios";
 import { BASE_URL } from "../baseUrl";
-import { toast } from "react-toastify";
 
 export const AdminLogin = async (email, password) => {
   try {
@@ -93,3 +92,17 @@ export const deletePropertyAPI = async (id) => {
 
 
 // edit property
+export const EditPropertyAPI = async (id)=>{
+  try{
+    const token = localStorage.getItem('admintoken');
+    const response = await axios.edit(`${BASE_URL}/admin/property/edit/${id}`,{
+      headers:{
+        Authorization: `Bearer ${token}`
+      }
+    })
+    return response;
+  }catch(error){
+    console.log(error);
+    
+  }
+}

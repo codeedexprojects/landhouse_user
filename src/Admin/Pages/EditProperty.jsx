@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { MapPin, Upload, Plus } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { addProperty } from "../../services/allApi/adminAllApis";
+import { addProperty, EditPropertyAPI } from "../../services/allApi/adminAllApis";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -62,6 +62,24 @@ const EditProperty = () => {
   };
 
 
+  const handleEdit =async (id) =>{
+    try{
+      const response = await EditPropertyAPI(id)
+      console.log(response);
+
+      if(response.status === 200){
+        toast.success('updated successfully')
+        setTimeout(() => {
+          navigate('/admin/view-property');
+        }, 2000);
+      }
+      
+    }catch(error){
+      toast.error('something went wrong')
+    }
+
+  }
+
 
   return (
     <div className="p-4 bg-blue-100 min-h-screen">
@@ -80,7 +98,7 @@ const EditProperty = () => {
           <h1 className="text-xl font-medium">Edit Property</h1>
         </div>
 
-        <form className="p-4">
+        <form className="p-4" >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Property Type */}
             <div>
@@ -373,6 +391,7 @@ const EditProperty = () => {
             <button
               type="submit"
               className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onClick={handleEdit}
             >
               Edit
             </button>
