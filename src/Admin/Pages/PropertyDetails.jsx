@@ -32,8 +32,8 @@ function PropertyDetails() {
     try {
       const response = await deletePropertyAPI(id);
       console.log(response);
-      
-      if(response.status === 200){
+
+      if (response.status === 200) {
         toast.success('item Deleted successfully!');
         setTimeout(() => {
           navigate('/admin/view-property');
@@ -85,9 +85,10 @@ function PropertyDetails() {
 
         <div className="p-6">
           <div className="flex justify-between items-start mb-4">
-            <h2 className="text-2xl font-semibold text-blue-900">
-              {property?.property_type}
+            <h2 className="text-2xl font-semibold text-indigo-900">
+              {property.beds} BHK @ {city}
             </h2>
+
             <div className="flex gap-2">
               <button className="bg-blue-400 text-white px-4 py-1 rounded-md text-sm">
                 {property?.soldOut}
@@ -126,7 +127,7 @@ function PropertyDetails() {
 
           <div className="flex items-center gap-2 mb-4 text-gray-700">
             <AiFillHome className="text-blue-900" size={20} />
-            <p>Single Family Residency</p>
+            <p>{property?.property_type}</p>
           </div>
 
           <div className="text-right mb-4">

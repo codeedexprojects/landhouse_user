@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import image3 from '../../assets/image.png';
 import { sendLoanEnquiry } from '../../services/allApi/userAllApi';
 
 const HomeLoanForm = () => {
+  const { propertyId } = useParams(); // get propertyId from URL
+
   const [formData, setFormData] = useState({
     name: '',
     number: '',
@@ -30,7 +33,8 @@ const HomeLoanForm = () => {
       setMessage('');
 
       const enquiryData = {
-        userId: localStorage.getItem('userId'), // assuming you store userId in localStorage
+        userId: localStorage.getItem('userId'),
+        propertyId, // added here
         name: formData.name,
         number: formData.number,
         occupation: formData.occupation,
@@ -65,6 +69,7 @@ const HomeLoanForm = () => {
         <div className="flex flex-col md:flex-row items-start justify-between w-full">
           <div className="md:w-1/2 w-full md:pl-50">
             <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-sm">
+              {/* form fields... (same as before) */}
               <div>
                 <label className="block text-sm text-[#0c0c2c] mb-1">Name</label>
                 <input

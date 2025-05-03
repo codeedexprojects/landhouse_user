@@ -18,37 +18,25 @@ export const AdminLogin = async (email, password) => {
 
 //addproperty
 
-export const addProperty = async (propertyData) => {
-  console.log(propertyData);
-
-    try {
-      const token = localStorage.getItem('admintoken');
-      const formData = new FormData();
-  
-      Object.entries(propertyData).forEach(([key, value]) => {
-        if (Array.isArray(value)) {
-          value.forEach((file) => formData.append(key, file));
-        } else {
-          formData.append(key, value);
-        }
-      });
-
-      const response = await axios.post(`${BASE_URL}/admin/property/add`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
-      
-      return response.data;
-    } catch (error) {
-      console.log(error);
-
-      throw error.response?.data || { message: 'Something went wrong' };
-    }
+export const addProperty = async (formData) => {
+  try {
+    const token = localStorage.getItem('admintoken');
+    const response = await axios.post(
+      `${BASE_URL}/admin/property/add`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    
+    return response.data;
+  } catch (error) {
+    console.error("API Error:", error);
+    throw error.response?.data || { message: 'Something went wrong' };
+  }
 };
 
 
@@ -93,3 +81,33 @@ export const deletePropertyAPI = async (id) => {
 
 
 // edit property
+
+// get home loan enquiries
+export const getLoanEnquiries = async () => {
+  try {
+    const token = localStorage.getItem('admintoken'); 
+    const response = await axios.get(`${BASE_URL}/admin/homeloan/all`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data.enquiries;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// delete property
+export const getUserList = async () => {
+  try {
+    const token = localStorage.getItem('admintoken'); 
+    const response = await axios.get(`${BASE_URL}/admin/user/view`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data.users;
+  } catch (error) {
+    console.log(error);
+  }
+}

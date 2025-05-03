@@ -38,17 +38,17 @@ export default function SingleProperty() {
         fetchProperty();
         fetchUserFavorites();
     }, [propertyId]);
-    
+
     const fetchUserFavorites = async () => {
         try {
             const userId = localStorage.getItem('userId');
             if (userId) {
                 setLoadingFavorites(true);
                 const response = await getFavorites(userId);
-                
+
                 // Extract property IDs from the nested structure
                 const favoriteIds = response.favourites.map(fav => fav.propertyId._id);
-                
+
                 setWishlist(favoriteIds);
                 setLoadingFavorites(false);
             }
@@ -69,24 +69,24 @@ export default function SingleProperty() {
         try {
             setCompareLoading(true);
             const userId = localStorage.getItem('userId');
-            
+
             if (!userId) {
                 navigate('/login');
                 return;
             }
-        
+
             const reqBody = {
                 userId: userId,
                 propertyId: propertyId
             };
-        
+
             await addToCompare(reqBody);
             showToast('Property added to compare list!', 'success');
-            
+
         } catch (error) {
             // Handle the specific backend error message
             const errorMessage = error.response?.data?.message || error.message || 'Failed to add to compare';
-            
+
             // Special handling for the comparison limit message
             if (errorMessage.includes("Only two properties can be compared")) {
                 showToast('Only two properties can be compared.', 'error');
@@ -100,33 +100,33 @@ export default function SingleProperty() {
 
     const toggleWishlist = async (propertyId) => {
         try {
-          const userId = localStorage.getItem('userId');
-          const token = localStorage.getItem('token');
-      
-          if (!userId || !token) {
-            toast.error('Please login to add favorites');
-            return;
-          }
-      
-          const isFavorite = wishlist.includes(propertyId);
-      
-          if (isFavorite) {
-            // REMOVE from wishlist
-            await deleteFavourite(propertyId, { userId });
-            setWishlist((prev) => prev.filter((id) => id !== propertyId));
-            toast.success('Removed from favorites');
-          } else {
-            // ADD to wishlist
-            await addToFavorites(userId, propertyId);
-            setWishlist((prev) => [...prev, propertyId]);
-            toast.success('Added to favorites');
-          }
+            const userId = localStorage.getItem('userId');
+            const token = localStorage.getItem('token');
+
+            if (!userId || !token) {
+                toast.error('Please login to add favorites');
+                return;
+            }
+
+            const isFavorite = wishlist.includes(propertyId);
+
+            if (isFavorite) {
+                // REMOVE from wishlist
+                await deleteFavourite(propertyId, { userId });
+                setWishlist((prev) => prev.filter((id) => id !== propertyId));
+                toast.success('Removed from favorites');
+            } else {
+                // ADD to wishlist
+                await addToFavorites(userId, propertyId);
+                setWishlist((prev) => [...prev, propertyId]);
+                toast.success('Added to favorites');
+            }
         } catch (error) {
-          console.error('Favorite error:', error);
-          toast.error(error.response?.data?.message || 'Failed to update favorites');
+            console.error('Favorite error:', error);
+            toast.error(error.response?.data?.message || 'Failed to update favorites');
         }
-      };
-      
+    };
+
 
     const generateReferralLink = (userId, referralCode, propertyId) => {
         return `${window.location.origin}/register?referrerId=${userId}&referralCode=${referralCode}&productId=${propertyId}`;
@@ -197,34 +197,34 @@ export default function SingleProperty() {
                 </Swiper>
 
                 <div className="absolute top-4 right-4 flex space-x-2 z-10">
-                <button 
-    className="p-2 bg-white bg-opacity-90 rounded-full shadow-md hover:bg-opacity-100 transition"
-    onClick={() => {
-        const isLoggedIn = localStorage.getItem('userId') && localStorage.getItem('token');
-        if (!isLoggedIn) {
-            setShowLoginModal(true);
-            return;
-        }
-        toggleWishlist(propertyId);
-    }}
->
-    <svg 
-        xmlns="http://www.w3.org/2000/svg" 
-        className="h-6 w-6" 
-        fill={wishlist.includes(propertyId) ? "red" : "none"} 
-        viewBox="0 0 24 24" 
-        stroke={wishlist.includes(propertyId) ? "red" : "currentColor"}
-    >
-        <path 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            strokeWidth={2} 
-            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" 
-        />
-    </svg>
-</button>
+                    <button
+                        className="p-2 bg-white bg-opacity-90 rounded-full shadow-md hover:bg-opacity-100 transition"
+                        onClick={() => {
+                            const isLoggedIn = localStorage.getItem('userId') && localStorage.getItem('token');
+                            if (!isLoggedIn) {
+                                setShowLoginModal(true);
+                                return;
+                            }
+                            toggleWishlist(propertyId);
+                        }}
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-6 w-6"
+                            fill={wishlist.includes(propertyId) ? "red" : "none"}
+                            viewBox="0 0 24 24"
+                            stroke={wishlist.includes(propertyId) ? "red" : "currentColor"}
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                            />
+                        </svg>
+                    </button>
 
-                    <button 
+                    <button
                         className="p-2 bg-white bg-opacity-90 rounded-full shadow-md hover:bg-opacity-100 transition"
                         onClick={handleShare}
                     >
@@ -236,86 +236,86 @@ export default function SingleProperty() {
             </div>
 
             {/* Share Modal */}
-           {showShareModal && (
-                   <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4">
-                     <div className="bg-white p-6 rounded-xl max-w-md w-full relative shadow-xl animate-fade-in">
-                       {/* Close Button */}
-                       <button
-                         onClick={() => setShowShareModal(false)}
-                         className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
-                       >
-                         <FaTimes className="text-lg" />
-                       </button>
-           
-                       {/* Modal Content */}
-                       <div className="text-center mb-6">
-                         <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
-                           <svg
-                             className="h-6 w-6 text-blue-600"
-                             fill="none"
-                             viewBox="0 0 24 24"
-                             stroke="currentColor"
-                           >
-                             <path
-                               strokeLinecap="round"
-                               strokeLinejoin="round"
-                               strokeWidth={2}
-                               d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                             />
-                           </svg>
-                         </div>
-           
-                         <h3 className="text-xl font-bold text-gray-900 mb-2">Share Property</h3>
-                         <p className="text-gray-600 mb-4">
-                           Share this property with friends and family
-                         </p>
-                       </div>
-           
-                       {/* Link Input */}
-                       <div className="relative mb-6">
-                         <input
-                           type="text"
-                           value={referralLink}
-                           readOnly
-                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                           onClick={(e) => e.target.select()}
-                         />
-                         <button
-                           onClick={() => {
-                             navigator.clipboard.writeText(referralLink);
-                             toast.success("Link copied to clipboard!");
-                           }}
-                           className="absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1 bg-blue-100 text-blue-600 text-xs rounded hover:bg-blue-200 transition-colors"
-                         >
-                           Copy
-                         </button>
-                       </div>
-           
-                       {/* Social Share Buttons (Optional) */}
-                       <div className="flex justify-center space-x-4 mb-6">
-                         <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
-                           <FaFacebook className="text-blue-600" />
-                         </button>
-                         <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
-                           <FaTwitter className="text-blue-400" />
-                         </button>
-                         <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
-                           <FaWhatsapp className="text-green-500" />
-                         </button>
-                       </div>
-           
-                       {/* Action Buttons */}
-                       <div className="flex justify-center">
-                         <button
-                           onClick={() => setShowShareModal(false)}
-                           className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all"
-                         >
-                           Close
-                         </button>
-                       </div>
-                     </div>
-                   </div>
-                 )}
+            {showShareModal && (
+                <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white p-6 rounded-xl max-w-md w-full relative shadow-xl animate-fade-in">
+                        {/* Close Button */}
+                        <button
+                            onClick={() => setShowShareModal(false)}
+                            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
+                        >
+                            <FaTimes className="text-lg" />
+                        </button>
+
+                        {/* Modal Content */}
+                        <div className="text-center mb-6">
+                            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
+                                <svg
+                                    className="h-6 w-6 text-blue-600"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                                    />
+                                </svg>
+                            </div>
+
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Share Property</h3>
+                            <p className="text-gray-600 mb-4">
+                                Share this property with friends and family
+                            </p>
+                        </div>
+
+                        {/* Link Input */}
+                        <div className="relative mb-6">
+                            <input
+                                type="text"
+                                value={referralLink}
+                                readOnly
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                onClick={(e) => e.target.select()}
+                            />
+                            <button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(referralLink);
+                                    toast.success("Link copied to clipboard!");
+                                }}
+                                className="absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1 bg-blue-100 text-blue-600 text-xs rounded hover:bg-blue-200 transition-colors"
+                            >
+                                Copy
+                            </button>
+                        </div>
+
+                        {/* Social Share Buttons (Optional) */}
+                        <div className="flex justify-center space-x-4 mb-6">
+                            <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                                <FaFacebook className="text-blue-600" />
+                            </button>
+                            <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                                <FaTwitter className="text-blue-400" />
+                            </button>
+                            <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                                <FaWhatsapp className="text-green-500" />
+                            </button>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex justify-center">
+                            <button
+                                onClick={() => setShowShareModal(false)}
+                                className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Property Details Container */}
             <div className="p-6">

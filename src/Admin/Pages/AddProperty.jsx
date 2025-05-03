@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Upload, Plus } from 'lucide-react'; 
+import { MapPin, Upload, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { addProperty } from '../../services/allApi/adminAllApis';
 import { toast, ToastContainer } from "react-toastify";
@@ -14,16 +14,17 @@ const AddProperty = () => {
     property_type: '',
     property_price: '',
     area: '',
-    whatsNearby: '',
+    whats_nearby: '',
     buildIn: '',
     cent: '',
-    maxRooms: '',
+    maxrooms: '',
     beds: '',
     baths: '',
     description: '',
     address: '',
-    zipCode: '',
-    coordinates: ''
+    zipcode: '',
+    coordinates: '',
+    // locationmark:''
   });
   const [longitude, setLongitude] = useState('');
   const [latitude, setLatitude] = useState('');
@@ -32,22 +33,35 @@ const AddProperty = () => {
   const [noteTitle, setNoteTitle] = useState('');
 
   const handleFileChange = (e) => {
-    if (e.target.files) {
-      setFiles([...files, ...Array.from(e.target.files)]);
+    if (e.target.files && e.target.files.length > 0) {
+      const newFiles = Array.from(e.target.files);
+      setFiles(prevFiles => [...prevFiles, ...newFiles]);
     }
   };
+  const [coordinates, setCoordinates] = useState({
+    latitude: '',
+    longitude: ''
+  });
 
   const handleUseCurrentLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setLatitude(position.coords.latitude.toString());
-          setLongitude(position.coords.longitude.toString());
+          const lat = position.coords.latitude.toString();
+          const lng = position.coords.longitude.toString();
+
+          setCoordinates({
+            latitude: lat,
+            longitude: lng
+          });
         },
         (error) => {
           console.error("Error getting location:", error);
+          toast.error("Failed to get current location");
         }
       );
+    } else {
+      toast.error("Geolocation is not supported by this browser");
     }
   };
 
@@ -59,39 +73,54 @@ const AddProperty = () => {
     }));
   };
 
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     // Validate required fields
-    if (!formData.property_type || !formData.property_price || !formData.area || !formData.address || !formData.zipCode) {
+    if (!formData.property_type || !formData.property_price || !formData.area || !formData.address || !formData.zipcode) {
       toast.error("Required fields are missing");
       return;
     }
-  
-    // Make sure latitude and longitude are available
-    if (!latitude || !longitude) {
+
+    // Make sure coordinates are available
+    if (!coordinates.latitude || !coordinates.longitude) {
       toast.error("Coordinates not available.");
       return;
     }
-  
-    // Prepare property data
-    const propertyData = {
-      ...formData,
-      coordinates: `${latitude},${longitude}`,
-    };
-  
-    // Add files (photos) to the property data
-    if (files.length > 0) {
-      propertyData.files = files;
-    }
-  
-    try {
 
-      const response = await addProperty(propertyData);
-  
+    // Prepare FormData
+    const formDataToSend = new FormData();
+
+    // Append all form data
+    Object.entries(formData).forEach(([key, value]) => {
+      formDataToSend.append(key, value);
+    });
+
+    // Append coordinates as a structured object
+    formDataToSend.append('coordinates', JSON.stringify({
+      latitude: coordinates.latitude,
+      longitude: coordinates.longitude
+    }));
+
+    // Append files
+    files.forEach((file) => {
+      formDataToSend.append('photos', file);
+    });
+
+    // Append private note
+    if (noteTitle || privateNote) {
+      formDataToSend.append('private_note[heading]', noteTitle);
+      formDataToSend.append('private_note[title]', privateNote);
+    }
+
+
+    try {
+      const response = await addProperty(formDataToSend);
+
       if (response && response.data) {
         toast.success("Property added successfully!");
-
         setTimeout(() => {
           navigate('/admin/view-property');
         }, 1000);
@@ -100,9 +129,9 @@ const AddProperty = () => {
       }
     } catch (error) {
       console.error("Error while adding property:", error.message || error);
+      toast.error(error.response?.data?.message || "Failed to add property");
     }
   };
-
 
   return (
     <div className="p-4 bg-blue-100 min-h-screen">
@@ -167,10 +196,10 @@ const AddProperty = () => {
               <label className="block text-sm font-medium mb-2">What's nearby</label>
               <input
                 type="text"
-                name="whatsNearby"
+                name="whats_nearby"
                 placeholder="School, Hospital, House"
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.whatsNearby}
+                value={formData.whats_nearby}
                 onChange={handleChange}
               />
             </div>
@@ -194,7 +223,7 @@ const AddProperty = () => {
               <input
                 type="text"
                 name="cent"
-                placeholder="Palakkad"
+                placeholder="5 Cent"
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={formData.cent}
                 onChange={handleChange}
@@ -206,10 +235,10 @@ const AddProperty = () => {
               <label className="block text-sm font-medium mb-2">Max Rooms</label>
               <input
                 type="text"
-                name="maxRooms"
+                name="maxrooms"
                 placeholder="5"
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.maxRooms}
+                value={formData.maxrooms}
                 onChange={handleChange}
               />
             </div>
@@ -272,10 +301,10 @@ const AddProperty = () => {
               <label className="block text-sm font-medium mb-2">Zip code</label>
               <input
                 type="text"
-                name="zipCode"
+                name="zipcode"
                 placeholder="Add your pincode"
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.zipCode}
+                value={formData.zipcode}
                 onChange={handleChange}
               />
             </div>
@@ -289,8 +318,8 @@ const AddProperty = () => {
                 <MapPin className="mx-auto mb-2 text-gray-500" />
                 <p className="text-gray-500 font-medium">Choose Property location</p>
                 <p className="text-gray-400 my-1">or</p>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={handleUseCurrentLocation}
                   className="mt-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-sm transition-colors"
                 >
@@ -305,16 +334,15 @@ const AddProperty = () => {
             <label className="block text-sm font-medium text-gray-700 mb-2">Coordinates</label>
             <input
               type="text"
-              value={longitude}
-              onChange={(e) => setLongitude(e.target.value)}
+              value={coordinates.longitude}
+              onChange={(e) => setCoordinates(prev => ({ ...prev, longitude: e.target.value }))}
               placeholder="Add your longitude"
               className="w-full p-2 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <div className="text-center my-2 text-gray-400">or</div>
             <input
               type="text"
-              value={latitude}
-              onChange={(e) => setLatitude(e.target.value)}
+              value={coordinates.latitude}
+              onChange={(e) => setCoordinates(prev => ({ ...prev, latitude: e.target.value }))}
               placeholder="Add your latitude"
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -325,9 +353,9 @@ const AddProperty = () => {
             <label className="block text-sm font-medium text-gray-700 mb-2">Photos</label>
             <div className="grid md:grid-cols-3 gap-4">
               <div className="border-2 border-dashed border-gray-300 rounded-md p-6 flex items-center justify-center bg-gray-50 col-span-2">
-                <input 
-                  type="file" 
-                  multiple 
+                <input
+                  type="file"
+                  multiple
                   onChange={handleFileChange}
                   className="hidden"
                   id="file-upload"
@@ -337,14 +365,25 @@ const AddProperty = () => {
                   <p className="mt-2 text-sm text-gray-600">Drop files here or click to upload.</p>
                 </label>
               </div>
-              
+
               <div className="flex flex-col space-y-2">
                 {files.map((file, index) => (
-                  <div key={index} className="p-3 border border-gray-200 rounded-md text-gray-400 text-sm hover:bg-gray-50">
-                    {file.name}
+                  <div key={index} className="flex items-center justify-between p-3 border border-gray-200 rounded-md text-gray-400 text-sm hover:bg-gray-50">
+                    <span>{file.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newFiles = [...files];
+                        newFiles.splice(index, 1);
+                        setFiles(newFiles);
+                      }}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      ×
+                    </button>
                   </div>
                 ))}
-                <button 
+                <button
                   type="button"
                   onClick={() => document.getElementById('file-upload').click()}
                   className="p-3 border border-gray-200 rounded-md text-gray-400 text-sm flex items-center justify-center hover:bg-gray-50"
@@ -356,9 +395,10 @@ const AddProperty = () => {
           </div>
 
           {/* Private note */}
+          {/* Private note */}
           <div className="mt-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Private note <span className="text-red-500">*</span>
+              Private note
             </label>
             <input
               type="text"
@@ -367,20 +407,13 @@ const AddProperty = () => {
               placeholder="Heading"
               className="w-full p-3 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <input
-            type="text"
+            <textarea
               value={privateNote}
               onChange={(e) => setPrivateNote(e.target.value)}
-              placeholder="Title"
+              placeholder="Note content"
               className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows={4}
             />
-            <button 
-              type="button"
-              className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors mt-2"
-            >
-              Add more
-            </button>
           </div>
 
           {/* Submit Button */}
@@ -394,8 +427,8 @@ const AddProperty = () => {
           </div>
         </form>
       </div>
-            <ToastContainer position="top-right" autoClose={3000} />
-      
+      <ToastContainer position="top-right" autoClose={3000} />
+
     </div>
   );
 };
