@@ -1,6 +1,5 @@
 import axios from "axios";
 import { BASE_URL } from "../baseUrl";
-import { toast } from "react-toastify";
 
 export const AdminLogin = async (email, password) => {
   try {
@@ -15,9 +14,7 @@ export const AdminLogin = async (email, password) => {
   }
 };
 
-
-//addproperty
-
+// add property
 export const addProperty = async (formData) => {
   try {
     const token = localStorage.getItem('admintoken');
@@ -31,7 +28,6 @@ export const addProperty = async (formData) => {
         },
       }
     );
-    
     return response.data;
   } catch (error) {
     console.error("API Error:", error);
@@ -39,10 +35,8 @@ export const addProperty = async (formData) => {
   }
 };
 
-
-//getAllProperties
-
-export const getAllProperties = async()=>{
+// get all properties
+export const getAllProperties = async () => {
   try {
     const token = localStorage.getItem('admintoken'); 
     const response = await axios.get(`${BASE_URL}/admin/property/get`, {
@@ -60,8 +54,7 @@ export const getAllProperties = async()=>{
     alert('Fetching Error: ' + error.message);
     return []; 
   }
-
-}
+};
 
 // delete property
 export const deletePropertyAPI = async (id) => {
@@ -72,15 +65,26 @@ export const deletePropertyAPI = async (id) => {
         Authorization: `Bearer ${token}`
       }
     });
-
     return response;
   } catch (error) {
     console.log(error);
   }
-}
+};
 
-
-// edit property
+// edit property (you probably meant PATCH or PUT, not "edit" method)
+export const EditPropertyAPI = async (id, updateData) => {
+  try {
+    const token = localStorage.getItem('admintoken');
+    const response = await axios.patch(`${BASE_URL}/admin/property/edit/${id}`, updateData, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 // get home loan enquiries
 export const getLoanEnquiries = async () => {
@@ -95,9 +99,9 @@ export const getLoanEnquiries = async () => {
   } catch (error) {
     console.log(error);
   }
-}
+};
 
-// delete property
+// get user list
 export const getUserList = async () => {
   try {
     const token = localStorage.getItem('admintoken'); 
@@ -110,4 +114,4 @@ export const getUserList = async () => {
   } catch (error) {
     console.log(error);
   }
-}
+};
