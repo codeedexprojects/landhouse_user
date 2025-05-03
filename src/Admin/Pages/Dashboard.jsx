@@ -18,6 +18,7 @@ import CreateCouponForm from './AddCoupon';
 import AdminLogin from './AdminLogin';
 import MessageList from './Messages';
 import Affiliates from './Affiliates';
+import EditProperty from './EditProperty';
 
 function MainDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -64,6 +65,7 @@ function MainDashboard() {
             <Route path="/create-coupon" element={<CreateCouponForm />} />
             <Route path="/messages" element={<MessageList />} />
             <Route path="/affiliates" element={<Affiliates />} />
+            <Route path="/edit-property" element={<EditProperty />} />
 
             <Route path="*" element={<Navigate to="/admin/dashboard" />} />
           </Routes>

@@ -1,35 +1,37 @@
-import React, { useState } from 'react';
-import { MapPin, Upload, Plus } from 'lucide-react'; 
-import { useNavigate } from 'react-router-dom';
-import { addProperty } from '../../services/allApi/adminAllApis';
+import React, { useState } from "react";
+import { MapPin, Upload, Plus } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { addProperty } from "../../services/allApi/adminAllApis";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
-const AddProperty = () => {
-
-  const navigate = useNavigate()
-
+const EditProperty = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const property = location.state?.property;
+  console.log(property);
+  
   const [formData, setFormData] = useState({
-    property_type: '',
-    property_price: '',
-    area: '',
-    whatsNearby: '',
-    buildIn: '',
-    cent: '',
-    maxRooms: '',
-    beds: '',
-    baths: '',
-    description: '',
-    address: '',
-    zipCode: '',
-    coordinates: ''
+    property_type: property?.property_type,
+    property_price: property?.property_price,
+    area: property?.area,
+    whatsNearby: property?.whats_nearby,
+    buildIn: property?.buildIn,
+    cent: property?.cent,
+    maxRooms: property?.maxrooms,
+    beds: property?.beds,
+    baths: property?.baths,
+    description: property?.description,
+    address: property?.address,
+    zipCode: property?.zipcode,
+    coordinates:"",
   });
-  const [longitude, setLongitude] = useState('');
-  const [latitude, setLatitude] = useState('');
+
+  const [longitude, setLongitude] = useState("");
+  const [latitude, setLatitude] = useState("");
   const [files, setFiles] = useState([]);
-  const [privateNote, setPrivateNote] = useState('');
-  const [noteTitle, setNoteTitle] = useState('');
+  const [privateNote, setPrivateNote] = useState("");
+  const [noteTitle, setNoteTitle] = useState("");
 
   const handleFileChange = (e) => {
     if (e.target.files) {
@@ -53,55 +55,12 @@ const AddProperty = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-  
-    // Validate required fields
-    if (!formData.property_type || !formData.property_price || !formData.area || !formData.address || !formData.zipCode) {
-      toast.error("Required fields are missing");
-      return;
-    }
-  
-    // Make sure latitude and longitude are available
-    if (!latitude || !longitude) {
-      toast.error("Coordinates not available.");
-      return;
-    }
-  
-    // Prepare property data
-    const propertyData = {
-      ...formData,
-      coordinates: `${latitude},${longitude}`,
-    };
-  
-    // Add files (photos) to the property data
-    if (files.length > 0) {
-      propertyData.files = files;
-    }
-  
-    try {
-
-      const response = await addProperty(propertyData);
-  
-      if (response && response.data) {
-        toast.success("Property added successfully!");
-
-        setTimeout(() => {
-          navigate('/admin/view-property');
-        }, 1000);
-      } else {
-        toast.error("No data received in response");
-      }
-    } catch (error) {
-      console.error("Error while adding property:", error.message || error);
-    }
-  };
 
 
   return (
@@ -111,21 +70,23 @@ const AddProperty = () => {
         <div className="flex items-center text-sm text-gray-500">
           <span>property</span>
           <span className="mx-2">/</span>
-          <span className="text-blue-500">Add property</span>
+          <span className="text-blue-500">Edit property</span>
         </div>
       </div>
 
       {/* Form Card */}
       <div className="bg-white rounded-md shadow-sm">
         <div className="p-4 border-b border-gray-200">
-          <h1 className="text-xl font-medium">Add Property</h1>
+          <h1 className="text-xl font-medium">Edit Property</h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4">
+        <form className="p-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Property Type */}
             <div>
-              <label className="block text-sm font-medium mb-2">Property Type</label>
+              <label className="block text-sm font-medium mb-2">
+                Property Type
+              </label>
               <input
                 type="text"
                 name="property_type"
@@ -138,7 +99,9 @@ const AddProperty = () => {
 
             {/* Property Price */}
             <div>
-              <label className="block text-sm font-medium mb-2">Property Price</label>
+              <label className="block text-sm font-medium mb-2">
+                Property Price
+              </label>
               <input
                 type="text"
                 name="property_price"
@@ -164,7 +127,9 @@ const AddProperty = () => {
 
             {/* What's nearby */}
             <div>
-              <label className="block text-sm font-medium mb-2">What's nearby</label>
+              <label className="block text-sm font-medium mb-2">
+                What's nearby
+              </label>
               <input
                 type="text"
                 name="whatsNearby"
@@ -203,7 +168,9 @@ const AddProperty = () => {
 
             {/* Max Rooms */}
             <div>
-              <label className="block text-sm font-medium mb-2">Max Rooms</label>
+              <label className="block text-sm font-medium mb-2">
+                Max Rooms
+              </label>
               <input
                 type="text"
                 name="maxRooms"
@@ -243,7 +210,9 @@ const AddProperty = () => {
 
           {/* Description */}
           <div className="mt-6">
-            <label className="block text-sm font-medium mb-2">Description</label>
+            <label className="block text-sm font-medium mb-2">
+              Description
+            </label>
             <textarea
               name="description"
               rows={5}
@@ -283,14 +252,18 @@ const AddProperty = () => {
 
           {/* Location mark */}
           <div className="mt-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Location mark</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Location mark
+            </label>
             <div className="bg-gray-100 h-64 rounded-md flex items-center justify-center">
               <div className="text-center p-4">
                 <MapPin className="mx-auto mb-2 text-gray-500" />
-                <p className="text-gray-500 font-medium">Choose Property location</p>
+                <p className="text-gray-500 font-medium">
+                  Choose Property location
+                </p>
                 <p className="text-gray-400 my-1">or</p>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={handleUseCurrentLocation}
                   className="mt-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-sm transition-colors"
                 >
@@ -302,7 +275,9 @@ const AddProperty = () => {
 
           {/* Coordinates */}
           <div className="mt-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Coordinates</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Coordinates
+            </label>
             <input
               type="text"
               value={longitude}
@@ -322,31 +297,41 @@ const AddProperty = () => {
 
           {/* Photos */}
           <div className="mt-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Photos</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Photos
+            </label>
             <div className="grid md:grid-cols-3 gap-4">
               <div className="border-2 border-dashed border-gray-300 rounded-md p-6 flex items-center justify-center bg-gray-50 col-span-2">
-                <input 
-                  type="file" 
-                  multiple 
+                <input
+                  type="file"
+                  multiple
                   onChange={handleFileChange}
                   className="hidden"
                   id="file-upload"
                 />
-                <label htmlFor="file-upload" className="text-center cursor-pointer">
+                <label
+                  htmlFor="file-upload"
+                  className="text-center cursor-pointer"
+                >
                   <Upload className="mx-auto h-8 w-8 text-gray-400" />
-                  <p className="mt-2 text-sm text-gray-600">Drop files here or click to upload.</p>
+                  <p className="mt-2 text-sm text-gray-600">
+                    Drop files here or click to upload.
+                  </p>
                 </label>
               </div>
-              
+
               <div className="flex flex-col space-y-2">
                 {files.map((file, index) => (
-                  <div key={index} className="p-3 border border-gray-200 rounded-md text-gray-400 text-sm hover:bg-gray-50">
+                  <div
+                    key={index}
+                    className="p-3 border border-gray-200 rounded-md text-gray-400 text-sm hover:bg-gray-50"
+                  >
                     {file.name}
                   </div>
                 ))}
-                <button 
+                <button
                   type="button"
-                  onClick={() => document.getElementById('file-upload').click()}
+                  onClick={() => document.getElementById("file-upload").click()}
                   className="p-3 border border-gray-200 rounded-md text-gray-400 text-sm flex items-center justify-center hover:bg-gray-50"
                 >
                   <Plus size={16} className="mr-1" /> Add More
@@ -368,14 +353,14 @@ const AddProperty = () => {
               className="w-full p-3 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <input
-            type="text"
+              type="text"
               value={privateNote}
               onChange={(e) => setPrivateNote(e.target.value)}
               placeholder="Title"
               className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows={4}
             />
-            <button 
+            <button
               type="button"
               className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors mt-2"
             >
@@ -389,15 +374,14 @@ const AddProperty = () => {
               type="submit"
               className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              Submit
+              Edit
             </button>
           </div>
         </form>
       </div>
-            <ToastContainer position="top-right" autoClose={3000} />
-      
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };
 
-export default AddProperty;
+export default EditProperty;
