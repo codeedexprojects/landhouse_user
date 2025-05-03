@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
-import image from "../../assets/LoginHalf.png"
+import image from "../../assets/LoginHalf.png";
 import { useNavigate } from 'react-router-dom';
+import { sendOtp } from '../../services/allApi/vendorAllAPi';
 
 export default function VendorLogin() {
   const [formData, setFormData] = useState({
     name: '',
-    phoneNumber: '',
+    number: '',
     role: '',
     agreeToTerms: false,
   });
-  const navigate=useNavigate()
-
-  const handleClick=()=>{
-    navigate('/vendor/otp')
-  }
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -23,12 +22,35 @@ export default function VendorLogin() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Handle login logic here
-  };
+    setError('');
+    
+    if (!formData.number || !formData.role) {
+      setError('Phone number and role are required');
+      return;
+    }
+    
+    if (!formData.agreeToTerms) {
+      setError('You must agree to the terms and conditions');
+      return;
+    }
 
+    try {
+      setLoading(true);
+      await sendOtp(formData.number, formData.role);
+      navigate('/vendor/otp', { 
+        state: { 
+          number: formData.number, 
+          role: formData.role 
+        } 
+      });
+    } catch (err) {
+      setError(err.message || 'Failed to send OTP. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="min-h-screen w-full flex">
       {/* Left side - Background Image with logo and text */}
@@ -71,24 +93,21 @@ export default function VendorLogin() {
         <div className="w-full max-w-md">
           <h2 className="text-3xl font-bold mb-8 text-center md:text-left">Login</h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <input
-                type="text"
-                name="name"
-                placeholder="Enter your name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full p-4 bg-blue-50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300"
-              />
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">
+              {error}
             </div>
+          )}
+
+
+          <form onSubmit={handleSubmit} className="space-y-4">
 
             <div>
               <input
                 type="tel"
-                name="phoneNumber"
+                name="number"
                 placeholder="Enter your phone number"
-                value={formData.phoneNumber}
+                value={formData.number}
                 onChange={handleChange}
                 className="w-full p-4 bg-blue-50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300"
               />
@@ -102,9 +121,10 @@ export default function VendorLogin() {
                 className="w-full p-4 bg-blue-50 rounded-md appearance-none focus:outline-none focus:ring-2 focus:ring-blue-300"
               >
                 <option value="" disabled>Select your Role</option>
-                <option value="buyer">Buyer</option>
-                <option value="seller">Seller</option>
-                <option value="agent">Agent</option>
+                <option value="Broker">Broker</option>
+                <option value="Employee">Employee</option>
+                <option value="Developer">Developer</option>
+                <option value="Builder">Builder</option>
               </select>
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                 <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -129,11 +149,11 @@ export default function VendorLogin() {
 
             <div className="pt-4">
               <button
-              onClick={handleClick}
                 type="submit"
-                className="w-full p-4 bg-blue-400 text-white font-medium rounded-md hover:bg-blue-500 transition-colors"
+                disabled={loading}
+                className="w-full p-4 bg-blue-400 text-white font-medium rounded-md hover:bg-blue-500 transition-colors disabled:opacity-50"
               >
-                Continue
+                {loading ? 'Sending...' : 'Continue'}
               </button>
             </div>
           </form>

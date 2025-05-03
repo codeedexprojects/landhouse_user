@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, Upload, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { addProperty } from '../../services/allApi/adminAllApis';
@@ -7,9 +7,9 @@ import "react-toastify/dist/ReactToastify.css";
 
 
 const AddProperty = () => {
+  const navigate = useNavigate();
 
-  const navigate = useNavigate()
-
+  // Consolidated formData without coordinates
   const [formData, setFormData] = useState({
     property_type: '',
     property_price: '',
@@ -23,26 +23,29 @@ const AddProperty = () => {
     description: '',
     address: '',
     zipcode: '',
-    coordinates: '',
-    // locationmark:''
+    // Removed coordinates field from here
   });
-  const [longitude, setLongitude] = useState('');
-  const [latitude, setLatitude] = useState('');
+
+  // Separate state for coordinates
+  const [coordinates, setCoordinates] = useState({
+    latitude: '',
+    longitude: ''
+  });
+
+  // State for files and private notes
   const [files, setFiles] = useState([]);
   const [privateNote, setPrivateNote] = useState('');
   const [noteTitle, setNoteTitle] = useState('');
 
+  // Handle file uploads
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
       const newFiles = Array.from(e.target.files);
       setFiles(prevFiles => [...prevFiles, ...newFiles]);
     }
   };
-  const [coordinates, setCoordinates] = useState({
-    latitude: '',
-    longitude: ''
-  });
 
+  // Handle using current location
   const handleUseCurrentLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -54,6 +57,8 @@ const AddProperty = () => {
             latitude: lat,
             longitude: lng
           });
+          
+          toast.info("Location coordinates obtained successfully");
         },
         (error) => {
           console.error("Error getting location:", error);
@@ -65,6 +70,7 @@ const AddProperty = () => {
     }
   };
 
+  // Handle form field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -73,10 +79,19 @@ const AddProperty = () => {
     }));
   };
 
+  // Handle coordinate field changes
+  const handleCoordinateChange = (e) => {
+    const { name, value } = e.target;
+    setCoordinates(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
-
+  // Form submission handler
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Form submission started");
 
     // Validate required fields
     if (!formData.property_type || !formData.property_price || !formData.area || !formData.address || !formData.zipcode) {
@@ -86,7 +101,7 @@ const AddProperty = () => {
 
     // Make sure coordinates are available
     if (!coordinates.latitude || !coordinates.longitude) {
-      toast.error("Coordinates not available.");
+      toast.error("Location coordinates not available. Please set your coordinates.");
       return;
     }
 
@@ -98,11 +113,12 @@ const AddProperty = () => {
       formDataToSend.append(key, value);
     });
 
-    // Append coordinates as a structured object
-    formDataToSend.append('coordinates', JSON.stringify({
-      latitude: coordinates.latitude,
-      longitude: coordinates.longitude
-    }));
+    // IMPORTANT: Match exactly how Postman sends coordinates
+    // Method 1: Try sending as a JSON string exactly as shown in your successful example
+    formDataToSend.append('coordinates[latitude]', coordinates.latitude);
+    formDataToSend.append('coordinates[longitude]', coordinates.longitude);
+    
+    console.log("Coordinates being sent:", coordinates.latitude, coordinates.longitude);
 
     // Append files
     files.forEach((file) => {
@@ -115,20 +131,29 @@ const AddProperty = () => {
       formDataToSend.append('private_note[title]', privateNote);
     }
 
+    // Debug what's being sent
+    console.log("Form data being sent:");
+    for (let [key, value] of formDataToSend.entries()) {
+      console.log(key, ":", typeof value === 'object' ? 'File or Object' : value);
+    }
 
     try {
+      toast.info("Submitting property data...");
       const response = await addProperty(formDataToSend);
 
       if (response && response.data) {
+        console.log("Success response:", response.data);
         toast.success("Property added successfully!");
         setTimeout(() => {
           navigate('/admin/view-property');
         }, 1000);
       } else {
+        console.error("Empty response received");
         toast.error("No data received in response");
       }
     } catch (error) {
-      console.error("Error while adding property:", error.message || error);
+      console.error("Error while adding property:", error);
+      console.error("Error details:", error.response?.data);
       toast.error(error.response?.data?.message || "Failed to add property");
     }
   };
@@ -332,20 +357,40 @@ const AddProperty = () => {
           {/* Coordinates */}
           <div className="mt-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">Coordinates</label>
-            <input
-              type="text"
-              value={coordinates.longitude}
-              onChange={(e) => setCoordinates(prev => ({ ...prev, longitude: e.target.value }))}
-              placeholder="Add your longitude"
-              className="w-full p-2 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="text"
-              value={coordinates.latitude}
-              onChange={(e) => setCoordinates(prev => ({ ...prev, latitude: e.target.value }))}
-              placeholder="Add your latitude"
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs text-gray-500 mb-1 block">Longitude</label>
+                <input
+                  type="text"
+                  name="longitude"
+                  value={coordinates.longitude}
+                  onChange={handleCoordinateChange}
+                  placeholder="Add your longitude"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 mb-1 block">Latitude</label>
+                <input
+                  type="text"
+                  name="latitude"
+                  value={coordinates.latitude}
+                  onChange={handleCoordinateChange}
+                  placeholder="Add your latitude"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            {/* Coordinates status */}
+            {coordinates.latitude && coordinates.longitude ? (
+              <div className="mt-2 text-sm text-green-600">
+                Location coordinates set: [{coordinates.latitude}, {coordinates.longitude}]
+              </div>
+            ) : (
+              <div className="mt-2 text-sm text-orange-500">
+                No coordinates set. Please use current location or enter manually.
+              </div>
+            )}
           </div>
 
           {/* Photos */}
@@ -395,7 +440,6 @@ const AddProperty = () => {
           </div>
 
           {/* Private note */}
-          {/* Private note */}
           <div className="mt-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Private note
@@ -428,7 +472,6 @@ const AddProperty = () => {
         </form>
       </div>
       <ToastContainer position="top-right" autoClose={3000} />
-
     </div>
   );
 };

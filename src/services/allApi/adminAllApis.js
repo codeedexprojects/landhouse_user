@@ -111,3 +111,82 @@ export const getUserList = async () => {
     console.log(error);
   }
 }
+
+export const addVendor = async (reqBody) => {
+  try {
+    const token = localStorage.getItem('admintoken'); 
+    const response = await axios.post(`${BASE_URL}/admin/vendor/register`, reqBody,{
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export const getVendors = async () => {
+  try {
+    const token = localStorage.getItem('admintoken'); 
+    const response = await axios.get(`${BASE_URL}/admin/vendor/get`,{
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export const getReferrals = async () => {
+  try {
+    const token = localStorage.getItem('admintoken'); 
+    const response = await axios.get(`${BASE_URL}/admin/user/referrals`,{
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export const approveVendor = async (vendorId) => {
+  try {
+    const token = localStorage.getItem('admintoken');
+    const response = await axios.post(
+      `${BASE_URL}/admin/vendor/approve/${vendorId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error approving vendor:', error);
+    throw error;
+  }
+};
+
+export const rejectVendor = async (vendorId) => {
+  try {
+    const token = localStorage.getItem('admintoken');
+    const response = await axios.delete(
+      `${BASE_URL}/${vendorId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error rejecting vendor:', error);
+    throw error;
+  }
+};

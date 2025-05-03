@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { addVendor } from '../../services/allApi/adminAllApis';
 
 export default function AddAgentForm() {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    role: 'Employee',
+    role: '',  // No default role
     location: ''
   });
 
@@ -17,9 +18,31 @@ export default function AddAgentForm() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+
+    const reqBody = {
+      name: formData.name,
+      number: formData.phone,    // phone → number
+      role: formData.role,
+      city: formData.location    // location → city
+    };
+
+    try {
+      const response = await addVendor(reqBody);
+      console.log('Vendor added:', response.data);
+      alert('Vendor added successfully!');
+      // Optionally, reset form:
+      setFormData({
+        name: '',
+        phone: '',
+        role: '', // Clear the role field
+        location: ''
+      });
+    } catch (error) {
+      console.error('Error adding vendor:', error);
+      alert('Failed to add vendor. Check console for details.');
+    }
   };
 
   return (
@@ -30,7 +53,7 @@ export default function AddAgentForm() {
           <span>property</span>
           <span className="mx-2">/</span>
           <span className="text-blue-500">Add agent</span>
-          
+
           <div className="ml-auto">
             <div className="bg-gray-800 rounded-full w-8 h-8 flex items-center justify-center overflow-hidden">
               <img src="/api/placeholder/32/32" alt="User profile" className="w-full h-full object-cover" />
@@ -83,9 +106,11 @@ export default function AddAgentForm() {
                   onChange={handleChange}
                   className="w-full p-3 border border-gray-200 rounded-md appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
+                  <option value="">Select a role</option> {/* No default role */}
+                  <option value="Broker">Broker</option>
                   <option value="Employee">Employee</option>
-                  <option value="Manager">Manager</option>
-                  <option value="Admin">Admin</option>
+                  <option value="Developer">Developer</option>
+                  <option value="Builder">Builder</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
                   <ChevronDown className="w-4 h-4 text-gray-500" />

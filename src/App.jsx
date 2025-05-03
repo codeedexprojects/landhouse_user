@@ -20,6 +20,7 @@ import VerifyNumber from './Vendor/Pages/VerifyOTP'
 import WaitingApproval from './Vendor/Pages/WaitingApprovel'
 import AccessGranted from './Vendor/Pages/AccessGranted'
 import AccessDeclined from './Vendor/Pages/AccessDeclined'
+import VendorRegister from './Vendor/Pages/vendorRegister'
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
         {/* Vendor Panle */}
         <Route path="/vendor/*" element={<MainVendorDashboard />} />
         <Route path="/vendor/login" element={<VendorLogin />} />
+        <Route path="/vendor/register" element={<VendorRegister />} />
         <Route path="/vendor/otp" element={<VerifyNumber />} />
         <Route path="/vendor/approval" element={<WaitingApproval />} />
         <Route path="/vendor/access-granted" element={<AccessGranted />} />
