@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { MapPin, Upload, Plus } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { addProperty, EditPropertyAPI } from "../../services/allApi/adminAllApis";
+import {
+  addProperty,
+  EditPropertyAPI,
+} from "../../services/allApi/adminAllApis";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -9,8 +12,7 @@ const EditProperty = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const property = location.state?.property;
-  console.log(property);
-  
+
   const [formData, setFormData] = useState({
     property_type: property?.property_type,
     property_price: property?.property_price,
@@ -18,20 +20,17 @@ const EditProperty = () => {
     whatsNearby: property?.whats_nearby,
     buildIn: property?.buildIn,
     cent: property?.cent,
-    maxRooms: property?.maxrooms,
+    maxrooms: property?.maxrooms,
     beds: property?.beds,
     baths: property?.baths,
     description: property?.description,
     address: property?.address,
     zipCode: property?.zipcode,
-    coordinates:"",
+    coordinates: property?.coordinates,
+    private_note: property?.private_note,
   });
 
-  const [longitude, setLongitude] = useState("");
-  const [latitude, setLatitude] = useState("");
   const [files, setFiles] = useState([]);
-  const [privateNote, setPrivateNote] = useState("");
-  const [noteTitle, setNoteTitle] = useState("");
 
   const handleFileChange = (e) => {
     if (e.target.files) {
@@ -43,14 +42,31 @@ const EditProperty = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setLatitude(position.coords.latitude.toString());
-          setLongitude(position.coords.longitude.toString());
+          setFormData((prev) => ({
+            ...prev,
+            coordinates: {
+              ...prev.coordinates,
+              latitude: position.coords.latitude.toString(),
+              longitude: position.coords.longitude.toString(),
+            },
+          }));
         },
         (error) => {
           console.error("Error getting location:", error);
         }
       );
     }
+  };
+
+  const handlePrivateNoteChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      private_note: {
+        ...prev.private_note,
+        [name]: value,
+      },
+    }));
   };
 
   const handleChange = (e) => {
@@ -61,25 +77,50 @@ const EditProperty = () => {
     }));
   };
 
-
-  const handleEdit =async (id) =>{
-    try{
-      const response = await EditPropertyAPI(id)
-      console.log(response);
-
-      if(response.status === 200){
-        toast.success('updated successfully')
+  const handleEdit = async (e) => {
+    e.preventDefault();
+  
+    try {
+      // const payload = new FormData();
+  
+      // payload.append("property_type", formData.property_type);
+      // payload.append("property_price", formData.property_price);
+      // payload.append("area", formData.area);
+      // payload.append("whats_nearby", formData.whatsNearby);
+      // payload.append("buildIn", formData.buildIn);
+      // payload.append("cent", formData.cent);
+      // payload.append("maxrooms", formData.maxRooms);
+      // payload.append("beds", formData.beds);
+      // payload.append("baths", formData.baths);
+      // payload.append("description", formData.description);
+      // payload.append("address", formData.address);
+      // payload.append("zipcode", formData.zipCode);
+      // payload.append("coordinates[latitude]", formData.coordinates?.latitude || "");
+      // payload.append("coordinates[longitude]", formData.coordinates?.longitude || "");
+      // payload.append("private_note[heading]", formData.private_note?.heading || "");
+      // payload.append("private_note[title]", formData.private_note?.title || "");
+  
+      // files.forEach((file) => {
+      //   payload.append("images", file);
+      // });
+  
+      const response = await EditPropertyAPI(property._id, formData);
+  
+      if (response?.data?.success) {
+        toast.success("Property updated successfully!");
         setTimeout(() => {
-          navigate('/admin/view-property');
+          navigate("/admin/view-property");
         }, 2000);
+      } else {
+        toast.error("Failed to update property.");
       }
-      
-    }catch(error){
-      toast.error('something went wrong')
+    } catch (error) {
+      console.error("Edit error:", error);
+      toast.error(error.message || "An error occurred while updating.");
     }
-
-  }
-
+  };
+  
+  console.log(property);
 
   return (
     <div className="p-4 bg-blue-100 min-h-screen">
@@ -98,7 +139,7 @@ const EditProperty = () => {
           <h1 className="text-xl font-medium">Edit Property</h1>
         </div>
 
-        <form className="p-4" >
+        <form className="p-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Property Type */}
             <div>
@@ -191,10 +232,10 @@ const EditProperty = () => {
               </label>
               <input
                 type="text"
-                name="maxRooms"
+                name="maxrooms"
                 placeholder="5"
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.maxRooms}
+                value={formData.maxrooms}
                 onChange={handleChange}
               />
             </div>
@@ -298,18 +339,34 @@ const EditProperty = () => {
             </label>
             <input
               type="text"
-              value={longitude}
-              onChange={(e) => setLongitude(e.target.value)}
-              placeholder="Add your longitude"
-              className="w-full p-2 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              name="longitude"
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData?.coordinates?.longitude || ""}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  coordinates: {
+                    ...prev.coordinates,
+                    longitude: e.target.value,
+                  },
+                }))
+              }
             />
             <div className="text-center my-2 text-gray-400">or</div>
             <input
               type="text"
-              value={latitude}
-              onChange={(e) => setLatitude(e.target.value)}
-              placeholder="Add your latitude"
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              name="latitude"
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData?.coordinates?.latitude || ""}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  coordinates: {
+                    ...prev.coordinates,
+                    latitude: e.target.value,
+                  },
+                }))
+              }
             />
           </div>
 
@@ -365,18 +422,17 @@ const EditProperty = () => {
             </label>
             <input
               type="text"
-              value={noteTitle}
-              onChange={(e) => setNoteTitle(e.target.value)}
-              placeholder="Heading"
+              name="heading"
               className="w-full p-3 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData?.private_note?.heading || ""}
+              onChange={handlePrivateNoteChange}
             />
             <input
               type="text"
-              value={privateNote}
-              onChange={(e) => setPrivateNote(e.target.value)}
-              placeholder="Title"
+              name="title"
               className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              rows={4}
+              value={formData?.private_note?.title || ""}
+              onChange={handlePrivateNoteChange}
             />
             <button
               type="button"
@@ -389,11 +445,10 @@ const EditProperty = () => {
           {/* Submit Button */}
           <div className="mt-8 flex justify-end">
             <button
-              type="submit"
               className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onClick={handleEdit}
+              onClick={(e) => handleEdit(e, property?._id)}
             >
-              Edit
+              Save
             </button>
           </div>
         </form>
