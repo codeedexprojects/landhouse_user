@@ -34,20 +34,19 @@ function PropertyDetails() {
       console.log(response);
 
       if (response.status === 200) {
-        toast.success('item Deleted successfully!');
+        toast.success("item Deleted successfully!");
         setTimeout(() => {
-          navigate('/admin/view-property');
+          navigate("/admin/view-property");
         }, 2000);
       }
     } catch (error) {
-      toast.error('Something went wrong!')
+      toast.error("Something went wrong!");
     }
-  }
+  };
 
   const handleEdit = (property) => {
-   
-    navigate('/admin/edit-property', { state: { property } });
-  }
+    navigate("/admin/edit-property", { state: { property } });
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
@@ -91,9 +90,15 @@ function PropertyDetails() {
             </h2>
 
             <div className="flex gap-2">
-              <button className="bg-blue-400 text-white px-4 py-1 rounded-md text-sm">
-                {property?.soldOut}
-              </button>
+              {property?.soldOut ? (
+                <button className="bg-red-500 text-white px-4 py-1 rounded-md text-sm">
+                  Sold Out
+                </button>
+              ) : (
+                <button className="bg-green-500 text-white px-4 py-1 rounded-md text-sm">
+                  Available
+                </button>
+              )}
               <button
                 onClick={() => handleDelete(property?._id)}
                 className="p-2 bg-gray-200 rounded-md text-gray-600 cursor-pointer"

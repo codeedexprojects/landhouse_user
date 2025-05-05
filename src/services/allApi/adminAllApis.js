@@ -73,11 +73,13 @@ export const deletePropertyAPI = async (id) => {
 
 // edit property
 export const EditPropertyAPI = async (id, updateData) => {
+  
   try {
     const token = localStorage.getItem('admintoken');
-    const response = await axios.patch(`${BASE_URL}/admin/property/edit/${id}`, updateData, {
+    const response = await axios.patch(`${BASE_URL}/admin/property/update/${id}`, updateData, {
       headers: {
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
       }
     });
     return response;
