@@ -12,7 +12,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { deletePropertyAPI } from "../../services/allApi/adminAllApis";
 import { Edit } from "lucide-react";
 
-
 function PropertyDetails() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -32,6 +31,16 @@ function PropertyDetails() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [selectedPropertyId, setSelectedPropertyId] = useState(null);
 
+  const [showSoldOutModal, setShowSoldOutModal] = useState(false);
+
+
+  const handleSoldOutConfirmation = () => {
+    // In real-world apps, you would also update the backend here
+    property.soldOut = true;
+    toast.success("Property marked as Sold Out!");
+    setShowSoldOutModal(false);
+  };
+
   const confirmDelete = async () => {
     try {
       const response = await deletePropertyAPI(selectedPropertyId);
@@ -47,7 +56,7 @@ function PropertyDetails() {
       setShowConfirmModal(false);
     }
   };
-  
+
   const cancelDelete = () => {
     setSelectedPropertyId(null);
     setShowConfirmModal(false);
@@ -99,15 +108,16 @@ function PropertyDetails() {
             </h2>
 
             <div className="flex gap-2">
-              {property?.soldOut ? (
-                <button className="bg-red-500 text-white px-4 py-1 rounded-md text-sm">
-                  Sold Out
-                </button>
-              ) : (
-                <button className="bg-green-500 text-white px-4 py-1 rounded-md text-sm">
-                  Available
-                </button>
-              )}
+              <button
+                onClick={() => setShowSoldOutModal(true)}
+                className={`px-4 py-1 rounded-md text-sm ${
+                  property?.soldOut
+                    ? "bg-red-500 text-white"
+                    : "bg-green-500 text-white"
+                }`}
+              >
+                {property?.soldOut ? "Sold Out" : "Mark as Sold Out"}
+              </button>
               <button
                 onClick={() => {
                   setSelectedPropertyId(property?._id);
@@ -272,6 +282,35 @@ function PropertyDetails() {
               </button>
               <button
                 onClick={cancelDelete}
+                className="bg-gray-300 text-gray-800 px-4 py-2 rounded-md"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* confirmationmodal for soldout */}
+
+      {showSoldOutModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-md w-[90%] max-w-sm text-center">
+            <h2 className="text-lg font-bold mb-4 text-blue-900">
+              Confirm Sold Out
+            </h2>
+            <p className="text-gray-700 mb-6">
+              Do you want to mark this property as Sold Out?
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={handleSoldOutConfirmation}
+                className="bg-red-500 text-white px-4 py-2 rounded-md"
+              >
+                Yes, Sold Out
+              </button>
+              <button
+                onClick={() => setShowSoldOutModal(false)}
                 className="bg-gray-300 text-gray-800 px-4 py-2 rounded-md"
               >
                 Cancel
