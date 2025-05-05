@@ -194,3 +194,17 @@ export const rejectVendor = async (vendorId) => {
     throw error;
   }
 };
+
+export const getEnquireis = async () => {
+  try {
+    const token = localStorage.getItem('admintoken'); 
+    const response = await axios.get(`${BASE_URL}/admin/enquiry/get`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+};

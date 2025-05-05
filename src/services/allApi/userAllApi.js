@@ -284,3 +284,15 @@ export const updateProfile = async (userId, formData) => {
     throw error;
   }
 };
+
+export const contactUs = async (reqBody) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/user/contact/create`,
+      reqBody,{}
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: 'Something went wrong' };
+  }
+};

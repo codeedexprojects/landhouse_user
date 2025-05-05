@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { FaBed, FaBath, FaHeart, FaShareAlt, FaTimes } from 'react-icons/fa';
+import { FaBed, FaBath, FaHeart, FaShareAlt, FaTimes, FaFacebook, FaTwitter, FaWhatsapp } from 'react-icons/fa';
 import { MdLocationOn } from 'react-icons/md';
 import { GiResize } from 'react-icons/gi';
 import { CiHeart } from "react-icons/ci";
@@ -46,9 +46,9 @@ function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState({ message: '', type: '' });
 
-const showToast = (message, type = 'success') => {
-  setToast({ message, type });
-};
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+  };
 
 
   useEffect(() => {
@@ -113,12 +113,12 @@ const showToast = (message, type = 'success') => {
         showToast('Please login to add favorites', 'error');
         return;
       }
-  
+
       const isFavorite = wishlist.includes(propertyId);
       if (isFavorite) {
         await deleteFavourite(propertyId, { userId });
         setWishlist((prev) => prev.filter((id) => id !== propertyId));
-        showToast('Removed from favorites', 'success');
+        showToast('Removed from favorites', 'error');
       } else {
         await addToFavorites(userId, propertyId);
         setWishlist((prev) => [...prev, propertyId]);
@@ -129,7 +129,7 @@ const showToast = (message, type = 'success') => {
       showToast(error.response?.data?.message || 'Failed to update favorites', 'error');
     }
   };
-  
+
 
   const generateReferralLink = (userId, referralCode, propertyId) => {
     return `${window.location.origin}/register?referrerId=${userId}&referralCode=${referralCode}&productId=${propertyId}`;
@@ -147,16 +147,23 @@ const showToast = (message, type = 'success') => {
     setShowShareModal(true);
   };
 
+  const handleClick = () => {
+    navigate('/properties')
+  }
+  const handleContactClick = () => {
+    navigate('/contact')
+  }
+
   return (
     <div>
       <Header className="fixed top-0 left-0 w-full z-10 bg-transparent" /> {/* Header fixed at the top */}
       {toast.message && (
-  <Toast
-    message={toast.message}
-    type={toast.type}
-    onClose={() => setToast({ message: '', type: '' })}
-  />
-)}
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast({ message: '', type: '' })}
+        />
+      )}
 
       <div className="bg-white mt-[-70px] relative z-0">
         {/* Banner */}
@@ -174,7 +181,8 @@ const showToast = (message, type = 'success') => {
                 Discover Profitable properties with expert guidance
               </p>
               <button
-                className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-2 rounded shadow hover:from-indigo-600 hover:to-purple-700 transition"
+                className="bg-gradient-to-r from-blue-500 cursor-pointer to-blue-900 text-white px-6 py-2 rounded shadow hover:text-blue-900 hover:from-blue-300 hover:to-blue-200 transition"
+                onClick={handleClick}
                 data-aos="zoom-in"
                 data-aos-delay="800"
               >
@@ -338,6 +346,17 @@ const showToast = (message, type = 'success') => {
                   Copy
                 </button>
               </div>
+              <div className="flex justify-center space-x-4 mb-6">
+                            <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                              <FaFacebook className="text-blue-600" />
+                            </button>
+                            <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                              <FaTwitter className="text-blue-400" />
+                            </button>
+                            <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                              <FaWhatsapp className="text-green-500" />
+                            </button>
+                          </div>
               <button
                 onClick={() => setShowShareModal(false)}
                 className="w-full py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
@@ -350,7 +369,7 @@ const showToast = (message, type = 'success') => {
 
 
         <div className="flex justify-center mt-8">
-          <button className="px-6 py-2 border-[#000000b2] text-gray-700 bg-[#5A85BFB2] rounded-sm text-[white]" onClick={handleShow}>
+          <button className="px-6 py-2 bg-blue-500 hover:bg-blue-600 cursor-pointer rounded-sm text-[white]" onClick={handleShow}>
             SHOW MORE
           </button>
         </div>
@@ -499,7 +518,7 @@ const showToast = (message, type = 'success') => {
               <p className="text-base sm:text-lg md:text-xl text-gray-700 mb-8 max-w-md">
                 Discover the ideal property that suits your needs and lifestyle. Start your journey to the perfect home today!
               </p>
-              <button className="bg-blue-500 hover:bg-blue-600 text-white py-3 px-8 text-base sm:text-lg rounded transition duration-300">
+              <button onClick={handleContactClick} className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white py-3 px-8 text-base sm:text-lg rounded transition duration-300">
                 Contact Now
               </button>
             </div>
