@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import propertyCard from "/src/assets/properImage.png";
 import { IoLocation } from "react-icons/io5";
 import { AiFillHome } from "react-icons/ai";
@@ -28,20 +28,38 @@ function PropertyDetails() {
   const addressParts = property?.address?.split(",").map((part) => part.trim());
   const [street, city, state] = addressParts || [];
 
-  const handleDelete = async (id) => {
-    try {
-      const response = await deletePropertyAPI(id);
-      console.log(response);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedPropertyId, setSelectedPropertyId] = useState(null);
 
+  const [showSoldOutModal, setShowSoldOutModal] = useState(false);
+
+
+  const handleSoldOutConfirmation = () => {
+    // In real-world apps, you would also update the backend here
+    property.soldOut = true;
+    toast.success("Property marked as Sold Out!");
+    setShowSoldOutModal(false);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      const response = await deletePropertyAPI(selectedPropertyId);
       if (response.status === 200) {
-        toast.success("item Deleted successfully!");
+        toast.success("Item deleted successfully!");
+        setShowConfirmModal(false);
         setTimeout(() => {
           navigate("/admin/view-property");
         }, 2000);
       }
     } catch (error) {
       toast.error("Something went wrong!");
+      setShowConfirmModal(false);
     }
+  };
+
+  const cancelDelete = () => {
+    setSelectedPropertyId(null);
+    setShowConfirmModal(false);
   };
 
   const handleEdit = (property) => {
@@ -90,17 +108,21 @@ function PropertyDetails() {
             </h2>
 
             <div className="flex gap-2">
-              {property?.soldOut ? (
-                <button className="bg-red-500 text-white px-4 py-1 rounded-md text-sm">
-                  Sold Out
-                </button>
-              ) : (
-                <button className="bg-green-500 text-white px-4 py-1 rounded-md text-sm">
-                  Available
-                </button>
-              )}
               <button
-                onClick={() => handleDelete(property?._id)}
+                onClick={() => setShowSoldOutModal(true)}
+                className={`px-4 py-1 rounded-md text-sm ${
+                  property?.soldOut
+                    ? "bg-red-500 text-white"
+                    : "bg-green-500 text-white"
+                }`}
+              >
+                {property?.soldOut ? "Sold Out" : "Mark as Sold Out"}
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedPropertyId(property?._id);
+                  setShowConfirmModal(true);
+                }}
                 className="p-2 bg-gray-200 rounded-md text-gray-600 cursor-pointer"
               >
                 <MdOutlineDeleteOutline size={20} />
@@ -240,6 +262,64 @@ function PropertyDetails() {
           </div>
         </div>
       </div>
+
+      {/* confirmationmodal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-md w-[90%] max-w-sm text-center">
+            <h2 className="text-lg font-bold mb-4 text-blue-900">
+              Are you sure?
+            </h2>
+            <p className="text-gray-700 mb-6">
+              Do you want to delete this property?
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={confirmDelete}
+                className="bg-red-500 text-white px-4 py-2 rounded-md"
+              >
+                Yes, Delete
+              </button>
+              <button
+                onClick={cancelDelete}
+                className="bg-gray-300 text-gray-800 px-4 py-2 rounded-md"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* confirmationmodal for soldout */}
+
+      {showSoldOutModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-md w-[90%] max-w-sm text-center">
+            <h2 className="text-lg font-bold mb-4 text-blue-900">
+              Confirm Sold Out
+            </h2>
+            <p className="text-gray-700 mb-6">
+              Do you want to mark this property as Sold Out?
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={handleSoldOutConfirmation}
+                className="bg-red-500 text-white px-4 py-2 rounded-md"
+              >
+                Yes, Sold Out
+              </button>
+              <button
+                onClick={() => setShowSoldOutModal(false)}
+                className="bg-gray-300 text-gray-800 px-4 py-2 rounded-md"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
