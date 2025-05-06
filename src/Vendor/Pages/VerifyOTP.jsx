@@ -67,6 +67,11 @@ export default function VerifyNumber() {
         if (response.message === 'Vendor not approved by admin') {
           navigate('/vendor/approval');
         } else {
+          // Store vendor data in localStorage for successful login
+          if (response.token && response.vendorId) {
+            localStorage.setItem('vendorToken', response.token);
+            localStorage.setItem('vendorId', response.vendorId);
+          }
           navigate('/vendor/dashboard');
         }
       }

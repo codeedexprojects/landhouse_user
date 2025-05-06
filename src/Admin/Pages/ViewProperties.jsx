@@ -8,12 +8,96 @@ import { MdLocationOn } from "react-icons/md";
 
 export default function PropertyListingPage() {
   const [properties, setProperties] = useState([]);
+  const [filteredProperties, setFilteredProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [propertiesPerPage] = useState(12);
+  const [totalPages, setTotalPages] = useState(0);
+
+  // Calculate pagination
+  const indexOfLastProperty = currentPage * propertiesPerPage;
+  const indexOfFirstProperty = indexOfLastProperty - propertiesPerPage;
+  const currentProperties = filteredProperties.slice(indexOfFirstProperty, indexOfLastProperty);
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  
+  // Go to next page
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  // Go to previous page
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  // Generate page numbers for display
+  const getDisplayedPageNumbers = () => {
+    const pageNumbers = [];
+    
+    if (totalPages <= 7) {
+      // If there are 7 or fewer pages, show all page numbers
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      // Always include first page
+      pageNumbers.push(1);
+      
+      if (currentPage > 3) {
+        pageNumbers.push("...");
+      }
+      
+      // Show current page and surrounding pages
+      let start = Math.max(2, currentPage - 1);
+      let end = Math.min(totalPages - 1, currentPage + 1);
+      
+      for (let i = start; i <= end; i++) {
+        pageNumbers.push(i);
+      }
+      
+      if (currentPage < totalPages - 2) {
+        pageNumbers.push("...");
+      }
+      
+      // Always include last page
+      pageNumbers.push(totalPages);
+    }
+    
+    return pageNumbers;
+  };
+
+  // Handle search
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    
+    const filtered = properties.filter(
+      (property) =>
+        property.property_type?.toLowerCase().includes(value.toLowerCase()) ||
+        property.address?.toLowerCase().includes(value.toLowerCase()) ||
+        String(property.beds).includes(value)
+    );
+    
+    setFilteredProperties(filtered);
+    setCurrentPage(1); // Reset to first page on search
+    setTotalPages(Math.ceil(filtered.length / propertiesPerPage));
+  };
 
   const handleDelete = (id) => {
     const filtered = properties.filter((p) => p._id !== id);
     setProperties(filtered);
+    setFilteredProperties(filtered);
+    setTotalPages(Math.ceil(filtered.length / propertiesPerPage));
     toast.success("Property deleted successfully!");
   };
 
@@ -21,11 +105,13 @@ export default function PropertyListingPage() {
     const fetchProperties = async () => {
       const data = await getAllProperties();
       setProperties(data);
+      setFilteredProperties(data);
+      setTotalPages(Math.ceil(data.length / propertiesPerPage));
       setLoading(false);
     };
 
     fetchProperties();
-  }, []);
+  }, [propertiesPerPage]);
 
   return (
     <div className="p-4 bg-blue-100 min-h-screen">
@@ -47,6 +133,8 @@ export default function PropertyListingPage() {
               type="text"
               placeholder="Search by property name, bedroom, place..."
               className="w-full pl-10 py-2 pr-3 bg-transparent outline-none text-sm border-none focus:ring-0"
+              value={searchTerm}
+              onChange={handleSearch}
             />
           </div>
           <button className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md">
@@ -69,8 +157,8 @@ export default function PropertyListingPage() {
               <div className="h-4 bg-gray-300 rounded w-1/2"></div>
             </div>
           </div>
-        ) : properties && properties.length > 0 ? (
-          properties.map((property) => (
+        ) : currentProperties && currentProperties.length > 0 ? (
+          currentProperties.map((property) => (
             <div
               key={property._id}
               className="border rounded-lg shadow-sm overflow-hidden w-full max-w-[360px] mx-auto relative"
@@ -86,6 +174,10 @@ export default function PropertyListingPage() {
                   }
                   alt={property.property_type || "Property"}
                   className="w-full h-36 object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "https://via.placeholder.com/400x300?text=No+Image";
+                  }}
                 />
                 <div className="absolute top-2 left-2 bg-[#EAF2FF] text-xs text-gray-600 font-semibold px-2 py-1 rounded cursor-pointer hover:bg-[#D5E3FF]">
                   Price: ₹{property.property_price?.toLocaleString() || 'N/A'}
@@ -95,7 +187,7 @@ export default function PropertyListingPage() {
               {/* Property Details */}
               <div className="p-3 space-y-2">
                 <h2 className="text-sm font-semibold text-gray-700">
-                  {property.property_type || "Untitled Property"} - {property.maxrooms || "N/A"} Rooms
+                  {property.property_type || "Untitled Property"} - {property.maxrooms || property.beds || "N/A"} Rooms
                 </h2>
                 <div className="text-sm text-gray-500 flex flex-wrap gap-1">
                   <span>{property.beds || "N/A"} Beds</span> |
@@ -128,36 +220,56 @@ export default function PropertyListingPage() {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-between items-center mt-6">
-        <button className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm">
-          <Download className="mr-2 w-4 h-4" />
-          Download
-        </button>
-
-        <div className="flex items-center">
-          <button className="p-2 text-gray-500">
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-          
-          <div className="flex space-x-2 mx-2">
-            <button className="w-8 h-8 rounded-md bg-blue-500 text-white flex items-center justify-center text-sm">1</button>
-            <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">2</button>
-            <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">3</button>
-            <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">4</button>
-            <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">5</button>
-            <span className="flex items-center justify-center text-gray-500">...</span>
-            <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">19</button>
-          </div>
-
-          <button className="p-2 text-gray-500">
-            <ArrowRight className="w-4 h-4" />
+      {filteredProperties.length > 0 && (
+        <div className="flex justify-between items-center mt-6">
+          <button className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm">
+            <Download className="mr-2 w-4 h-4" />
+            Download
           </button>
 
-          <div className="ml-4 flex items-center border-l border-gray-200 pl-4">
-            <button className="w-8 h-8 rounded-md bg-white text-gray-600 flex items-center justify-center text-sm shadow-sm">10</button>
+          <div className="flex items-center">
+            <button 
+              className={`p-2 text-gray-500 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={prevPage}
+              disabled={currentPage === 1}
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+            
+            <div className="flex space-x-2 mx-2">
+              {getDisplayedPageNumbers().map((pageNumber, index) => (
+                pageNumber === "..." ? (
+                  <span key={`ellipsis-${index}`} className="flex items-center justify-center text-gray-500">...</span>
+                ) : (
+                  <button
+                    key={pageNumber}
+                    className={`w-8 h-8 rounded-md ${
+                      currentPage === pageNumber ? 'bg-blue-500 text-white' : 'bg-white text-gray-500'
+                    } flex items-center justify-center text-sm shadow-sm`}
+                    onClick={() => paginate(pageNumber)}
+                  >
+                    {pageNumber}
+                  </button>
+                )
+              ))}
+            </div>
+
+            <button 
+              className={`p-2 text-gray-500 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={nextPage}
+              disabled={currentPage === totalPages}
+            >
+              <ArrowRight className="w-4 h-4" />
+            </button>
+
+            <div className="ml-4 flex items-center border-l border-gray-200 pl-4">
+              <button className="w-8 h-8 rounded-md bg-white text-gray-600 flex items-center justify-center text-sm shadow-sm">
+                {propertiesPerPage}
+              </button>
+            </div>
           </div>
         </div>
-        </div>
+      )}
 
       <ToastContainer position="top-right" autoClose={3000} />
     </div>

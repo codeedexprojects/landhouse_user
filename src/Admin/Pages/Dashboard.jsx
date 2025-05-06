@@ -58,7 +58,7 @@ function MainDashboard() {
             <Route path="/user-details" element={<UserDetailsPage />} />
             <Route path="/user-list" element={<UserList />} />
             <Route path="/property-details" element={<PropertyDetails />} />
-            <Route path="/agent-details" element={<AgentDetails />} />
+            <Route path="/agent-details/:vendorId" element={<AgentDetails />} />
             <Route path="/loan-enquiry" element={<HomeLoanEnquiry />} />
             <Route path="/referrels" element={<ReferralAffiliates />} />
             <Route path="/profile" element={<AdminProfile />} />

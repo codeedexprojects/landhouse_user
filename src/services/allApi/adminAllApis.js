@@ -210,3 +210,122 @@ export const getEnquireis = async () => {
     console.log(error);
   }
 };
+
+export const getSingleVendor = async (vendorId) => {
+  try {
+    const token = localStorage.getItem('admintoken');
+    const response = await axios.get(
+      `${BASE_URL}/admin/vendor/get/${vendorId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error single vendor:', error);
+    throw error;
+  }
+};
+
+export const vendorPageCounts = async (vendorId) => {
+  try {
+    const token = localStorage.getItem('admintoken');
+    const response = await axios.get(
+      `${BASE_URL}/admin/vendor/${vendorId}/property-count`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error getting  vendor counts:', error);
+    throw error;
+  }
+};
+
+export const vendorProperties = async (vendorId) => {
+  try {
+    const token = localStorage.getItem('admintoken');
+    const response = await axios.get(
+      `${BASE_URL}/admin/vendor/${vendorId}/properties`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error getting  vendor counts:', error);
+    throw error;
+  }
+};
+
+export const overviewCounts = async () => {
+  try {
+    const token = localStorage.getItem('admintoken');
+    const response = await axios.get(
+      `${BASE_URL}/admin/overview/get`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error getting  overview counts:', error);
+    throw error;
+  }
+};
+
+export const getAdminProfile = async (id) => {
+  try {
+    const token = localStorage.getItem('admintoken'); 
+    const response = await axios.get(`${BASE_URL}/admin/auth/profile/view/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const updateProfile = async (id, updateData) => {
+  try {
+    const token = localStorage.getItem('admintoken');
+    const response = await axios.patch(`${BASE_URL}/admin/auth/profile/${id}`, updateData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getOverviewGraph = async (id) => {
+  try {
+    const token = localStorage.getItem('admintoken'); 
+    const response = await axios.get(`${BASE_URL}/admin/overview/enquiry-stats`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};

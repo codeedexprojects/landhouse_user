@@ -8,12 +8,14 @@ export default function AgentListingPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+   const [currentPage, setCurrentPage] = useState(1);
+   const agentsPerPage = 10;
 
   useEffect(() => {
     const fetchAgents = async () => {
       try {
         const response = await getVendors();
-        setAgents(response.data); // Assuming response.data contains the list of agents
+        setAgents(response.data);
         setLoading(false);
       } catch (error) {
         setError("Failed to load agents.");
@@ -24,8 +26,20 @@ export default function AgentListingPage() {
     fetchAgents();
   }, []);
 
-  const handleViewClick = () => {
-    navigate('/admin/agent-details');
+   // Calculate pagination
+   const indexOfLastAgent = currentPage * agentsPerPage;
+   const indexOfFirstAgent = indexOfLastAgent - agentsPerPage;
+   const currentAgents = agents.slice(indexOfFirstAgent, indexOfLastAgent);
+   const totalPages = Math.ceil(agents.length / agentsPerPage);
+ 
+   const handlePageChange = (pageNumber) => {
+     if (pageNumber >= 1 && pageNumber <= totalPages) {
+       setCurrentPage(pageNumber);
+     }
+   };
+
+  const handleViewClick = (vendorId) => {
+    navigate(`/admin/agent-details/${vendorId}`);
   };
 
   if (loading) {
@@ -84,7 +98,10 @@ export default function AgentListingPage() {
                   </div>
                 </div>
 
-                <button onClick={handleViewClick} className="bg-blue-100 text-blue-600 px-4 py-2 rounded-md text-sm">
+                <button 
+                  onClick={() => handleViewClick(agent._id)} 
+                  className="bg-blue-100 text-blue-600 px-4 py-2 rounded-md text-sm"
+                >
                   View Profile
                 </button>
               </div>
@@ -94,36 +111,50 @@ export default function AgentListingPage() {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-between items-center">
-        <button className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm">
-          <Download className="mr-2 w-4 h-4" />
-          Download
-        </button>
-
-        <div className="flex items-center">
-          <button className="p-2 text-gray-500">
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-
-          <div className="flex space-x-2 mx-2">
-            <button className="w-8 h-8 rounded-md bg-blue-500 text-white flex items-center justify-center text-sm">1</button>
-            <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">2</button>
-            <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">3</button>
-            <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">4</button>
-            <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">5</button>
-            <span className="flex items-center justify-center text-gray-500">...</span>
-            <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">19</button>
-          </div>
-
-          <button className="p-2 text-gray-500">
-            <ArrowRight className="w-4 h-4" />
-          </button>
-
-          <div className="ml-4 flex items-center border-l border-gray-200 pl-4">
-            <button className="w-8 h-8 rounded-md bg-white text-gray-600 flex items-center justify-center text-sm shadow-sm">10</button>
-          </div>
-        </div>
-      </div>
+      <div className="flex justify-between items-center mt-6">
+              <button className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm">
+                <Download className="mr-2 w-4 h-4" />
+                Download
+              </button>
+      
+              <div className="flex items-center">
+                <button
+                  className="p-2 text-gray-500"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </button>
+      
+                <div className="flex space-x-2 mx-2">
+                  {[...Array(totalPages)].map((_, index) => (
+                    <button
+                      key={index}
+                      className={`w-8 h-8 rounded-md ${
+                        currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-white text-gray-500 shadow-sm'
+                      } flex items-center justify-center text-sm`}
+                      onClick={() => handlePageChange(index + 1)}
+                    >
+                      {index + 1}
+                    </button>
+                  ))}
+                </div>
+      
+                <button
+                  className="p-2 text-gray-500"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+      
+                <div className="ml-4 flex items-center border-l border-gray-200 pl-4">
+                  <button className="w-8 h-8 rounded-md bg-white text-gray-600 flex items-center justify-center text-sm shadow-sm">
+                    {agentsPerPage}
+                  </button>
+                </div>
+              </div>
+            </div>
     </div>
   );
 }

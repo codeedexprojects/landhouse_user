@@ -82,6 +82,7 @@ export default function SingleProperty() {
 
             await addToCompare(reqBody);
             showToast('Property added to compare list!', 'success');
+            navigate('/compare')
 
         } catch (error) {
             // Handle the specific backend error message

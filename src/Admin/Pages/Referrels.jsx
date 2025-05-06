@@ -7,7 +7,8 @@ export default function ReferralAffiliates() {
     const navigate = useNavigate();
     const [referrals, setReferrals] = useState([]);
     const [loading, setLoading] = useState(true);
-
+    const [currentPage, setCurrentPage] = useState(1);
+    const referralsPerPage=10;
     const handleAddAffiliates = () => {
         navigate('/admin/affiliates');
     };
@@ -27,6 +28,17 @@ export default function ReferralAffiliates() {
         };
         fetchData();
     }, []);
+
+    const indexOfLastReferral = currentPage * referralsPerPage;
+    const indexOfFirstReferral = indexOfLastReferral - referralsPerPage;
+    const currentReferrals = referrals.slice(indexOfFirstReferral, indexOfLastReferral);
+    const totalPages = Math.ceil(referrals.length / referralsPerPage);
+  
+    const handlePageChange = (pageNumber) => {
+      if (pageNumber >= 1 && pageNumber <= totalPages) {
+        setCurrentPage(pageNumber);
+      }
+    };
 
     return (
         <div className="bg-blue-50 min-h-screen p-4">
@@ -84,35 +96,49 @@ export default function ReferralAffiliates() {
             </div>
 
             <div className="flex justify-between items-center mt-6">
-                <button className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm">
-                    <Download className="mr-2 w-4 h-4" />
-                    Download
-                </button>
-
-                <div className="flex items-center">
-                    <button className="p-2 text-gray-500">
+                    <button className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm">
+                      <Download className="mr-2 w-4 h-4" />
+                      Download
+                    </button>
+            
+                    <div className="flex items-center">
+                      <button
+                        className="p-2 text-gray-500"
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                      >
                         <ArrowLeft className="w-4 h-4" />
-                    </button>
-
-                    <div className="flex space-x-2 mx-2">
-                        <button className="w-8 h-8 rounded-md bg-blue-500 text-white flex items-center justify-center text-sm">1</button>
-                        <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">2</button>
-                        <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">3</button>
-                        <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">4</button>
-                        <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">5</button>
-                        <span className="flex items-center justify-center text-gray-500">...</span>
-                        <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">19</button>
-                    </div>
-
-                    <button className="p-2 text-gray-500">
+                      </button>
+            
+                      <div className="flex space-x-2 mx-2">
+                        {[...Array(totalPages)].map((_, index) => (
+                          <button
+                            key={index}
+                            className={`w-8 h-8 rounded-md ${
+                              currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-white text-gray-500 shadow-sm'
+                            } flex items-center justify-center text-sm`}
+                            onClick={() => handlePageChange(index + 1)}
+                          >
+                            {index + 1}
+                          </button>
+                        ))}
+                      </div>
+            
+                      <button
+                        className="p-2 text-gray-500"
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                      >
                         <ArrowRight className="w-4 h-4" />
-                    </button>
-
-                    <div className="ml-4 flex items-center border-l border-gray-200 pl-4">
-                        <button className="w-8 h-8 rounded-md bg-white text-gray-600 flex items-center justify-center text-sm shadow-sm">10</button>
+                      </button>
+            
+                      <div className="ml-4 flex items-center border-l border-gray-200 pl-4">
+                        <button className="w-8 h-8 rounded-md bg-white text-gray-600 flex items-center justify-center text-sm shadow-sm">
+                          {referralsPerPage}
+                        </button>
+                      </div>
                     </div>
-                </div>
-            </div>
+                  </div>
         </div>
     );
 }

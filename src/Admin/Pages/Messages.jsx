@@ -5,8 +5,11 @@ import { Toast } from '../../Components/Toast';
 
 export default function MessageList() {
   const [enquiries, setEnquiries] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
+
+  const enquiriesPerPage = 10;
 
   useEffect(() => {
     const fetchEnquiries = async () => {
@@ -27,6 +30,18 @@ export default function MessageList() {
 
     fetchEnquiries();
   }, []);
+
+  // Calculate pagination
+  const indexOfLastEnquiry = currentPage * enquiriesPerPage;
+  const indexOfFirstEnquiry = indexOfLastEnquiry - enquiriesPerPage;
+  const currentEnquiries = enquiries.slice(indexOfFirstEnquiry, indexOfLastEnquiry);
+  const totalPages = Math.ceil(enquiries.length / enquiriesPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
 
   return (
     <div className="bg-blue-50 min-h-screen p-4">
@@ -62,10 +77,10 @@ export default function MessageList() {
 
         {loading ? (
           <div className="p-4 text-center text-gray-500">Loading enquiries...</div>
-        ) : enquiries.length === 0 ? (
+        ) : currentEnquiries.length === 0 ? (
           <div className="p-4 text-center text-gray-500">No enquiries found.</div>
         ) : (
-          enquiries.map((enquiry) => (
+          currentEnquiries.map((enquiry) => (
             <div key={enquiry._id} className="grid grid-cols-4 gap-2 p-4 border-b">
               <div className="text-gray-500">
                 {enquiry.name || `${enquiry.userId.firstName} ${enquiry.userId.lastName}`}
@@ -85,7 +100,7 @@ export default function MessageList() {
         )}
       </div>
 
-      {/* Pagination (static for now) */}
+      {/* Pagination */}
       <div className="flex justify-between items-center mt-6">
         <button className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm">
           <Download className="mr-2 w-4 h-4" />
@@ -93,22 +108,40 @@ export default function MessageList() {
         </button>
 
         <div className="flex items-center">
-          <button className="p-2 text-gray-500">
+          <button
+            className="p-2 text-gray-500"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
             <ArrowLeft className="w-4 h-4" />
           </button>
 
           <div className="flex space-x-2 mx-2">
-            <button className="w-8 h-8 rounded-md bg-blue-500 text-white flex items-center justify-center text-sm">1</button>
-            <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">2</button>
-            <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">3</button>
+            {[...Array(totalPages)].map((_, index) => (
+              <button
+                key={index}
+                className={`w-8 h-8 rounded-md ${
+                  currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-white text-gray-500 shadow-sm'
+                } flex items-center justify-center text-sm`}
+                onClick={() => handlePageChange(index + 1)}
+              >
+                {index + 1}
+              </button>
+            ))}
           </div>
 
-          <button className="p-2 text-gray-500">
+          <button
+            className="p-2 text-gray-500"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
             <ArrowRight className="w-4 h-4" />
           </button>
 
           <div className="ml-4 flex items-center border-l border-gray-200 pl-4">
-            <button className="w-8 h-8 rounded-md bg-white text-gray-600 flex items-center justify-center text-sm shadow-sm">10</button>
+            <button className="w-8 h-8 rounded-md bg-white text-gray-600 flex items-center justify-center text-sm shadow-sm">
+              {enquiriesPerPage}
+            </button>
           </div>
         </div>
       </div>

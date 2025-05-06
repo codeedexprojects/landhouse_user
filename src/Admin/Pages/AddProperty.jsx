@@ -99,6 +99,11 @@ const AddProperty = () => {
       return;
     }
 
+    const user_id = localStorage.getItem('adminId');
+    if (!user_id) {
+      toast.error("User not authenticated. Please login again.");
+      return;
+    }
     // Make sure coordinates are available
     if (!coordinates.latitude || !coordinates.longitude) {
       toast.error("Location coordinates not available. Please set your coordinates.");
@@ -107,7 +112,7 @@ const AddProperty = () => {
 
     // Prepare FormData
     const formDataToSend = new FormData();
-
+    formDataToSend.append('user_id', user_id);
     // Append all form data
     Object.entries(formData).forEach(([key, value]) => {
       formDataToSend.append(key, value);

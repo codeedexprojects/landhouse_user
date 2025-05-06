@@ -3,6 +3,7 @@ import { Mail, User, Phone, Lock } from 'lucide-react';
 import image1 from "../assets/Sign up.png";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { registerUser } from '../services/allApi/userAllApi';
+import { Toast } from '../Components/Toast';
 
 export default function LandouseSignupForm() {
   const [formData, setFormData] = useState({
@@ -17,6 +18,7 @@ export default function LandouseSignupForm() {
 
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
+  const [toast, setToast] = useState({ message: '', type: '' });
   const referrerId = queryParams.get('referrerId');
   const referralCode = queryParams.get('referralCode');
   const productId = queryParams.get('productId');
@@ -59,32 +61,35 @@ export default function LandouseSignupForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!formData.agreeToTerms) {
-      alert("Please agree to the Terms & Conditions.");
+      setToast({ message: 'Please agree to the Terms & Conditions.', type: 'error' });
       return;
     }
-  
+
     const payload = {
       ...formData,
       productId: productId || null,
     };
-  
+
     try {
       const data = await registerUser(payload);
       localStorage.setItem('token', data.token);
       localStorage.setItem('userId', data.userId);
       localStorage.setItem('referralId', data.referralCode);
-      alert(data.message);
+      setToast({ message: data.message, type: 'success' });
       console.log('Registered user:', data.user);
-  
-      if (productId) {
-        navigate(`/single/${productId}`);
-      } else {
-        navigate('/');
-      }
+
+      setTimeout(() => {
+        if (productId) {
+          navigate(`/single/${productId}`);
+        } else {
+          navigate('/');
+        }
+      }, 1500); // give the toast ~1.5s before navigating
+
     } catch (error) {
-      alert(error.message || 'Registration failed.');
+      setToast({ message: error.message || 'Registration failed.', type: 'error' });
       console.error('Error:', error);
     }
   };
@@ -92,6 +97,13 @@ export default function LandouseSignupForm() {
 
   return (
     <div className="min-h-screen w-full bg-blue-50 overflow-auto">
+      {toast.message && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast({ message: '', type: '' })}
+        />
+      )}
       <div className="relative w-full min-h-screen">
         <div className="fixed inset-0 z-0">
           <img src={image1} alt="Modern luxury home" className="w-full h-full object-cover" />

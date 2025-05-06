@@ -63,3 +63,57 @@ export const sendOtpForRegistration = async (registrationData) => {
       }
     }
   };
+
+  export const addPropertyVendor = async (formData) => {
+    try {
+      const token = localStorage.getItem('vendorToken');
+      const response = await axios.post(
+        `${BASE_URL}/vendor/property/add`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("API Error:", error);
+      throw error.response?.data || { message: 'Something went wrong' };
+    }
+  };
+
+export const getAllVendorProperties = async () => {
+    try {
+      const token = localStorage.getItem('vendorToken'); 
+      const response = await axios.get(`${BASE_URL}/vendor/property/get`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+  
+      if (response?.data?.success) {
+        return response?.data?.properties;
+      } else {
+        return [];
+      }
+    } catch (error) {
+      alert('Fetching Error: ' + error.message);
+      return []; 
+    }
+  };
+
+  export const deletePropertyAPI = async (id) => {
+    try {
+      const token = localStorage.getItem('vendorToken'); 
+      const response = await axios.delete(`${BASE_URL}/vendor/property/delete/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
