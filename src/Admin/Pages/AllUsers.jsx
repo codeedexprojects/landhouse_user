@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Download, ArrowLeft, ArrowRight, MoreVertical } from 'lucide-react';
 import { getUserList } from '../../services/allApi/adminAllApis';
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -11,6 +12,13 @@ export default function UserListingPage() {
   const [filterStatus, setFilterStatus] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 5;
+
+
+  const navigate = useNavigate();
+
+const handleUserClick = (id) => {
+  navigate(`/admin/user-details/${id}`);
+};
 
   useEffect(() => {
     fetchUsers();
@@ -127,10 +135,10 @@ export default function UserListingPage() {
                   </div>
                 </td>
                 <td className="py-3 px-4 text-center">
-                  <button>
-                    <MoreVertical size={18} />
-                  </button>
-                </td>
+  <button onClick={() => handleUserClick(user._id)}>
+    <MoreVertical size={18} className="cursor-pointer" />
+  </button>
+</td>
               </tr>
             ))}
           </tbody>
