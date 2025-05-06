@@ -118,6 +118,23 @@ export const getUserList = async () => {
   }
 };
 
+
+//get user details
+export const getUserDetails = async (id) => {
+  try {
+    const token = localStorage.getItem('admintoken');
+    const response = await axios.get(`${BASE_URL}/admin/use/view/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data; // or response.data.user, depending on backend
+  } catch (error) {
+    console.error("Error fetching user details:", error);
+    return null;
+  }
+};
+
 export const addVendor = async (reqBody) => {
   try {
     const token = localStorage.getItem('admintoken'); 
