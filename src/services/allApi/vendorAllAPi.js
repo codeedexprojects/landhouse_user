@@ -131,3 +131,62 @@ export const getAllVendorProperties = async () => {
       console.log(error);
     }
   };
+
+
+  export const getOverviewCounts = async (id) => {
+    try {
+      const token = localStorage.getItem('vednorToken'); 
+      const response = await axios.get(`${BASE_URL}/vendor/property/counts/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
+  export const getGraphOverview = async (id) => {
+    try {
+      const token = localStorage.getItem('vednorToken'); 
+      const response = await axios.get(`${BASE_URL}/vendor/enquiry/${id}/enquiry-stats`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  export const getVendorProfile = async (id) => {
+    try {
+      const token = localStorage.getItem('vednorToken'); 
+      const response = await axios.get(`${BASE_URL}/vendor/auth/profile/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  export const updateVendorProfile = async (id, updateData) => {
+    try {
+      const token = localStorage.getItem('admintoken');
+      const response = await axios.patch(`${BASE_URL}/vendor/auth/profile/${id}`, updateData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };

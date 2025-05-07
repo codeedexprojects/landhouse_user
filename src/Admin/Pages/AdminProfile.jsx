@@ -14,7 +14,7 @@ export default function AdminProfile() {
     profileImage: null
   });
   const [previewImage, setPreviewImage] = useState('');
-  const BASE_URL = "http://localhost:3005";
+  const BASE_URL = "https://landouse-backend.onrender.com";
 
   useEffect(() => {
     const fetchAdminData = async () => {

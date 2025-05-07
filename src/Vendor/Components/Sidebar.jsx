@@ -14,22 +14,22 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       path: '/vendor/dashboard',
     },
     {
-          name: 'Property',
-          icon: <Home size={20} />,
-          dropdown: true,
-          isOpen: isPropertyOpen,
-          toggle: () => setPropertyOpen(!isPropertyOpen),
-          children: [
-            { name: 'Add Property', path: '/vendor/add-prop-vendor' },
-            { name: 'All Properties', path: '/vendor/prop-vendor' },
-            
-          ],
-        },
-    
+      name: 'Property',
+      icon: <Home size={20} />,
+      dropdown: true,
+      isOpen: isPropertyOpen,
+      toggle: () => setPropertyOpen(!isPropertyOpen),
+      children: [
+        { name: 'Add Property', path: '/vendor/add-prop-vendor' },
+        { name: 'All Properties', path: '/vendor/prop-vendor' },
+
+      ],
+    },
+
   ];
 
   const footerItems = [
-   
+
     { name: 'Logout', path: '/vendor/login' },
   ];
 
@@ -38,9 +38,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   return (
     <div
       className={`bg-white border-r border-gray-200 w-64 flex flex-col fixed inset-y-0 z-30
-      transition-transform duration-300 ease-in-out ${
-        isOpen ? 'translate-x-0' : '-translate-x-full'
-      } md:relative md:translate-x-0`}
+      transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'
+        } md:relative md:translate-x-0`}
     >
       {/* Mobile close button */}
       <button
@@ -73,11 +72,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                   <>
                     <button
                       onClick={item.toggle}
-                      className={`flex items-center justify-between w-full px-4 py-3 rounded-lg text-left ${
-                        item.children.some((child) => isActive(child.path))
+                      className={`flex items-center justify-between w-full px-4 py-3 rounded-lg text-left ${item.children.some((child) => isActive(child.path))
                           ? 'bg-blue-50 text-blue-500 border-l-4 border-blue-500'
                           : 'text-gray-600 hover:bg-gray-100'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center">
                         <span className="mr-3">{item.icon}</span>
@@ -92,11 +90,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                             <RouterLink
                               to={child.path}
                               onClick={toggleSidebar}
-                              className={`block py-2 text-sm rounded ${
-                                isActive(child.path)
+                              className={`block py-2 text-sm rounded ${isActive(child.path)
                                   ? 'text-blue-600 font-medium'
                                   : 'text-gray-600 hover:text-gray-800'
-                              }`}
+                                }`}
                             >
                               {child.name}
                             </RouterLink>
@@ -109,11 +106,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                   <RouterLink
                     to={item.path}
                     onClick={toggleSidebar}
-                    className={`flex items-center px-4 py-3 rounded-lg ${
-                      isActive(item.path)
+                    className={`flex items-center px-4 py-3 rounded-lg ${isActive(item.path)
                         ? 'bg-blue-50 text-blue-500 border-l-4 border-blue-500'
                         : 'text-gray-600 hover:bg-gray-100'
-                    }`}
+                      }`}
                   >
                     <span className="mr-3">{item.icon}</span>
                     <span>{item.name}</span>
@@ -132,6 +128,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             <li key={index} className="mb-2">
               <RouterLink
                 to={item.path}
+                onClick={() => {
+                  localStorage.removeItem("vendorId");
+                  localStorage.removeItem("vendorToken");
+                }}
                 className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-lg"
               >
                 <span>{item.name}</span>

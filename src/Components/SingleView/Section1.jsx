@@ -5,7 +5,7 @@ import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import { FaBed, FaBath, FaRulerCombined, FaHeart, FaShareAlt, FaTimes, FaFacebook, FaTwitter, FaWhatsapp } from "react-icons/fa";
+import { FaBed, FaBath, FaRulerCombined, FaHeart, FaShareAlt, FaTimes, FaFacebook, FaTwitter, FaWhatsapp, FaPhone } from "react-icons/fa";
 import { addToCompare, getSingleProperty, addToFavorites, getFavorites, deleteFavourite } from '../../services/allApi/userAllApi';
 import { Toast } from '../Toast';
 
@@ -21,7 +21,8 @@ export default function SingleProperty() {
     const [showShareModal, setShowShareModal] = useState(false);
     const [referralLink, setReferralLink] = useState('');
     const [loadingFavorites, setLoadingFavorites] = useState(false);
-    const BASE_URL = "http://localhost:3005";
+    const [showLoginModal, setShowLoginModal] = useState(false);
+    const BASE_URL = "https://landouse-backend.onrender.com";
 
     useEffect(() => {
         const fetchProperty = async () => {
@@ -105,7 +106,7 @@ export default function SingleProperty() {
             const token = localStorage.getItem('token');
 
             if (!userId || !token) {
-                toast.error('Please login to add favorites');
+                showToast('Please login to add favorites', 'error');
                 return;
             }
 
@@ -115,19 +116,18 @@ export default function SingleProperty() {
                 // REMOVE from wishlist
                 await deleteFavourite(propertyId, { userId });
                 setWishlist((prev) => prev.filter((id) => id !== propertyId));
-                toast.success('Removed from favorites');
+                showToast('Removed from favorites', 'success');
             } else {
                 // ADD to wishlist
                 await addToFavorites(userId, propertyId);
                 setWishlist((prev) => [...prev, propertyId]);
-                toast.success('Added to favorites');
+                showToast('Added to favorites', 'success');
             }
         } catch (error) {
             console.error('Favorite error:', error);
-            toast.error(error.response?.data?.message || 'Failed to update favorites');
+            showToast(error.response?.data?.message || 'Failed to update favorites', 'error');
         }
     };
-
 
     const generateReferralLink = (userId, referralCode, propertyId) => {
         return `${window.location.origin}/register?referrerId=${userId}&referralCode=${referralCode}&productId=${propertyId}`;
@@ -145,6 +145,16 @@ export default function SingleProperty() {
         const link = generateReferralLink(userId, referralCode, propertyId);
         setReferralLink(link);
         setShowShareModal(true);
+    };
+
+    const handleContactAgent = () => {
+        if (!property || !property.created_by || !property.created_by.number) {
+            showToast('Agent contact information not available', 'error');
+            return;
+        }
+        
+        // Use tel: protocol to initiate a call
+        window.location.href = `tel:${property.created_by.number}`;
     };
 
     const copyToClipboard = () => {
@@ -282,10 +292,7 @@ export default function SingleProperty() {
                                 onClick={(e) => e.target.select()}
                             />
                             <button
-                                onClick={() => {
-                                    navigator.clipboard.writeText(referralLink);
-                                    toast.success("Link copied to clipboard!");
-                                }}
+                                onClick={copyToClipboard}
                                 className="absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1 bg-blue-100 text-blue-600 text-xs rounded hover:bg-blue-200 transition-colors"
                             >
                                 Copy
@@ -349,14 +356,23 @@ export default function SingleProperty() {
                                 ₹ {property.property_price.toLocaleString()}
                             </div>
 
-                            <button
-                                onClick={handleCompare}
-                                disabled={compareLoading}
-                                className={`mt-4 px-6 py-2 border border-indigo-900 text-indigo-900 rounded hover:bg-indigo-50 transition-colors ${compareLoading ? 'opacity-50 cursor-not-allowed' : ''
-                                    }`}
-                            >
-                                {compareLoading ? 'Adding...' : 'Compare'}
-                            </button>
+                            <div className="mt-4 flex flex-wrap gap-3">
+                                <button
+                                    onClick={handleCompare}
+                                    disabled={compareLoading}
+                                    className={`px-6 py-2 border border-indigo-900 text-indigo-900 rounded hover:bg-indigo-50 transition-colors ${compareLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    {compareLoading ? 'Adding...' : 'Compare'}
+                                </button>
+                                
+                                <button
+                                    onClick={handleContactAgent}
+                                    className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center"
+                                >
+                                    <FaPhone className="mr-2" /> 
+                                    Contact Agent
+                                </button>
+                            </div>
                         </div>
 
                         {/* Right Column: Three rows of content */}

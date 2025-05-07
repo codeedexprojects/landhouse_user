@@ -34,44 +34,52 @@ function MainDashboard() {
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
-  return (
-    <div className="flex h-screen bg-gray-100 relative">
-      {sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-      
-      <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
-      
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <AdminHeader toggleSidebar={toggleSidebar} />
-        <div className="flex-1 overflow-y-auto">
-          <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/property" element={<AddProperty />} />
-            <Route path="/view-property" element={<PropertyListingPage />} />
-            <Route path="/view-agent" element={<AgentListingPage />} />
-            <Route path="/add-agent" element={<AddAgentForm />} />
-            <Route path="/user-details/:id" element={<UserDetailsPage />} />
-            <Route path="/user-list" element={<UserList />} />
-            <Route path="/property-details" element={<PropertyDetails />} />
-            <Route path="/agent-details/:vendorId" element={<AgentDetails />} />
-            <Route path="/loan-enquiry" element={<HomeLoanEnquiry />} />
-            <Route path="/referrels" element={<ReferralAffiliates />} />
-            <Route path="/profile" element={<AdminProfile />} />
-            <Route path="/create-coupon" element={<CreateCouponForm />} />
-            <Route path="/messages" element={<MessageList />} />
-            <Route path="/affiliates" element={<Affiliates />} />
-            <Route path="/edit-property" element={<EditProperty />} />
+  // ✅ PrivateRoute function inside MainDashboard
+  const PrivateRoute = ({ children }) => {
+    const adminId = localStorage.getItem('adminId');
+    return adminId ? children : <Navigate to="/admin/login" replace />;
+  };
 
-            <Route path="*" element={<Navigate to="/admin/dashboard" />} />
-          </Routes>
+  return (
+    <PrivateRoute>
+      <div className="flex h-screen bg-gray-100 relative">
+        {sidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+        
+        <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+        
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <AdminHeader toggleSidebar={toggleSidebar} />
+          <div className="flex-1 overflow-y-auto">
+            <Routes>
+              <Route path="/" element={<Navigate to="/dashboard" />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/property" element={<AddProperty />} />
+              <Route path="/view-property" element={<PropertyListingPage />} />
+              <Route path="/view-agent" element={<AgentListingPage />} />
+              <Route path="/add-agent" element={<AddAgentForm />} />
+              <Route path="/user-details/:id" element={<UserDetailsPage />} />
+              <Route path="/user-list" element={<UserList />} />
+              <Route path="/property-details" element={<PropertyDetails />} />
+              <Route path="/agent-details/:vendorId" element={<AgentDetails />} />
+              <Route path="/loan-enquiry" element={<HomeLoanEnquiry />} />
+              <Route path="/referrels" element={<ReferralAffiliates />} />
+              <Route path="/profile" element={<AdminProfile />} />
+              <Route path="/create-coupon" element={<CreateCouponForm />} />
+              <Route path="/messages" element={<MessageList />} />
+              <Route path="/affiliates" element={<Affiliates />} />
+              <Route path="/edit-property" element={<EditProperty />} />
+
+              <Route path="*" element={<Navigate to="/admin/dashboard" />} />
+            </Routes>
+          </div>
         </div>
       </div>
-    </div>
+    </PrivateRoute>
   );
 }
 
