@@ -8,6 +8,7 @@ import PropertyDetailsVendor from './PropertyDetailsVendor';
 import PropertyVendor from './PropertyVendor';
 import EnquireVendor from './EnquireVendor';
 import ProfileVendor from './ProfileVendor';
+import EditpropertyVendor from './EditpropertyVendor';
 
 function MainVendorDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -45,6 +46,7 @@ function MainVendorDashboard() {
             <Route path="/prop-vendor" element={<PropertyVendor />} />
             <Route path="/enquire" element={<EnquireVendor />} />
             <Route path="/profile" element={<ProfileVendor />} />
+            <Route path="/edit-vendor" element={<EditpropertyVendor />} />
             
             <Route path="*" element={<Navigate to="/vendor/dashboard" />} />
             

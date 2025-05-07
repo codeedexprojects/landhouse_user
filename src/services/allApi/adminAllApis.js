@@ -437,3 +437,26 @@ export const getEnquireisVendor = async (id) => {
     console.log(error);
   }
 };
+
+
+export const propertySoldOutAPI = async (id) => {
+  try {
+    const token = localStorage.getItem("admintoken"); 
+
+    const response = await axios.put(
+      `${BASE_URL}/admin/property/soldout/${id}`,
+      { soldOut: true },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error marking property as sold out:", error);
+    throw error;
+  }
+};
