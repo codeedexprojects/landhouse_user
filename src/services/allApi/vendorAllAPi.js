@@ -117,3 +117,17 @@ export const getAllVendorProperties = async () => {
       console.log(error);
     }
   };
+
+  export const getEnquireis = async (id) => {
+    try {
+      const token = localStorage.getItem('vednorToken'); 
+      const response = await axios.get(`${BASE_URL}/vendor/enquiry/get/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };

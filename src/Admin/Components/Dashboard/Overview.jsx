@@ -14,7 +14,7 @@ const Dashboard = () => {
   const totalUsers = stats?.totalUsers || 1; // Avoid division by zero
   const referredPercentage = Math.round((referredUsers / totalUsers) * 100);
   const directUsers = totalUsers - referredUsers;
-  const BASE_URL="http://localhost:3005"
+  const BASE_URL = "http://localhost:3005"
 
   // Calculate degrees for conic-gradient
   const referredDegrees = (referredPercentage / 100) * 360;
@@ -223,7 +223,7 @@ const Dashboard = () => {
             </div>
           </div>
         </div> */}
- <EnquiryGraph />
+        <EnquiryGraph />
         <div className="bg-white p-4 rounded-lg shadow-sm">
           <h3 className="font-medium mb-4">Recent Users</h3>
 

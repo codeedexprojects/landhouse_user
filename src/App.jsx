@@ -21,6 +21,10 @@ import WaitingApproval from './Vendor/Pages/WaitingApprovel'
 import AccessGranted from './Vendor/Pages/AccessGranted'
 import AccessDeclined from './Vendor/Pages/AccessDeclined'
 import VendorRegister from './Vendor/Pages/vendorRegister'
+import MainAffiliateDashboard from './Affiliate/Pages/Dashboard'
+import AffiliateLogin from './Affiliate/Pages/Login'
+import VerifyAffiliateNumber from './Affiliate/Pages/VerifyOTP'
+import AffiliateRegister from './Affiliate/Pages/Register'
 
 function App() {
   return (
@@ -44,7 +48,7 @@ function App() {
         <Route path="/admin/*" element={<MainDashboard />} />
         <Route path="/admin/login" element={<AdminLogin />} />
 
-        {/* Vendor Panle */}
+        {/* Vendor Panel */}
         <Route path="/vendor/*" element={<MainVendorDashboard />} />
         <Route path="/vendor/login" element={<VendorLogin />} />
         <Route path="/vendor/register" element={<VendorRegister />} />
@@ -52,6 +56,14 @@ function App() {
         <Route path="/vendor/approval" element={<WaitingApproval />} />
         <Route path="/vendor/access-granted" element={<AccessGranted />} />
         <Route path="/vendor/access-declined" element={<AccessDeclined />} />
+
+        {/*  Affiliate panel*/}
+        <Route path="/affiliate/*" element={<MainAffiliateDashboard />} />
+        <Route path="/affiliate/login" element={<AffiliateLogin />} />
+        <Route path="/affiliate/otp" element={<VerifyAffiliateNumber />} />
+        <Route path="/affiliate/register" element={<AffiliateRegister />} />
+
+
 
       </Routes>
     </>

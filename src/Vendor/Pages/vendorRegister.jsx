@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import image from "../../assets/LoginHalf.png";
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { sendOtpForRegistration } from '../../services/allApi/vendorAllAPi'; 
 
 export default function VendorRegister() {
@@ -218,6 +218,15 @@ export default function VendorRegister() {
                 {loading ? 'Sending OTP...' : 'Continue'}
               </button>
             </div>
+            <p className="text-sm">
+              Already have an account?{' '}
+              <Link
+                to="/vendor/login"
+                className="text-blue-500 hover:underline"
+              >
+                Please login
+              </Link>
+            </p>
           </form>
         </div>
       </div>

@@ -121,7 +121,7 @@ export default function UserDetailsPage() {
           {/* Recently Viewed */}
           <div className="bg-white rounded-md shadow-sm mb-4">
             <div className="p-4 flex justify-between items-center">
-              <h2 className="text-lg font-medium">Recently Viewed</h2>
+              <h2 className="text-lg font-medium">Latest Enquiry</h2>
               <div className="flex items-center">
                 <span className="text-sm text-gray-500 mr-2">Sort by:</span>
                 <button className="bg-blue-100 text-blue-700 px-3 py-1 rounded-md text-sm flex items-center">

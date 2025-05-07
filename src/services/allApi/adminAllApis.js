@@ -346,3 +346,94 @@ export const getOverviewGraph = async (id) => {
     console.log(error);
   }
 };
+
+export const addAffiliate = async (reqBody) => {
+  try {
+    const token = localStorage.getItem('admintoken');
+    const response = await axios.post(
+      `${BASE_URL}/admin/affiliate/add`,reqBody,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error approving vendor:', error);
+    throw error;
+  }
+};
+
+export const getAffiliates = async () => {
+  try {
+    const token = localStorage.getItem('admintoken'); 
+    const response = await axios.get(`${BASE_URL}/admin/affiliate/get`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const updateAffiliate = async (id, updateData) => {
+  try {
+    const token = localStorage.getItem('admintoken');
+    const response = await axios.patch(`${BASE_URL}/admin/affiliate/update/${id}`, updateData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+export const deleteVendor = async (id) => {
+  try {
+    const token = localStorage.getItem('admintoken'); 
+    const response = await axios.delete(`${BASE_URL}/admin/vendor/delete/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const updateVendor = async (id, updateData) => {
+  try {
+    const token = localStorage.getItem('admintoken');
+    const response = await axios.patch(`${BASE_URL}/admin/vendor/update/${id}`, updateData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getEnquireisVendor = async (id) => {
+  try {
+    const token = localStorage.getItem('adminToken'); 
+    const response = await axios.get(`${BASE_URL}/admin/vendor/get/enquiries/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};

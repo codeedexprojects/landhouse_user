@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import image from "../../assets/LoginHalf.png";
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { sendOtp } from '../../services/allApi/vendorAllAPi';
 
 export default function VendorLogin() {
@@ -25,12 +25,12 @@ export default function VendorLogin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     if (!formData.number || !formData.role) {
       setError('Phone number and role are required');
       return;
     }
-    
+
     if (!formData.agreeToTerms) {
       setError('You must agree to the terms and conditions');
       return;
@@ -39,11 +39,11 @@ export default function VendorLogin() {
     try {
       setLoading(true);
       await sendOtp(formData.number, formData.role);
-      navigate('/vendor/otp', { 
-        state: { 
-          number: formData.number, 
-          role: formData.role 
-        } 
+      navigate('/vendor/otp', {
+        state: {
+          number: formData.number,
+          role: formData.role
+        }
       });
     } catch (err) {
       setError(err.message || 'Failed to send OTP. Please try again.');
@@ -57,8 +57,8 @@ export default function VendorLogin() {
       <div
         className="relative hidden md:flex md:w-1/2 bg-cover bg-center flex-col items-center justify-between text-white p-8"
         style={{
-            backgroundImage: `url(${image})`
-          
+          backgroundImage: `url(${image})`
+
         }}
       >
         {/* Top welcome text */}
@@ -156,6 +156,15 @@ export default function VendorLogin() {
                 {loading ? 'Sending...' : 'Continue'}
               </button>
             </div>
+            <p className="text-sm">
+              Don’t have an account?{' '}
+              <Link
+                to="/vendor/register"
+                className="text-blue-500 hover:underline"
+              >
+                Please register
+              </Link>
+            </p>
           </form>
         </div>
       </div>
