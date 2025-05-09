@@ -8,14 +8,17 @@ import { MdOutlineDeleteOutline, MdOutlinePhoneInTalk } from "react-icons/md";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { deletePropertyAPI, propertySoldOutAPI } from "../../services/allApi/adminAllApis";
+import {
+  adminSoldOutAPI,
+  deletePropertyAPI,
+} from "../../services/allApi/adminAllApis";
 import { Edit } from "lucide-react";
 
 function PropertyDetails() {
   const location = useLocation();
   const navigate = useNavigate();
   const property = location.state?.property;
-console.log(property);
+  console.log(property);
 
   useEffect(() => {
     if (!property) {
@@ -31,18 +34,23 @@ console.log(property);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [selectedPropertyId, setSelectedPropertyId] = useState(null);
 
-  const [showSoldOutModal, setShowSoldOutModal] = useState(false);
+  const [showAdminSoldOutModal, setAdminShowSoldOutModal] = useState(false);
 
-
-  const handleSoldOutConfirmation = async () => {
+  const handleAdminSoldOutConfirmation = async () => {
     try {
-      await propertySoldOutAPI(property._id); // call your API
-      property.soldOut = true; // update local UI immediately
-      toast.success("Property marked as Sold Out!");
-      setShowSoldOutModal(false);
+      const newSoldOutStatus = !property.soldOut;
+      await adminSoldOutAPI(property._id, newSoldOutStatus);
+      property.soldOut = newSoldOutStatus;
+
+      toast.success(
+        newSoldOutStatus
+          ? "Property marked as Sold Out!"
+          : "Property is now available!"
+      );
+      setAdminShowSoldOutModal(false);
     } catch (error) {
-      toast.error("Failed to mark property as Sold Out.");
-      setShowSoldOutModal(false);
+      toast.error("Failed to update property status.");
+      setAdminShowSoldOutModal(false);
     }
   };
 
@@ -114,14 +122,14 @@ console.log(property);
 
             <div className="flex gap-2">
               <button
-                onClick={() => setShowSoldOutModal(true)}
+                onClick={() => setAdminShowSoldOutModal(true)}
                 className={`px-4 py-1 rounded-md text-sm ${
                   property?.soldOut
-                    ? "bg-red-500 text-white"
+                    ? "bg-yellow-500 text-white"
                     : "bg-green-500 text-white"
                 }`}
               >
-                {property?.soldOut ? "Sold Out" : "Mark as Sold Out"}
+                {property?.soldOut ? "Mark as Available" : "Mark as Sold Out"}
               </button>
               <button
                 onClick={() => {
@@ -296,26 +304,26 @@ console.log(property);
         </div>
       )}
 
-      {/* confirmationmodal for soldout */}
-
-      {showSoldOutModal && (
+      {showAdminSoldOutModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-md w-[90%] max-w-sm text-center">
             <h2 className="text-lg font-bold mb-4 text-blue-900">
-              Confirm Sold Out
+              {property?.soldOut ? "Mark as Available" : "Mark as Sold Out"}
             </h2>
             <p className="text-gray-700 mb-6">
-              Do you want to mark this property as Sold Out?
+              {property?.soldOut
+                ? "Do you want to make this property available again?"
+                : "Do you want to mark this property as Sold Out?"}
             </p>
             <div className="flex justify-center gap-4">
               <button
-                onClick={handleSoldOutConfirmation}
+                onClick={handleAdminSoldOutConfirmation}
                 className="bg-red-500 text-white px-4 py-2 rounded-md"
               >
-                Yes, Sold Out
+                {property?.soldOut ? "Yes, Make Available" : "Yes, Sold Out"}
               </button>
               <button
-                onClick={() => setShowSoldOutModal(false)}
+                onClick={() => setAdminShowSoldOutModal(false)}
                 className="bg-gray-300 text-gray-800 px-4 py-2 rounded-md"
               >
                 Cancel

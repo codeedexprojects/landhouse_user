@@ -438,14 +438,19 @@ export const getEnquireisVendor = async (id) => {
   }
 };
 
+<<<<<<< HEAD
+
+export const adminSoldOutAPI = async (id, soldOut) => {
+=======
 // praveena-branch function
 export const propertySoldOutAPI = async (id) => {
+>>>>>>> e85dda2264e6069cf4b86634a0ce76286775f8b7
   try {
     const token = localStorage.getItem("admintoken"); 
 
     const response = await axios.put(
       `${BASE_URL}/admin/property/soldout/${id}`,
-      { soldOut: true },
+      { soldOut },  
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -456,11 +461,13 @@ export const propertySoldOutAPI = async (id) => {
 
     return response.data;
   } catch (error) {
-    console.error("Error marking property as sold out:", error);
+    console.error("Error updating sold out status:", error);
     throw error;
   }
 };
 
+<<<<<<< HEAD
+=======
 // master branch functions
 export const deleteUser = async (id) => {
   try {
@@ -509,3 +516,4 @@ export const getAffiliateRequest = async () => {
   }
 };
 
+>>>>>>> e85dda2264e6069cf4b86634a0ce76286775f8b7
