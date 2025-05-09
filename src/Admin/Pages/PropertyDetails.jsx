@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import propertyCard from "/src/assets/properImage.png";
 import { IoLocation } from "react-icons/io5";
 import { AiFillHome } from "react-icons/ai";
 import { FaBed, FaBath } from "react-icons/fa";
@@ -9,13 +8,14 @@ import { MdOutlineDeleteOutline, MdOutlinePhoneInTalk } from "react-icons/md";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { deletePropertyAPI } from "../../services/allApi/adminAllApis";
+import { deletePropertyAPI, propertySoldOutAPI } from "../../services/allApi/adminAllApis";
 import { Edit } from "lucide-react";
 
 function PropertyDetails() {
   const location = useLocation();
   const navigate = useNavigate();
   const property = location.state?.property;
+console.log(property);
 
   useEffect(() => {
     if (!property) {
@@ -34,11 +34,16 @@ function PropertyDetails() {
   const [showSoldOutModal, setShowSoldOutModal] = useState(false);
 
 
-  const handleSoldOutConfirmation = () => {
-    // In real-world apps, you would also update the backend here
-    property.soldOut = true;
-    toast.success("Property marked as Sold Out!");
-    setShowSoldOutModal(false);
+  const handleSoldOutConfirmation = async () => {
+    try {
+      await propertySoldOutAPI(property._id); // call your API
+      property.soldOut = true; // update local UI immediately
+      toast.success("Property marked as Sold Out!");
+      setShowSoldOutModal(false);
+    } catch (error) {
+      toast.error("Failed to mark property as Sold Out.");
+      setShowSoldOutModal(false);
+    }
   };
 
   const confirmDelete = async () => {
@@ -94,7 +99,7 @@ function PropertyDetails() {
           <img
             src={
               property.photos &&
-              `https://landouse-backend.onrender.com/${property.photos[0]}`
+              `https://landouse-backend.onrender.com/${property?.photos[0]}`
             }
             alt="Property"
             className="w-full h-64 object-cover"
