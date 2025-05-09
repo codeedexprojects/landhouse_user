@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, Navigate } from 'react-router-dom'
 import Home from './Pages/Home'
 import Properties from './Pages/Properties'
 import Collections from './Pages/Collections'
@@ -27,22 +27,71 @@ import VerifyAffiliateNumber from './Affiliate/Pages/VerifyOTP'
 import AffiliateRegister from './Affiliate/Pages/Register'
 
 function App() {
+  // ✅ define PrivateRoute inside App component
+  const PrivateRoute = ({ children }) => {
+    const userId = localStorage.getItem('userId');
+    return userId ? children : <Navigate to="/login" replace />;
+  };
+
   return (
     <>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/properties" element={<Properties />} />
-        <Route path="/favorites" element={<Collections />} />
-        <Route path="/single/:propertyId" element={<SingleView />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/register" element={<SignupForm />} />
         <Route path="/login" element={<LandouseLoginForm />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/compare" element={<CompareListings />} />
-        <Route path="/compare-result" element={<ComparePropertiesResult />} />
-        <Route path="/invite" element={<InvitePage />} />
 
+        {/* 🔒 PRIVATE ROUTES */}
+        <Route 
+          path="/favorites" 
+          element={
+            <PrivateRoute>
+              <Collections />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/single/:propertyId" 
+          element={
+            <PrivateRoute>
+              <SingleView />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/profile" 
+          element={
+            <PrivateRoute>
+              <ProfilePage />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/compare" 
+          element={
+            <PrivateRoute>
+              <CompareListings />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/compare-result" 
+          element={
+            <PrivateRoute>
+              <ComparePropertiesResult />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/invite" 
+          element={
+            <PrivateRoute>
+              <InvitePage />
+            </PrivateRoute>
+          } 
+        />
 
         {/* Admin Panel */}
         <Route path="/admin/*" element={<MainDashboard />} />
@@ -57,14 +106,11 @@ function App() {
         <Route path="/vendor/access-granted" element={<AccessGranted />} />
         <Route path="/vendor/access-declined" element={<AccessDeclined />} />
 
-        {/*  Affiliate panel*/}
+        {/* Affiliate Panel */}
         <Route path="/affiliate/*" element={<MainAffiliateDashboard />} />
         <Route path="/affiliate/login" element={<AffiliateLogin />} />
         <Route path="/affiliate/otp" element={<VerifyAffiliateNumber />} />
         <Route path="/affiliate/register" element={<AffiliateRegister />} />
-
-
-
       </Routes>
     </>
   )

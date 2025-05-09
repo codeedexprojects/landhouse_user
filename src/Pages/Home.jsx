@@ -103,6 +103,7 @@ function Home() {
       return;
     }
     navigate(`/single/${propertyId}`);
+    window.scrollTo(0, 0);
   };
 
   const toggleWishlist = async (propertyId) => {
@@ -149,9 +150,11 @@ function Home() {
 
   const handleClick = () => {
     navigate('/properties')
+    window.scrollTo(0, 0);
   }
   const handleContactClick = () => {
     navigate('/contact')
+    window.scrollTo(0, 0);
   }
 
   return (
@@ -219,7 +222,7 @@ function Home() {
               {/* Property Image */}
               <div className="relative">
                 <img
-                  src={`http://localhost:3005/${property.photos[0]?.replace(/\\/g, "/")}`}
+                  src={`https://landouse-backend.onrender.com/${property.photos[0]?.replace(/\\/g, "/")}`}
                   alt={property.property_type}
                   className="w-full h-36 object-cover"
                 />

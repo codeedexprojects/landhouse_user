@@ -26,7 +26,9 @@ const Properties = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [priceFilter, setPriceFilter] = useState('');
-      const [toast, setToast] = useState({ show: false, message: '', type: '' });
+  const [bedsFilter, setBedsFilter] = useState('');
+  const [bathsFilter, setBathsFilter] = useState('');
+  const [toast, setToast] = useState({ show: false, message: '', type: '' });
   
 
   const handleCopy = () => {
@@ -62,9 +64,9 @@ const Properties = () => {
   }, []);
 
   useEffect(() => {
-    // Apply filters whenever properties, searchTerm, or priceFilter changes
+    // Apply filters whenever properties, searchTerm, priceFilter, bedsFilter, or bathsFilter changes
     filterProperties();
-  }, [properties, searchTerm, priceFilter]);
+  }, [properties, searchTerm, priceFilter, bedsFilter, bathsFilter]);
 
   const fetchPropertyData = async () => {
     const data = await getProperties();
@@ -112,6 +114,18 @@ const Properties = () => {
       filtered.sort((a, b) => (b.property_price || 0) - (a.property_price || 0));
     }
     
+    // Apply beds filter
+    if (bedsFilter) {
+      const bedsCount = parseInt(bedsFilter);
+      filtered = filtered.filter(property => property.beds === bedsCount);
+    }
+    
+    // Apply baths filter
+    if (bathsFilter) {
+      const bathsCount = parseInt(bathsFilter);
+      filtered = filtered.filter(property => property.baths === bathsCount);
+    }
+    
     setFilteredProperties(filtered);
   };
 
@@ -121,6 +135,21 @@ const Properties = () => {
 
   const handlePriceFilterChange = (e) => {
     setPriceFilter(e.target.value);
+  };
+
+  const handleBedsFilterChange = (e) => {
+    setBedsFilter(e.target.value);
+  };
+
+  const handleBathsFilterChange = (e) => {
+    setBathsFilter(e.target.value);
+  };
+
+  const clearAllFilters = () => {
+    setSearchTerm('');
+    setPriceFilter('');
+    setBedsFilter('');
+    setBathsFilter('');
   };
 
   const handleViewClick = async (propertyId) => {
@@ -201,7 +230,7 @@ const Properties = () => {
         <div className="relative w-full mb-4">
           <input
             type="text"
-            placeholder="Search City, Pincode, Address"
+            placeholder="Search City, Pincode, Address , Property Type"
             value={searchTerm}
             onChange={handleSearchChange}
             className="w-full px-4 py-3 pl-10 border rounded-md"
@@ -211,39 +240,86 @@ const Properties = () => {
           </div>
         </div>
 
-        {/* Price filter */}
-        <div className="w-full mb-8 md:w-64">
-          <select 
-            className="w-full px-3 py-2 border rounded-md"
-            value={priceFilter}
-            onChange={handlePriceFilterChange}
-          >
-            <option value="">Sort by Price</option>
-            <option value="lowToHigh">Price: Low to High</option>
-            <option value="highToLow">Price: High to Low</option>
-          </select>
+        {/* Filters section */}
+        <div className="flex flex-wrap gap-4 mb-8">
+          {/* Price filter */}
+          <div className="w-full sm:w-auto">
+            <select 
+              className="w-full px-3 py-2 border rounded-md"
+              value={priceFilter}
+              onChange={handlePriceFilterChange}
+            >
+              <option value="">Sort by Price</option>
+              <option value="lowToHigh">Price: Low to High</option>
+              <option value="highToLow">Price: High to Low</option>
+            </select>
+          </div>
+
+          {/* Beds filter */}
+          <div className="w-full sm:w-auto">
+            <select 
+              className="w-full px-3 py-2 border rounded-md"
+              value={bedsFilter}
+              onChange={handleBedsFilterChange}
+            >
+              <option value="">All Bedrooms</option>
+              <option value="1">1 Bedroom</option>
+              <option value="2">2 Bedrooms</option>
+              <option value="3">3 Bedrooms</option>
+              <option value="4">4 Bedrooms</option>
+              <option value="5">5+ Bedrooms</option>
+            </select>
+          </div>
+
+          {/* Baths filter */}
+          <div className="w-full sm:w-auto">
+            <select 
+              className="w-full px-3 py-2 border rounded-md"
+              value={bathsFilter}
+              onChange={handleBathsFilterChange}
+            >
+              <option value="">All Bathrooms</option>
+              <option value="1">1 Bathroom</option>
+              <option value="2">2 Bathrooms</option>
+              <option value="3">3 Bathrooms</option>
+              <option value="4">4+ Bathrooms</option>
+            </select>
+          </div>
+
+          {/* Clear filters button - only shown when at least one filter is active */}
+          {(searchTerm || priceFilter || bedsFilter || bathsFilter) && (
+            <button 
+              onClick={clearAllFilters}
+              className="px-3 py-2 border bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+            >
+              Clear Filters
+            </button>
+          )}
         </div>
 
         {/* Property count */}
         {filteredProperties.length > 0 && (
           <p className="mb-4 text-sm text-gray-600">
             Showing {filteredProperties.length} {filteredProperties.length === 1 ? 'property' : 'properties'}
-            {searchTerm && ` for "${searchTerm}"`}
+            {(searchTerm || bedsFilter || bathsFilter) && (
+              <span>
+                {searchTerm && ` for "${searchTerm}"`}
+                {bedsFilter && ` with ${bedsFilter} ${parseInt(bedsFilter) === 1 ? 'bedroom' : 'bedrooms'}`}
+                {bathsFilter && ` with ${bathsFilter} ${parseInt(bathsFilter) === 1 ? 'bathroom' : 'bathrooms'}`}
+              </span>
+            )}
           </p>
         )}
 
         {/* No results message */}
         {filteredProperties.length === 0 && (
           <div className="text-center py-8">
-            <p className="text-lg text-gray-600">No properties found matching your search.</p>
+            <p className="text-lg text-gray-600">No properties found matching your search criteria.</p>
             <button 
-              onClick={() => {
-                setSearchTerm('');
-                setPriceFilter('');
-              }}
+              onClick={clearAllFilters}
               className="mt-2 text-blue-600 hover:underline"
             >
-              Clear filters
+              Clear all filters
             </button>
           </div>
         )}
@@ -259,7 +335,7 @@ const Properties = () => {
               {/* Property Image */}
               <div className="relative">
                 <img
-                  src={`http://localhost:3005/${property.photos[0]?.replace(/\\/g, "/")}`}
+                  src={`https://landouse-backend.onrender.com/${property.photos[0]?.replace(/\\/g, "/")}`}
                   alt={property.property_type}
                   className="w-full h-36 object-cover"
                 />

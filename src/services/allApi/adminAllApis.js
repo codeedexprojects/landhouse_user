@@ -438,8 +438,13 @@ export const getEnquireisVendor = async (id) => {
   }
 };
 
+<<<<<<< HEAD
 
 export const adminSoldOutAPI = async (id, soldOut) => {
+=======
+// praveena-branch function
+export const propertySoldOutAPI = async (id) => {
+>>>>>>> e85dda2264e6069cf4b86634a0ce76286775f8b7
   try {
     const token = localStorage.getItem("admintoken"); 
 
@@ -461,3 +466,54 @@ export const adminSoldOutAPI = async (id, soldOut) => {
   }
 };
 
+<<<<<<< HEAD
+=======
+// master branch functions
+export const deleteUser = async (id) => {
+  try {
+    const token = localStorage.getItem('admintoken'); 
+    const response = await axios.delete(`${BASE_URL}/admin/user/delete/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const approveAffiliate = async (affiliateId) => {
+  try {
+    const token = localStorage.getItem('admintoken');
+    const response = await axios.patch(
+      `${BASE_URL}/admin/affiliate/approve/${affiliateId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error approving vendor:', error);
+    throw error;
+  }
+};
+
+export const getAffiliateRequest = async () => {
+  try {
+    const token = localStorage.getItem('adminToken'); 
+    const response = await axios.get(`${BASE_URL}/admin/affiliate/requests`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+>>>>>>> e85dda2264e6069cf4b86634a0ce76286775f8b7

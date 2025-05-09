@@ -169,7 +169,7 @@ export default function PropertyListingPage() {
                 <img
                   src={
                     property.photos && property.photos.length > 0
-                      ? `http://localhost:3005/${property.photos[0]?.replace(/\\/g, "/")}`
+                      ? `https://landouse-backend.onrender.com/${property.photos[0]?.replace(/\\/g, "/")}`
                       : "https://via.placeholder.com/400x300?text=No+Image"
                   }
                   alt={property.property_type || "Property"}

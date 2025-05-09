@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Download, ArrowLeft, ArrowRight, MoreVertical } from 'lucide-react';
-import { getUserList } from '../../services/allApi/adminAllApis';
+import { Download, ArrowLeft, ArrowRight, MoreVertical, Eye, Trash2 } from 'lucide-react';
+import { getUserList, deleteUser } from '../../services/allApi/adminAllApis';
 import { useNavigate } from 'react-router-dom';
-
-
+import { toast } from 'react-toastify';
 
 export default function UserListingPage() {
   const [users, setUsers] = useState([]);
@@ -11,14 +10,14 @@ export default function UserListingPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
+  const [activeDropdown, setActiveDropdown] = useState(null); // Track which dropdown is open
   const usersPerPage = 5;
-
 
   const navigate = useNavigate();
 
-const handleUserClick = (id) => {
-  navigate(`/admin/user-details/${id}`);
-};
+  const handleUserClick = (id) => {
+    navigate(`/admin/user-details/${id}`);
+  };
 
   useEffect(() => {
     fetchUsers();
@@ -32,6 +31,24 @@ const handleUserClick = (id) => {
     const data = await getUserList();
     setUsers(data);
     setFilteredUsers(data);
+  };
+
+  const handleDeleteUser = async (userId) => {
+    try {
+      const response = await deleteUser(userId);
+      if (response && response.status === 200) {
+        toast.success('User deleted successfully');
+        // Refresh the user list
+        fetchUsers();
+      } else {
+        toast.error('Failed to delete user');
+      }
+    } catch (error) {
+      toast.error('Error deleting user');
+      console.error(error);
+    } finally {
+      setActiveDropdown(null); // Close dropdown after action
+    }
   };
 
   const handleSearchAndFilter = () => {
@@ -100,9 +117,6 @@ const handleUserClick = (id) => {
         <table className="w-full text-sm text-left text-gray-700">
           <thead className="bg-gray-50">
             <tr>
-              <th className="p-4">
-                <input type="checkbox" />
-              </th>
               <th className="py-3 px-4 font-semibold">Sl No</th>
               <th className="py-3 px-4 font-semibold">Customer</th>
               <th className="py-3 px-4 font-semibold">Phone Number</th>
@@ -114,10 +128,7 @@ const handleUserClick = (id) => {
           </thead>
           <tbody>
             {currentUsers.map((user, index) => (
-              <tr key={user._id} className="border-t">
-                <td className="p-4">
-                  <input type="checkbox" />
-                </td>
+              <tr key={user._id} className="border-t hover:bg-gray-50">
                 <td className="py-3 px-4">{indexOfFirstUser + index + 1}</td>
                 <td className="py-3 px-4 flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
@@ -134,95 +145,121 @@ const handleUserClick = (id) => {
                     {user.isActive ? 'Active' : 'Inactive'}
                   </div>
                 </td>
-                <td className="py-3 px-4 text-center">
-  <button onClick={() => handleUserClick(user._id)}>
-    <MoreVertical size={18} className="cursor-pointer" />
-  </button>
-</td>
+                <td className="py-3 px-4 text-center relative">
+                  <button 
+                    onClick={() => setActiveDropdown(activeDropdown === user._id ? null : user._id)}
+                    className="p-1 rounded hover:bg-gray-100"
+                  >
+                    <MoreVertical size={18} className="cursor-pointer" />
+                  </button>
+                  
+                  {/* Dropdown Menu */}
+                  {activeDropdown === user._id && (
+                    <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+                      <div className="py-1">
+                        <button
+                          onClick={() => {
+                            handleUserClick(user._id);
+                            setActiveDropdown(null);
+                          }}
+                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                        >
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Details
+                        </button>
+                        <button
+                          onClick={() => handleDeleteUser(user._id)}
+                          className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete User
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-    
-
-
+        {/* Pagination */}
+        
       </div>
-          {/* Pagination */}
-          <div className="flex justify-between items-center p-4">
-  <button className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm">
-    <Download className="mr-2 w-4 h-4" />
-    Download
-  </button>
+      <div className="flex justify-between items-center p-4">
+          <button className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm">
+            <Download className="mr-2 w-4 h-4" />
+            Download
+          </button>
 
-  <div className="flex items-center">
-    <button
-      disabled={currentPage === 1}
-      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-      className="p-2 text-gray-500 disabled:opacity-50"
-    >
-      <ArrowLeft className="w-4 h-4" />
-    </button>
-
-    <div className="flex space-x-2 mx-2">
-      {Array.from({ length: totalPages }).map((_, index) => {
-        const page = index + 1;
-
-        // Only show first, last, current, and neighbors
-        if (
-          page === 1 ||
-          page === totalPages ||
-          Math.abs(page - currentPage) <= 1
-        ) {
-          return (
+          <div className="flex items-center">
             <button
-              key={page}
-              onClick={() => setCurrentPage(page)}
-              className={`w-8 h-8 rounded-md ${
-                page === currentPage
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-500'
-              } flex items-center justify-center text-sm shadow-sm`}
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              className="p-2 text-gray-500 disabled:opacity-50"
             >
-              {page}
+              <ArrowLeft className="w-4 h-4" />
             </button>
-          );
-        }
 
-        // Show ellipsis after first or before last
-        if (
-          (page === 2 && currentPage > 3) ||
-          (page === totalPages - 1 && currentPage < totalPages - 2)
-        ) {
-          return (
-            <span
-              key={page}
-              className="flex items-center justify-center text-gray-500"
+            <div className="flex space-x-2 mx-2">
+              {Array.from({ length: totalPages }).map((_, index) => {
+                const page = index + 1;
+
+                // Only show first, last, current, and neighbors
+                if (
+                  page === 1 ||
+                  page === totalPages ||
+                  Math.abs(page - currentPage) <= 1
+                ) {
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`w-8 h-8 rounded-md ${
+                        page === currentPage
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-white text-gray-500'
+                      } flex items-center justify-center text-sm shadow-sm`}
+                    >
+                      {page}
+                    </button>
+                  );
+                }
+
+                // Show ellipsis after first or before last
+                if (
+                  (page === 2 && currentPage > 3) ||
+                  (page === totalPages - 1 && currentPage < totalPages - 2)
+                ) {
+                  return (
+                    <span
+                      key={page}
+                      className="flex items-center justify-center text-gray-500"
+                    >
+                      ...
+                    </span>
+                  );
+                }
+
+                return null;
+              })}
+            </div>
+
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              className="p-2 text-gray-500 disabled:opacity-50"
             >
-              ...
-            </span>
-          );
-        }
+              <ArrowRight className="w-4 h-4" />
+            </button>
 
-        return null;
-      })}
-    </div>
-
-    <button
-      disabled={currentPage === totalPages}
-      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-      className="p-2 text-gray-500 disabled:opacity-50"
-    >
-      <ArrowRight className="w-4 h-4" />
-    </button>
-
-    <div className="ml-4 flex items-center border-l border-gray-200 pl-4">
-      <button className="w-8 h-8 rounded-md bg-white text-gray-600 flex items-center justify-center text-sm shadow-sm">
-        {usersPerPage}
-      </button>
-    </div>
-  </div>
-</div>
+            <div className="ml-4 flex items-center border-l border-gray-200 pl-4">
+              <button className="w-8 h-8 rounded-md bg-white text-gray-600 flex items-center justify-center text-sm shadow-sm">
+                {usersPerPage}
+              </button>
+            </div>
+          </div>
+        </div>
     </div>
   );
 }

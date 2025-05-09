@@ -1,15 +1,22 @@
 import React from 'react';
-import image from "../../assets/LoginHalf.png"
-import image1 from "../../assets/waiting.jpg"
+import { useNavigate } from 'react-router-dom'; // <-- for navigation
+import image from "../../assets/LoginHalf.png";
+import image1 from "../../assets/waiting.jpg";
 
 export default function WaitingApproval() {
+  const navigate = useNavigate(); // initialize navigate function
+
+  const handleTryLogin = () => {
+    navigate('/vendor/login'); // redirect to vendor login
+  };
+
   return (
     <div className="min-h-screen w-full flex">
       {/* Left Side - Blue Background */}
       <div
         className="hidden md:flex md:w-1/2 bg-blue-500 flex-col justify-between items-center text-white p-8"
         style={{
-          backgroundImage: `url(${image})`,  // optional
+          backgroundImage: `url(${image})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -49,10 +56,18 @@ export default function WaitingApproval() {
 
           {/* Image */}
           <img
-            src={image1} // <-- Put your illustration image path here
+            src={image1}
             alt="Waiting Illustration"
-            className="mx-auto w-60 h-auto"
+            className="mx-auto w-60 h-auto mb-6"
           />
+
+          {/* 🔥 Try Login Again Button */}
+          <button
+            onClick={handleTryLogin}
+            className="mt-4 px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300"
+          >
+            Go To Login
+          </button>
         </div>
       </div>
     </div>
