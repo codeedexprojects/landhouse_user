@@ -4,6 +4,17 @@ import AffiliateHeader from '../Components/HeaderVendor';
 import Sidebar from '../Components/Sidebar';
 import AffiliateDashboard from '../Components/Dashboard/OverView';
 
+function PrivateRoute({ children }) {
+  const affiliateId = localStorage.getItem('affiliateId'); // Check if affiliateId is in localStorage
+  
+  // If no affiliateId, redirect to login page
+  if (!affiliateId) {
+    return <Navigate to="/affiliate/login" />;
+  }
+
+  return children; // If affiliateId exists, render the route content
+}
+
 function MainAffiliateDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -33,10 +44,19 @@ function MainAffiliateDashboard() {
         <AffiliateHeader toggleSidebar={toggleSidebar} />
         <div className="flex-1 overflow-y-auto">
           <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" />} />
-            <Route path="/dashboard" element={<AffiliateDashboard />} />
-           
-
+            <Route path="/" element={<Navigate to="/affiliate/dashboard" />} />
+            
+            {/* Private Route for Dashboard */}
+            <Route 
+              path="/dashboard" 
+              element={
+                <PrivateRoute>
+                  <AffiliateDashboard />
+                </PrivateRoute>
+              } 
+            />
+            
+            {/* Redirects to login if no affiliateId */}
             <Route path="*" element={<Navigate to="/affiliate/dashboard" />} />
           </Routes>
         </div>

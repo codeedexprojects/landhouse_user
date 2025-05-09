@@ -121,6 +121,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             <li key={index} className="mb-2">
               <RouterLink
                 to={item.path}
+                onClick={() => {
+                  localStorage.removeItem("affiliateId");
+                  localStorage.removeItem("affiliateToken");
+                }}
                 className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-lg"
               >
                 <span>{item.name}</span>

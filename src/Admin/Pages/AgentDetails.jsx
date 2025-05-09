@@ -41,26 +41,27 @@ function AgentDetails() {
     role: ''
   });
   const [enquiries, setEnquiries] = useState([]);
-const [enquiriesLoading, setEnquiriesLoading] = useState(true);
+  const [enquiriesLoading, setEnquiriesLoading] = useState(true);
+  const BASE_URL = 'https://landouse-backend.onrender.com/';
 
-// Add this useEffect to fetch enquiries when the component mounts
-useEffect(() => {
-  const fetchEnquiries = async () => {
-    try {
-      setEnquiriesLoading(true);
-      const response = await getEnquireisVendor(vendorId);
-      if (response && response.success) {
-        setEnquiries(response.enquiries || []);
+  // Add this useEffect to fetch enquiries when the component mounts
+  useEffect(() => {
+    const fetchEnquiries = async () => {
+      try {
+        setEnquiriesLoading(true);
+        const response = await getEnquireisVendor(vendorId);
+        if (response && response.success) {
+          setEnquiries(response.enquiries || []);
+        }
+        setEnquiriesLoading(false);
+      } catch (err) {
+        console.error('Error fetching enquiries:', err);
+        setEnquiriesLoading(false);
       }
-      setEnquiriesLoading(false);
-    } catch (err) {
-      console.error('Error fetching enquiries:', err);
-      setEnquiriesLoading(false);
-    }
-  };
-  
-  fetchEnquiries();
-}, [vendorId]);
+    };
+
+    fetchEnquiries();
+  }, [vendorId]);
 
   const fetchVendorProperties = async (pageNum = 1) => {
     try {
@@ -434,10 +435,12 @@ useEffect(() => {
             </button>
           </div>
 
-          <div className="relative">
-            <div className="w-32 h-32 rounded-full bg-gray-200 overflow-hidden mb-2">
-              <img src={vendor.profileImage || profile} alt={vendor.name} className="w-full h-full object-cover" />
-            </div>
+          <div className="w-32 h-32 rounded-full bg-gray-200 overflow-hidden mb-2">
+            <img
+              src={vendor.profileImage ? `${BASE_URL}${vendor.profileImage}` : profile}
+              alt={vendor.name}
+              className="w-full h-full object-cover"
+            />
           </div>
 
           <h2 className="text-xl font-semibold mt-2">{vendor.name}</h2>
@@ -562,62 +565,62 @@ useEffect(() => {
 
           {/* Referrals Card */}
           <div className="bg-white rounded-lg p-6">
-  <div className="flex justify-between items-center mb-4">
-    <h2 className="text-lg font-semibold">Latest Property Enquiries</h2>
-    <span className="text-gray-600">({enquiries.length})</span>
-  </div>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Latest Property Enquiries</h2>
+              <span className="text-gray-600">({enquiries.length})</span>
+            </div>
 
-  {enquiriesLoading ? (
-    <div className="text-center py-4">Loading enquiries...</div>
-  ) : enquiries.length === 0 ? (
-    <div className="text-center py-4">No enquiries found</div>
-  ) : (
-    <>
-      <div className="grid grid-cols-12 font-medium text-gray-500 mb-2 text-sm">
-        <div className="col-span-3">Property</div>
-        <div className="col-span-2">Price</div>
-        <div className="col-span-2">Enquirer</div>
-        <div className="col-span-2">Contact</div>
-        <div className="col-span-2">Date</div>
-        <div className="col-span-1">Actions</div>
-      </div>
+            {enquiriesLoading ? (
+              <div className="text-center py-4">Loading enquiries...</div>
+            ) : enquiries.length === 0 ? (
+              <div className="text-center py-4">No enquiries found</div>
+            ) : (
+              <>
+                <div className="grid grid-cols-12 font-medium text-gray-500 mb-2 text-sm">
+                  <div className="col-span-3">Property</div>
+                  <div className="col-span-2">Price</div>
+                  <div className="col-span-2">Enquirer</div>
+                  <div className="col-span-2">Contact</div>
+                  <div className="col-span-2">Date</div>
+                  <div className="col-span-1">Actions</div>
+                </div>
 
-      {enquiries.slice(0, 3).map((enquiry) => (
-        <div key={enquiry._id} className="border-b border-gray-200 py-3">
-          <div className="grid grid-cols-12 items-center text-sm">
-            <div className="col-span-3 font-medium">
-              {enquiry.propertyId?.property_type || 'N/A'}
-            </div>
-            <div className="col-span-2">
-              ₹{enquiry.propertyId?.property_price?.toLocaleString() || 'N/A'}
-            </div>
-            <div className="col-span-2">
-              {enquiry.name || enquiry.userId?.email || 'N/A'}
-            </div>
-            <div className="col-span-2">
-              <div>{enquiry.phoneNumber || 'N/A'}</div>
-              <div className="text-xs text-gray-500 truncate">{enquiry.email}</div>
-            </div>
-            <div className="col-span-2">
-              {new Date(enquiry.createdAt).toLocaleDateString()}
-            </div>
-            <div className="col-span-1">
-              <button className="text-blue-500 hover:text-blue-700">
-                View
-              </button>
-            </div>
+                {enquiries.slice(0, 3).map((enquiry) => (
+                  <div key={enquiry._id} className="border-b border-gray-200 py-3">
+                    <div className="grid grid-cols-12 items-center text-sm">
+                      <div className="col-span-3 font-medium">
+                        {enquiry.propertyId?.property_type || 'N/A'}
+                      </div>
+                      <div className="col-span-2">
+                        ₹{enquiry.propertyId?.property_price?.toLocaleString() || 'N/A'}
+                      </div>
+                      <div className="col-span-2">
+                        {enquiry.name || enquiry.userId?.email || 'N/A'}
+                      </div>
+                      <div className="col-span-2">
+                        <div>{enquiry.phoneNumber || 'N/A'}</div>
+                        <div className="text-xs text-gray-500 truncate">{enquiry.email}</div>
+                      </div>
+                      <div className="col-span-2">
+                        {new Date(enquiry.createdAt).toLocaleDateString()}
+                      </div>
+                      <div className="col-span-1">
+                        <button className="text-blue-500 hover:text-blue-700">
+                          View
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {enquiries.length > 3 && (
+                  <div className="text-center mt-3">
+                    <button className="text-blue-500 hover:underline">See all enquiries</button>
+                  </div>
+                )}
+              </>
+            )}
           </div>
-        </div>
-      ))}
-
-      {enquiries.length > 3 && (
-        <div className="text-center mt-3">
-          <button className="text-blue-500 hover:underline">See all enquiries</button>
-        </div>
-      )}
-    </>
-  )}
-</div>
         </div>
       </div>
       <div className="m-6">
@@ -644,7 +647,7 @@ useEffect(() => {
             >
               <div className="relative">
                 <img
-                  src={property.photos && property.photos.length > 0 ? property.photos[0] : house1}
+                  src={property.photos && property.photos.length > 0 ? `${BASE_URL}${property.photos[0]}` : house1}
                   alt={property.property_type}
                   className="w-full h-40 object-cover"
                 />
@@ -684,8 +687,8 @@ useEffect(() => {
 
                 <div className="flex justify-between items-center mt-4">
                   <span className={`text-xs px-2 py-1 rounded ${property.soldOut
-                      ? 'bg-red-100 text-red-800'
-                      : 'bg-green-100 text-green-800'
+                    ? 'bg-red-100 text-red-800'
+                    : 'bg-green-100 text-green-800'
                     }`}>
                     {property.soldOut ? 'Sold' : 'Available'}
                   </span>

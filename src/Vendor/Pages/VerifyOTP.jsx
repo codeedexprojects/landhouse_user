@@ -101,6 +101,10 @@ export default function VerifyNumber() {
     }
   };
 
+  const handleLoginClick=()=>{
+    navigate('/vendor/login')
+  }
+
   return (
     <div className="min-h-screen w-full flex">
       {/* Left Side - Background Image */}
@@ -183,6 +187,16 @@ export default function VerifyNumber() {
               className="text-blue-500 hover:underline disabled:opacity-50"
             >
               Re-send
+            </button>
+          </p>
+          <p className="text-center mt-6 text-sm text-gray-600">
+            Try Login Again ! 
+            <button 
+             onClick={handleLoginClick}
+              disabled={loading}
+              className="text-blue-500 hover:underline disabled:opacity-50"
+            >
+              Login
             </button>
           </p>
         </div>

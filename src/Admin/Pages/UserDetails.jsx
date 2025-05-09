@@ -5,14 +5,14 @@ import axios from 'axios';
 import { BASE_URL } from '../../services/baseUrl';
 
 export default function UserDetailsPage() {
-  const { id } = useParams(); 
-  // console.log(id);
-  
-  const [user, setUser] = useState(null);
+  const { id } = useParams();
+  const [userData, setUserData] = useState(null);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const BASE_URL_IMG="https://landouse-backend.onrender.com"
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUserData = async () => {
       const token = localStorage.getItem('admintoken');
       try {
         const response = await axios.get(`${BASE_URL}/admin/user/view/${id}`, {
@@ -20,35 +20,23 @@ export default function UserDetailsPage() {
             Authorization: `Bearer ${token}`
           }
         });
-        setUser(response.data.user); // Assuming the API returns full user object
+        setUserData(response.data);
       } catch (err) {
         console.error("Failed to fetch user:", err);
         setError("Failed to load user details");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchUser();
+    fetchUserData();
   }, [id]);
 
+  if (loading) return <div className="p-4">Loading...</div>;
   if (error) return <div className="text-red-500 p-4">{error}</div>;
-  if (!user) return <div className="p-4">Loading...</div>;
+  if (!userData) return <div className="p-4">User not found</div>;
 
-  // Dummy fallback data (until you implement dynamic versions)
-  const recentlyViewed = {
-    title: "Single Family Residency, 4 Cent",
-    location: "Palakkad, Kerala",
-    bedrooms: 4,
-    bathrooms: 2,
-    sqft: 25544
-  };
-
-  const referrals = [
-    { name: "Brooklyn Simmons", referredBy: "Krishtin", imgIndex: 1 },
-    { name: "Musafir", referredBy: "Mashi", imgIndex: 2 },
-    { name: "Shafeek ali", referredBy: "Fathima", imgIndex: 3 },
-    { name: "Abhilash", referredBy: "Fathima", imgIndex: 4 },
-    { name: "Aravind", referredBy: "Fathima", imgIndex: 5 }
-  ];
+  const { user, referredUsers = [], latestEnquiry } = userData;
 
   return (
     <div className="p-4 bg-blue-100 min-h-screen">
@@ -60,7 +48,11 @@ export default function UserDetailsPage() {
           <span className="text-blue-500">User details</span>
           <div className="ml-auto">
             <div className="bg-gray-800 rounded-full w-8 h-8 flex items-center justify-center overflow-hidden">
-              <img src="/api/placeholder/32/32" alt="User profile" className="w-full h-full object-cover" />
+              <img 
+                src={user?.profileImage || "/api/placeholder/32/32"} 
+                alt="User profile" 
+                className="w-full h-full object-cover" 
+              />
             </div>
           </div>
         </div>
@@ -81,9 +73,10 @@ export default function UserDetailsPage() {
                 />
               </div>
               <div>
-              <h3 className="text-xl font-semibold">
-    {(user?.firstName || "Unnamed") + " " + (user?.lastName || "")}
-  </h3>                <p className="text-gray-500 text-sm">ID-{user?._id || "N/A"}</p>
+                <h3 className="text-xl font-semibold">
+                  {(user?.firstName || "Unnamed") + " " + (user?.lastName || "")}
+                </h3>
+                <p className="text-gray-500 text-sm">Referral ID: {user?.referralId || "N/A"}</p>
                 <p className="text-gray-600 mt-2 text-sm">{user?.address || "No address available"}</p>
               </div>
             </div>
@@ -94,7 +87,7 @@ export default function UserDetailsPage() {
             <div className="p-4 border-t border-gray-100 grid grid-cols-1 gap-4">
               <div>
                 <p className="text-gray-500 text-sm">User Name</p>
-                <p className="font-medium">  {(user?.firstName || "Unnamed") + " " + (user?.lastName || "")}</p>
+                <p className="font-medium">{(user?.firstName || "Unnamed") + " " + (user?.lastName || "")}</p>
               </div>
               <div>
                 <p className="text-gray-500 text-sm">Phone Number</p>
@@ -105,8 +98,8 @@ export default function UserDetailsPage() {
                 <p className="font-medium">{user?.email || "N/A"}</p>
               </div>
               <div>
-                <p className="text-gray-500 text-sm">Location</p>
-                <p className="font-medium">{user?.address || "N/A"}</p>
+                <p className="text-gray-500 text-sm">Referral ID</p>
+                <p className="font-medium">{user?.referralId || "N/A"}</p>
               </div>
               <div>
                 <p className="text-gray-500 text-sm">Address</p>
@@ -116,9 +109,9 @@ export default function UserDetailsPage() {
           </div>
         </div>
 
-        {/* Right - Recently Viewed & Referred */}
+        {/* Right - Latest Enquiry & Referred Users */}
         <div className="w-full lg:w-5/12">
-          {/* Recently Viewed */}
+          {/* Latest Enquiry */}
           <div className="bg-white rounded-md shadow-sm mb-4">
             <div className="p-4 flex justify-between items-center">
               <h2 className="text-lg font-medium">Latest Enquiry</h2>
@@ -129,53 +122,99 @@ export default function UserDetailsPage() {
                 </button>
               </div>
             </div>
-            <div className="p-4 border-t border-gray-100">
-              <div className="flex">
-                <div className="flex-grow pr-4">
-                  <h3 className="text-blue-500 text-sm font-medium">{recentlyViewed.title}</h3>
-                  <p className="text-blue-500 text-sm">{recentlyViewed.location}</p>
-                  <div className="flex justify-between mt-2 text-xs text-gray-500">
-                    <div className="text-center">
-                      <span className="text-blue-500 font-medium">{recentlyViewed.bathrooms}</span> 🛁
+            
+            {latestEnquiry ? (
+              <div className="p-4 border-t border-gray-100">
+                <div className="flex">
+                  <div className="flex-grow pr-4">
+                    <h3 className="text-blue-500 text-sm font-medium">
+                      {latestEnquiry.propertyId?.property_type || 'Property'} - {latestEnquiry.propertyId?.address || 'Location'}
+                    </h3>
+                    <p className="text-gray-600 text-sm">
+                      Enquiry from: {latestEnquiry.name || latestEnquiry.email}
+                    </p>
+                    <div className="flex justify-between mt-2 text-xs text-gray-500">
+                      <div className="text-center">
+                        <span className="text-blue-500 font-medium">
+                          {latestEnquiry.propertyId?.baths || 'N/A'}
+                        </span> 🛁
+                      </div>
+                      <div className="text-center">
+                        <span className="text-blue-500 font-medium">
+                          {latestEnquiry.propertyId?.beds || 'N/A'}
+                        </span> 🛏️
+                      </div>
+                      <div className="text-center">
+                        <span className="text-blue-500 font-medium">
+                          {latestEnquiry.propertyId?.area || 'N/A'}
+                        </span> sqft
+                      </div>
                     </div>
-                    <div className="text-center">
-                      <span className="text-blue-500 font-medium">{recentlyViewed.bedrooms}</span> 🛏️
+                    <div className="mt-2 text-sm">
+                      <p className="text-gray-500">Message:</p>
+                      <p className="text-gray-700">{latestEnquiry.message || 'No message provided'}</p>
                     </div>
-                    <div className="text-center">
-                      <span className="text-blue-500 font-medium">{recentlyViewed.sqft}</span> sqft
-                    </div>
+                    <button className="mt-3 bg-blue-500 text-white w-full py-2 rounded-md text-sm">
+                      View Enquiry Details
+                    </button>
                   </div>
-                  <button className="mt-3 bg-blue-500 text-white w-full py-2 rounded-md text-sm">
-                    View Property
-                  </button>
-                </div>
-                <div className="w-24 h-24">
-                  <img src="/api/placeholder/100/100" alt="Property" className="w-full h-full object-cover rounded-md" />
+                  {latestEnquiry.propertyId?.photos?.length > 0 ? (
+                    <div className="w-24 h-24">
+                      <img 
+                        src={`${BASE_URL_IMG}/${latestEnquiry.propertyId.photos[0]}`} 
+                        alt="Property" 
+                        className="w-full h-full object-cover rounded-md" 
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-24 h-24 bg-gray-100 rounded-md flex items-center justify-center">
+                      <span className="text-gray-400 text-xs">No Image</span>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="p-4 border-t border-gray-100 text-center text-gray-500">
+                No enquiries found
+              </div>
+            )}
           </div>
 
           {/* Referred Users */}
           <div className="bg-white rounded-md shadow-sm">
-            <h2 className="text-lg font-medium p-4">Referred</h2>
+            <h2 className="text-lg font-medium p-4">Referred Users</h2>
             <div className="p-4 border-t border-gray-100 space-y-4">
-              {referrals.map((ref, index) => (
-                <div key={index} className="flex items-center">
-                  <img
-                    src={`/api/placeholder/${30 + index}/${30 + index}`}
-                    alt={ref.name}
-                    className="w-8 h-8 rounded-full object-cover mr-3"
-                  />
-                  <div>
-                    <p className="font-medium text-sm">{ref.name}</p>
-                    <p className="text-gray-500 text-xs">Referred by {ref.referredBy}</p>
+              {referredUsers.length > 0 ? (
+                <>
+                  {referredUsers.map((ref, index) => (
+                    <div key={ref.id} className="flex items-center">
+                      <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center mr-3">
+                        <span className="text-gray-600 text-xs">
+                          {ref.name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="flex-grow">
+                        <p className="font-medium text-sm">{ref.name}</p>
+                        <p className="text-gray-500 text-xs">
+                          {ref.property || 'No property specified'}
+                        </p>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {ref.email}
+                      </div>
+                    </div>
+                  ))}
+                  <div className="mt-4 text-center">
+                    <button className="text-blue-500 text-sm font-medium">
+                      See All ({referredUsers.length})
+                    </button>
                   </div>
+                </>
+              ) : (
+                <div className="text-center text-gray-500 py-4">
+                  No referred users found
                 </div>
-              ))}
-              <div className="mt-4 text-center">
-                <button className="text-blue-500 text-sm font-medium">See All</button>
-              </div>
+              )}
             </div>
           </div>
         </div>

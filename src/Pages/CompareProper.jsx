@@ -15,7 +15,7 @@ const CompareListings = () => {
   const [toast, setToast] = useState({ show: false, message: '', type: '' });
   const [wishlist, setWishlist] = useState([]);
   const [loadingFavorites, setLoadingFavorites] = useState(false);
-  const BASE_URL="http://localhost:3005";
+  const BASE_URL="https://landouse-backend.onrender.com";
 
   useEffect(() => {
     const fetchComparisons = async () => {
