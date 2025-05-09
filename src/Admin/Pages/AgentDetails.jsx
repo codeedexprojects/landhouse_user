@@ -42,7 +42,7 @@ function AgentDetails() {
   });
   const [enquiries, setEnquiries] = useState([]);
   const [enquiriesLoading, setEnquiriesLoading] = useState(true);
-  const BASE_URL = 'https://landouse-backend.onrender.com/';
+  const BASE_URL = 'http://localhost:3005/';
 
   // Add this useEffect to fetch enquiries when the component mounts
   useEffect(() => {

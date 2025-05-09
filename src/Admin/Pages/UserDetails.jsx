@@ -9,7 +9,7 @@ export default function UserDetailsPage() {
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const BASE_URL_IMG="https://landouse-backend.onrender.com"
+  const BASE_URL_IMG="http://localhost:3005"
 
   useEffect(() => {
     const fetchUserData = async () => {

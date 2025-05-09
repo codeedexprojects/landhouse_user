@@ -30,7 +30,7 @@ function Collections() {
         const formattedFavorites = response.favourites.map(fav => ({
           id: fav.propertyId._id,
           image: fav.propertyId.photos[0]
-            ? `https://landouse-backend.onrender.com/${fav.propertyId.photos[0].replace(/\\/g, "/")}`
+            ? `http://localhost:3005/${fav.propertyId.photos[0].replace(/\\/g, "/")}`
             : 'default-image-path.jpg', // Fallback image
           title: `${fav.propertyId.property_type} - ${fav.propertyId.maxrooms} Rooms`,
           beds: fav.propertyId.beds,

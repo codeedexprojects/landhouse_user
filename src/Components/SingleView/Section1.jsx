@@ -22,7 +22,7 @@ export default function SingleProperty() {
     const [referralLink, setReferralLink] = useState('');
     const [loadingFavorites, setLoadingFavorites] = useState(false);
     const [showLoginModal, setShowLoginModal] = useState(false);
-    const BASE_URL = "https://landouse-backend.onrender.com";
+    const BASE_URL = "http://localhost:3005";
 
     useEffect(() => {
         const fetchProperty = async () => {

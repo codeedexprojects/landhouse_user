@@ -76,7 +76,7 @@ function PropertyDetailsVendor() {
           <img
             src={
               property.photos &&
-              `https://landouse-backend.onrender.com/${property.photos[0]}`
+              `http://localhost:3005/${property.photos[0]}`
             }
             alt="Property"
             className="w-full h-64 object-cover"
