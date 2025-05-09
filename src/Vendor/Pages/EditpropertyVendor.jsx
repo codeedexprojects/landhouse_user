@@ -1,17 +1,15 @@
 import React, { useState } from "react";
 import { MapPin, Upload, Plus } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { EditPropertyAPI } from "../../services/allApi/adminAllApis";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { EditPropertyVendorAPI } from "../../services/allApi/vendorAllAPi";
 
-
-const EditProperty = () => {
+function EditpropertyVendor() {
   const navigate = useNavigate();
   const location = useLocation();
   const property = location.state?.property;
-
-  console.log(property);
+  const [files, setFiles] = useState([]);
 
   const [formData, setFormData] = useState({
     property_type: property?.property_type,
@@ -28,14 +26,19 @@ const EditProperty = () => {
     zipCode: property?.zipcode,
     coordinates: property?.coordinates,
     private_note: property?.private_note,
-    photos: property?.photos
   });
 
-  const [files, setFiles] = useState([]);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
 
   const handleFileChange = (e) => {
     if (e.target.files) {
-      setFormData([...formData, ...Array.from(e.target.files)]);
+      setFiles([...files, ...Array.from(e.target.files)]);
     }
   };
 
@@ -70,24 +73,16 @@ const EditProperty = () => {
     }));
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
-
-  const handleEdit = async (e) => { 
+  const handleEdit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await EditPropertyAPI(property._id, formData);
+      const response = await EditPropertyVendorAPI(property._id, formData);
 
       if (response?.data?.success) {
         toast.success("Property updated successfully!");
         setTimeout(() => {
-          navigate("/admin/view-property");
+          navigate("/vendor/prop-vendor");
         }, 2000);
       } else {
         toast.error("Failed to update property.");
@@ -98,6 +93,8 @@ const EditProperty = () => {
     }
   };
 
+  console.log(property);
+  
 
   return (
     <div className="p-4 bg-blue-100 min-h-screen">
@@ -143,7 +140,8 @@ const EditProperty = () => {
                 name="property_price"
                 placeholder="₹ 4500000"
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.property_price}
+                value={formData.
+                    property_price}
                 onChange={handleChange}
               />
             </div>
@@ -447,6 +445,6 @@ const EditProperty = () => {
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
-};
+}
 
-export default EditProperty;
+export default EditpropertyVendor;

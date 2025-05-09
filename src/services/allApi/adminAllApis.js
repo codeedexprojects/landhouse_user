@@ -438,6 +438,30 @@ export const getEnquireisVendor = async (id) => {
   }
 };
 
+// praveena-branch function
+export const propertySoldOutAPI = async (id) => {
+  try {
+    const token = localStorage.getItem("admintoken"); 
+
+    const response = await axios.put(
+      `${BASE_URL}/admin/property/soldout/${id}`,
+      { soldOut: true },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error marking property as sold out:", error);
+    throw error;
+  }
+};
+
+// master branch functions
 export const deleteUser = async (id) => {
   try {
     const token = localStorage.getItem('admintoken'); 
@@ -484,3 +508,4 @@ export const getAffiliateRequest = async () => {
     console.log(error);
   }
 };
+
