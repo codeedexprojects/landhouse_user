@@ -170,13 +170,13 @@ export const EditPropertyVendorAPI = async (id, updateData) => {
 };
 
 
-export const vendorSoldOutAPI = async (id) => {
+export const vendorSoldOutAPI = async (id, soldOut) => {
   try {
     const token = localStorage.getItem("vendorToken"); 
 
     const response = await axios.put(
       `${BASE_URL}/vendor/property/soldout/${id}`,
-      { soldOut: true },
+      { soldOut},
       {
         headers: {
           Authorization: `Bearer ${token}`,
