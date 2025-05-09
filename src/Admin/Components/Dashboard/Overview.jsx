@@ -15,7 +15,7 @@ const Dashboard = () => {
   const totalUsers = stats?.totalUsers || 1; // Avoid division by zero
   const referredPercentage = Math.round((referredUsers / totalUsers) * 100);
   const directUsers = totalUsers - referredUsers;
-  const BASE_URL = "http://localhost:3005"
+  const BASE_URL = "https://landouse-backend.onrender.com"
   const navigate=useNavigate()
 
   // Calculate degrees for conic-gradient

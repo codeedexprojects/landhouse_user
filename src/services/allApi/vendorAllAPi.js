@@ -208,7 +208,7 @@ export const getOverviewCounts = async (id) => {
 
 export const getGraphOverview = async (id) => {
   try {
-    const token = localStorage.getItem('vednorToken'); 
+    const token = localStorage.getItem('vendorToken'); 
     const response = await axios.get(`${BASE_URL}/vendor/enquiry/${id}/enquiry-stats`, {
       headers: {
         Authorization: `Bearer ${token}`

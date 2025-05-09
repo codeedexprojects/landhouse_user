@@ -38,16 +38,14 @@ const AffiliateHeader = ({ toggleSidebar }) => {
           <Bell size={20} />
         </button> */}
        
-        <div className="flex items-center cursor-pointer" onClick={handleProfileClick}>
+        <div className="flex items-center cursor-pointer" >
           <div className="mr-2 text-right hidden sm:block">
-            <p className="text-sm font-medium">Aff</p>
+            <p className="text-sm font-medium">Affiliate</p>
             <p className="text-xs text-gray-500">Affiliate</p>
           </div>
-          <img
-            src="/api/placeholder/40/40"
-            alt="Profile"
-            className="w-10 h-10 rounded-full border-2 border-blue-500"
-          />
+          <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
+            AF
+          </div>
         </div>
       </div>
     </header>

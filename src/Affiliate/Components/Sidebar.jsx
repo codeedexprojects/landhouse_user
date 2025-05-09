@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Home, Users, User, Link, ChevronDown, ChevronUp, X } from 'lucide-react';
+import image from '../../assets/logo.png'
+
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const location = useLocation();
@@ -42,13 +44,16 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       {/* Logo */}
       <div className="p-6">
         <div className="flex items-center">
-          <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"></path>
-              <polyline points="9 22 9 12 15 12 15 22"></polyline>
-            </svg>
+          <div className="w-8 h-8 rounded flex items-center justify-center overflow-hidden">
+            <img
+              src={image} // replace with your image path
+              alt="Logo"
+              className="w-full h-full object-cover"
+            />
           </div>
-          <span className="ml-2 text-blue-500 font-bold text-lg">LANDHOUSE</span>
+          <span className="ml-2 text-blue-500 font-bold text-lg">
+            LANDOUSE
+          </span>
         </div>
       </div>
 

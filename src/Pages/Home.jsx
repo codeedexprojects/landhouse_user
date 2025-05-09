@@ -222,7 +222,7 @@ function Home() {
               {/* Property Image */}
               <div className="relative">
                 <img
-                  src={`http://localhost:3005/${property.photos[0]?.replace(/\\/g, "/")}`}
+                  src={`https://landouse-backend.onrender.com/${property.photos[0]?.replace(/\\/g, "/")}`}
                   alt={property.property_type}
                   className="w-full h-36 object-cover"
                 />

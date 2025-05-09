@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { IoLocation } from "react-icons/io5";
 import { AiFillHome } from "react-icons/ai";
 import { FaBed, FaBath } from "react-icons/fa";
-import { BsSquare } from "react-icons/bs";
+import { BsBoundingBoxCircles, BsSquare } from "react-icons/bs";
 import { BiTimeFive } from "react-icons/bi";
 import { MdOutlineDeleteOutline, MdOutlinePhoneInTalk } from "react-icons/md";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -15,7 +15,7 @@ function PropertyDetailsVendor() {
   const location = useLocation();
   const navigate = useNavigate();
   const property = location.state?.property;
-console.log(property);
+  console.log(property);
 
   useEffect(() => {
     if (!property) {
@@ -34,22 +34,22 @@ console.log(property);
   const [showSoldOutModal, setShowSoldOutModal] = useState(false);
 
   const handleSoldOutConfirmation = async () => {
-     try {
-       const newSoldOutStatus = !property.soldOut;
-       await vendorSoldOutAPI(property._id, newSoldOutStatus);
-       property.soldOut = newSoldOutStatus;
- 
-       toast.success(
-         newSoldOutStatus
-           ? "Property marked as Sold Out!"
-           : "Property is now available!"
-       );
-       setShowSoldOutModal(false);
-     } catch (error) {
-       toast.error("Failed to update property status.");
-       setShowSoldOutModal(false);
-     }
-   };
+    try {
+      const newSoldOutStatus = !property.soldOut;
+      await vendorSoldOutAPI(property._id, newSoldOutStatus);
+      property.soldOut = newSoldOutStatus;
+
+      toast.success(
+        newSoldOutStatus
+          ? "Property marked as Sold Out!"
+          : "Property is now available!"
+      );
+      setShowSoldOutModal(false);
+    } catch (error) {
+      toast.error("Failed to update property status.");
+      setShowSoldOutModal(false);
+    }
+  };
 
   const confirmDelete = async () => {
     try {
@@ -104,7 +104,7 @@ console.log(property);
           <img
             src={
               property.photos &&
-              `http://localhost:3005/${property.photos[0]}`
+              `https://landouse-backend.onrender.com/${property.photos[0]}`
             }
             alt="Property"
             className="w-full h-64 object-cover"
@@ -118,13 +118,12 @@ console.log(property);
             </h2>
 
             <div className="flex gap-2">
-            <button
+              <button
                 onClick={() => setShowSoldOutModal(true)}
-                className={`px-4 py-1 rounded-md text-sm ${
-                  property?.soldOut
+                className={`px-4 py-1 rounded-md text-sm ${property?.soldOut
                     ? "bg-yellow-500 text-white"
                     : "bg-green-500 text-white"
-                }`}
+                  }`}
               >
                 {property?.soldOut ? "Mark as Available" : "Mark as Sold Out"}
               </button>
@@ -189,7 +188,12 @@ console.log(property);
             </div>
             <div className="flex items-center gap-2">
               <BiTimeFive className="text-blue-500" size={18} />
-              <span className="text-sm">{property.buildIn}</span>
+              <span className="text-sm">{property?.buildIn}</span>
+            </div>
+            {/* Added cent */}
+            <div className="flex items-center gap-2">
+              <BsBoundingBoxCircles className="text-blue-500" size={18} />
+              <span className="text-sm">{property?.cent} cent</span>
             </div>
           </div>
         </div>
@@ -299,7 +303,7 @@ console.log(property);
         </div>
       )}
 
-{showSoldOutModal && (
+      {showSoldOutModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-md w-[90%] max-w-sm text-center">
             <h2 className="text-lg font-bold mb-4 text-blue-900">

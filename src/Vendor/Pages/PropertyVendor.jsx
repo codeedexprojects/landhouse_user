@@ -345,7 +345,7 @@ export default function PropertyListingPage() {
                 <img
                   src={
                     property.photos && property.photos.length > 0
-                      ? `http://localhost:3005/${property.photos[0]?.replace(/\\/g, "/")}`
+                      ? `https://landouse-backend.onrender.com/${property.photos[0]?.replace(/\\/g, "/")}`
                       : "https://via.placeholder.com/400x300?text=No+Image"
                   }
                   alt={property.property_type || "Property"}
@@ -376,7 +376,7 @@ export default function PropertyListingPage() {
                 </p>
                 <div className="flex justify-end">
                   <Link
-                    to="/admin/property-details"
+                    to="/vendor/prop-details-vendor"
                     state={{ property }}
                     className={`px-3 py-1 bg-[#5A85BFB2] text-white text-sm rounded hover:bg-indigo-700 transition-colors ${
                       isLoading ? "opacity-75 cursor-not-allowed" : ""

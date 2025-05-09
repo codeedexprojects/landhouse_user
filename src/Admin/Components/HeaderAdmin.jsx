@@ -352,7 +352,7 @@ const AdminHeader = ({ toggleSidebar }) => {
           onClick={handleProfileClick}
         >
           <div className="mr-2 text-right hidden sm:block">
-            <p className="text-sm font-medium">Admin User</p>
+            <p className="text-sm font-medium">Admin</p>
             <p className="text-xs text-gray-500">Administrator</p>
           </div>
           <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">

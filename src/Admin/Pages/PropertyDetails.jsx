@@ -3,7 +3,7 @@ import propertyCard from "/src/assets/properImage.png";
 import { IoLocation } from "react-icons/io5";
 import { AiFillHome } from "react-icons/ai";
 import { FaBed, FaBath } from "react-icons/fa";
-import { BsSquare } from "react-icons/bs";
+import { BsBoundingBoxCircles, BsSquare } from "react-icons/bs";
 import { BiTimeFive } from "react-icons/bi";
 import { MdOutlineDeleteOutline, MdOutlinePhoneInTalk } from "react-icons/md";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -60,20 +60,30 @@ function PropertyDetails() {
   const handleAdminSoldOutConfirmation = async () => {
     try {
       const newSoldOutStatus = !property.soldOut;
-      await adminSoldOutAPI(property._id, newSoldOutStatus);
-      property.soldOut = newSoldOutStatus;
+      console.log("Sending ID:", property._id);
+      console.log("Sending soldOut:", newSoldOutStatus);
 
-      toast.success(
-        newSoldOutStatus
-          ? "Property marked as Sold Out!"
-          : "Property is now available!"
-      );
+      const result = await adminSoldOutAPI(property._id, newSoldOutStatus);
+      console.log("API response:", result);
+
+      if (result.success) {
+        property.soldOut = newSoldOutStatus;
+        toast.success(
+          newSoldOutStatus
+            ? "Property marked as Sold Out!"
+            : "Property is now available!"
+        );
+      } else {
+        toast.error(result.message || "Failed to update property status.");
+      }
+
       setAdminShowSoldOutModal(false);
     } catch (error) {
-      toast.error("Failed to update property status.");
+      toast.error("Failed to update property status (request failed).");
       setAdminShowSoldOutModal(false);
     }
   };
+
 
 
 
@@ -130,7 +140,7 @@ function PropertyDetails() {
           <img
             src={
               property.photos &&
-              `http://localhost:3005/${property.photos[0]}`
+              `https://landouse-backend.onrender.com/${property.photos[0]}`
             }
             alt="Property"
             className="w-full h-64 object-cover"
@@ -146,11 +156,10 @@ function PropertyDetails() {
             <div className="flex gap-2">
               <button
                 onClick={() => setAdminShowSoldOutModal(true)}
-                className={`px-4 py-1 rounded-md text-sm ${
-                  property?.soldOut
-                    ? "bg-yellow-500 text-white"
-                    : "bg-green-500 text-white"
-                }`}
+                className={`px-4 py-1 rounded-md text-sm ${property?.soldOut
+                  ? "bg-yellow-500 text-white"
+                  : "bg-green-500 text-white"
+                  }`}
               >
                 {property?.soldOut ? "Mark as Available" : "Mark as Sold Out"}
               </button>
@@ -215,9 +224,15 @@ function PropertyDetails() {
             </div>
             <div className="flex items-center gap-2">
               <BiTimeFive className="text-blue-500" size={18} />
-              <span className="text-sm">{property.buildIn}</span>
+              <span className="text-sm">{property?.buildIn}</span>
+            </div>
+            {/* Added cent */}
+            <div className="flex items-center gap-2">
+              <BsBoundingBoxCircles className="text-blue-500" size={18} />
+              <span className="text-sm">{property?.cent} cent</span>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -248,6 +263,24 @@ function PropertyDetails() {
         </p>
       </div>
 
+      <div className="rounded-lg overflow-hidden shadow-md bg-white p-6">
+        <h3 className="text-xl font-bold text-blue-900 mb-4">Listed By</h3>
+        <div className="flex bg-blue-50 rounded-xl overflow-hidden">
+          <div className="w-1/3 p-4 space-y-2 rounded-xl">
+            <p className="font-bold text-blue-900">Name</p>
+            <p className="font-bold text-blue-900">Email</p>
+          </div>
+          <div className="w-2/3 p-4 space-y-2 rounded-xl">
+            <p className="text-gray-800">
+              {property?.created_by?.name || "N/A"}
+            </p>
+            <p className="text-sm text-gray-700">
+              {property?.created_by?.email || "N/A"}
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Overview */}
       <div className="rounded-lg overflow-hidden shadow-md bg-white p-6">
         <h3 className="text-xl font-bold text-blue-900 mb-4">Overview</h3>
@@ -269,42 +302,42 @@ function PropertyDetails() {
 
       {/* Latest Enquiry */}
       <div className="rounded-lg overflow-hidden shadow-md bg-white p-6">
-      <h2 className="text-2xl font-bold text-[#0B0B45] mb-6">Latest Enquiry</h2>
-      <div className="grid grid-cols-6 font-semibold text-gray-600 py-2 border-b">
-        <h6>Sl No</h6>
-        <h6>Name</h6>
-        <h6>Phone</h6>
-        <h6>Email</h6>
-        <h6>Message</h6>
-        <h6>Action</h6>
-      </div>
-
-      {latestEnquiry ? (
-        <div className="grid grid-cols-6 items-center text-gray-700 py-4 border-b">
-          <p>01</p>
-          <div className="flex items-center gap-3">
-            <img
-              src="https://via.placeholder.com/40"
-              alt="profile"
-              className="w-10 h-10 rounded-full object-cover"
-            />
-            <span className="font-semibold">
-              {latestEnquiry.userId
-                ? `${latestEnquiry.userId.firstName} ${latestEnquiry.userId.lastName}`
-                : latestEnquiry.name}
-            </span>
-          </div>
-          <p>{latestEnquiry.phoneNumber || latestEnquiry.userId?.phoneNumber}</p>
-          <p>{latestEnquiry.email || latestEnquiry.userId?.email}</p>
-          <p className="text-blue-500 cursor-pointer">{latestEnquiry.message}</p>
-          <div className="text-xl text-blue-500 cursor-pointer">
-            <MdOutlinePhoneInTalk />
-          </div>
+        <h2 className="text-2xl font-bold text-[#0B0B45] mb-6">Latest Enquiry</h2>
+        <div className="grid grid-cols-6 font-semibold text-gray-600 py-2 border-b">
+          <h6>Sl No</h6>
+          <h6>Name</h6>
+          <h6>Phone</h6>
+          <h6>Email</h6>
+          <h6>Message</h6>
+          <h6>Action</h6>
         </div>
-      ) : (
-        <p className="text-gray-500 py-4">No enquiries found.</p>
-      )}
-    </div>
+
+        {latestEnquiry ? (
+          <div className="grid grid-cols-6 items-center text-gray-700 py-4 border-b">
+            <p>01</p>
+            <div className="flex items-center gap-3">
+              <img
+                src="https://via.placeholder.com/40"
+                alt="profile"
+                className="w-10 h-10 rounded-full object-cover"
+              />
+              <span className="font-semibold">
+                {latestEnquiry.userId
+                  ? `${latestEnquiry.userId.firstName} ${latestEnquiry.userId.lastName}`
+                  : latestEnquiry.name}
+              </span>
+            </div>
+            <p>{latestEnquiry.phoneNumber || latestEnquiry.userId?.phoneNumber}</p>
+            <p>{latestEnquiry.email || latestEnquiry.userId?.email}</p>
+            <p className="text-blue-500 cursor-pointer">{latestEnquiry.message}</p>
+            <div className="text-xl text-blue-500 cursor-pointer">
+              <MdOutlinePhoneInTalk />
+            </div>
+          </div>
+        ) : (
+          <p className="text-gray-500 py-4">No enquiries found.</p>
+        )}
+      </div>
 
       {/* confirmationmodal */}
       {showConfirmModal && (

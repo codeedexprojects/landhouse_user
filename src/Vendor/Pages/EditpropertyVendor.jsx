@@ -353,7 +353,7 @@ function EditpropertyVendor() {
                 Current Photo
               </label>
               <img
-                src={`http://localhost:3005/${property.photos[0]}`}
+                src={`https://landouse-backend.onrender.com/${property.photos[0]}`}
                 alt="Current Property"
                 className="w-64 h-40 object-cover rounded border"
               />
