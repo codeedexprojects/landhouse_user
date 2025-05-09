@@ -112,8 +112,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                     <button
                       onClick={item.toggle}
                       className={`flex items-center justify-between w-full px-4 py-3 rounded-lg text-left ${item.children.some((child) => isActive(child.path))
-                          ? "bg-blue-50 text-blue-500 border-l-4 border-blue-500"
-                          : "text-gray-600 hover:bg-gray-100"
+                        ? "bg-blue-50 text-blue-500 border-l-4 border-blue-500"
+                        : "text-gray-600 hover:bg-gray-100"
                         }`}
                     >
                       <div className="flex items-center">
@@ -132,10 +132,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                           <li key={childIndex}>
                             <RouterLink
                               to={child.path}
-                              onClick={toggleSidebar}
-                              className={`block py-2 text-sm rounded ${isActive(child.path)
-                                  ? "text-blue-600 font-medium"
-                                  : "text-gray-600 hover:text-gray-800"
+                              className={`block py-2 text-sm rounded ${isActive(child.path) ? "text-blue-600 font-medium" : "text-gray-600 hover:text-gray-800"
                                 }`}
                             >
                               {child.name}
@@ -144,14 +141,15 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                         ))}
                       </ul>
                     )}
+
                   </>
                 ) : (
                   <RouterLink
                     to={item.path}
                     onClick={toggleSidebar}
                     className={`flex items-center px-4 py-3 rounded-lg ${isActive(item.path)
-                        ? "bg-blue-50 text-blue-500 border-l-4 border-blue-500"
-                        : "text-gray-600 hover:bg-gray-100"
+                      ? "bg-blue-50 text-blue-500 border-l-4 border-blue-500"
+                      : "text-gray-600 hover:bg-gray-100"
                       }`}
                   >
                     <span className="mr-3">{item.icon}</span>

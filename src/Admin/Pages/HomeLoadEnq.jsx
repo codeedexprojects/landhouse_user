@@ -1,20 +1,31 @@
 import { ArrowLeft, ArrowRight, Download } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { getLoanEnquiries } from '../../services/allApi/adminAllApis';
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import 'jspdf-autotable';
 
 export default function HomeLoanEnquiry() {
   const [enquiryData, setEnquiryData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
   const enquiriesPerPage = 10;
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getLoanEnquiries();
-      setEnquiryData(data);
+      try {
+        const data = await getLoanEnquiries();
+        setEnquiryData(data);
+      } catch (error) {
+        console.error('Error fetching loan enquiries:', error);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
   }, []);
 
+  // Pagination logic
   const totalPages = Math.ceil(enquiryData.length / enquiriesPerPage);
   const indexOfLastEnquiry = currentPage * enquiriesPerPage;
   const indexOfFirstEnquiry = indexOfLastEnquiry - enquiriesPerPage;
@@ -31,6 +42,68 @@ export default function HomeLoanEnquiry() {
   const handlePageClick = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
+
+  // PDF Download function
+  const downloadPDF = () => {
+    const doc = new jsPDF();
+    
+    // Title
+    doc.setFontSize(16);
+    doc.text('Home Loan Enquiries Report', 14, 15);
+    
+    // Current date
+    const date = new Date().toLocaleDateString();
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${date}`, 14, 22);
+    
+    // Table data
+    const tableData = enquiryData.map((enquiry) => [
+      enquiry.name || 'N/A',
+      enquiry.propertyId 
+        ? `${enquiry.propertyId.property_type}, ${enquiry.propertyId.cent} Cent` 
+        : 'N/A',
+      enquiry.occupation || 'N/A',
+      enquiry.typeOfLoan || 'N/A',
+      enquiry.monthlySalary || 'N/A',
+      enquiry.number || 'N/A'
+    ]);
+
+    // AutoTable
+   autoTable(doc, {
+      head: [['Name', 'Enquired Property', 'Occupation', 'Loan Type', 'Salary', 'Contact']],
+      body: tableData,
+      startY: 30,
+      styles: {
+        fontSize: 9,
+        cellPadding: 2,
+        overflow: 'linebreak'
+      },
+      headStyles: {
+        fillColor: [41, 128, 185],
+        textColor: 255,
+        fontStyle: 'bold'
+      },
+      columnStyles: {
+        0: { cellWidth: 25 }, // Name
+        1: { cellWidth: 35 }, // Property
+        2: { cellWidth: 25 }, // Occupation
+        3: { cellWidth: 20 }, // Loan Type
+        4: { cellWidth: 20 }, // Salary
+        5: { cellWidth: 25 }  // Contact
+      }
+    });
+
+    // Save the PDF
+    doc.save(`home_loan_enquiries_${new Date().toISOString().slice(0, 10)}.pdf`);
+  };
+
+  if (loading) {
+    return (
+      <div className="bg-blue-50 min-h-screen p-4 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-blue-50 min-h-screen p-4">
@@ -79,31 +152,66 @@ export default function HomeLoanEnquiry() {
 
       {/* Pagination */}
       <div className="flex justify-between items-center mt-6">
-        <button className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm">
+        <button 
+          onClick={downloadPDF}
+          className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm hover:bg-gray-50"
+        >
           <Download className="mr-2 w-4 h-4" />
-          Download
+          Download PDF
         </button>
 
         <div className="flex items-center">
-          <button onClick={handlePrevPage} disabled={currentPage === 1} className="p-2 text-gray-500 disabled:opacity-50">
+          <button 
+            onClick={handlePrevPage} 
+            disabled={currentPage === 1} 
+            className="p-2 text-gray-500 disabled:opacity-50 hover:bg-gray-100 rounded"
+          >
             <ArrowLeft className="w-4 h-4" />
           </button>
 
           <div className="flex space-x-2 mx-2">
-            {[...Array(totalPages)].map((_, i) => (
-              <button
-                key={i}
-                onClick={() => handlePageClick(i + 1)}
-                className={`w-8 h-8 rounded-md flex items-center justify-center text-sm ${
-                  currentPage === i + 1 ? 'bg-blue-500 text-white' : 'bg-white text-gray-500 shadow-sm'
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
+            {[...Array(totalPages)].map((_, i) => {
+              const pageNumber = i + 1;
+              // Show only first, last, and pages around current page
+              if (
+                pageNumber === 1 || 
+                pageNumber === totalPages || 
+                Math.abs(pageNumber - currentPage) <= 1
+              ) {
+                return (
+                  <button
+                    key={i}
+                    onClick={() => handlePageClick(pageNumber)}
+                    className={`w-8 h-8 rounded-md flex items-center justify-center text-sm ${
+                      currentPage === pageNumber 
+                        ? 'bg-blue-500 text-white' 
+                        : 'bg-white text-gray-500 shadow-sm hover:bg-gray-50'
+                    }`}
+                  >
+                    {pageNumber}
+                  </button>
+                );
+              }
+              // Show ellipsis when skipping pages
+              if (
+                (pageNumber === 2 && currentPage > 3) || 
+                (pageNumber === totalPages - 1 && currentPage < totalPages - 2)
+              ) {
+                return (
+                  <span key={i} className="flex items-center justify-center text-gray-500">
+                    ...
+                  </span>
+                );
+              }
+              return null;
+            })}
           </div>
 
-          <button onClick={handleNextPage} disabled={currentPage === totalPages} className="p-2 text-gray-500 disabled:opacity-50">
+          <button 
+            onClick={handleNextPage} 
+            disabled={currentPage === totalPages} 
+            className="p-2 text-gray-500 disabled:opacity-50 hover:bg-gray-100 rounded"
+          >
             <ArrowRight className="w-4 h-4" />
           </button>
 

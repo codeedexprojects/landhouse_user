@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, ArrowRight, Download } from 'lucide-react';
-import { getEnquireis } from '../../services/allApi/adminAllApis';
+import { ArrowLeft, ArrowRight, Download, Check } from 'lucide-react'; // 🟢 added Check icon
+import { getEnquireis, markAsReadEnquiry } from '../../services/allApi/adminAllApis'; // 🟢 import API
 import { Toast } from '../../Components/Toast';
 
 export default function MessageList() {
@@ -31,7 +31,7 @@ export default function MessageList() {
     fetchEnquiries();
   }, []);
 
-  // Calculate pagination
+  // Pagination calculation
   const indexOfLastEnquiry = currentPage * enquiriesPerPage;
   const indexOfFirstEnquiry = indexOfLastEnquiry - enquiriesPerPage;
   const currentEnquiries = enquiries.slice(indexOfFirstEnquiry, indexOfLastEnquiry);
@@ -40,6 +40,23 @@ export default function MessageList() {
   const handlePageChange = (pageNumber) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
       setCurrentPage(pageNumber);
+    }
+  };
+
+  // 🟢 NEW: function to mark enquiry as read
+  const handleMarkAsRead = async (id) => {
+    try {
+      await markAsReadEnquiry(id);
+      // Update enquiries locally
+      setEnquiries((prevEnquiries) =>
+        prevEnquiries.map((enq) =>
+          enq._id === id ? { ...enq, isRead: true } : enq
+        )
+      );
+      setToast({ message: 'Enquiry marked as read.', type: 'success' });
+    } catch (error) {
+      console.error(error);
+      setToast({ message: 'Failed to mark as read.', type: 'error' });
     }
   };
 
@@ -68,11 +85,13 @@ export default function MessageList() {
       {/* Message table card */}
       <div className="bg-white rounded-md shadow-sm mb-6 overflow-hidden">
         {/* Table Header */}
-        <div className="grid grid-cols-4 gap-2 p-4 border-b">
+        <div className="grid grid-cols-5 gap-2 p-4 border-b">
+          {/* 🟢 added extra column */}
           <div className="font-medium">Name</div>
           <div className="font-medium">Phone number / E-mail</div>
           <div className="font-medium">Enquired Property</div>
           <div className="font-medium">Message</div>
+          <div className="font-medium text-center">Status</div>
         </div>
 
         {loading ? (
@@ -81,9 +100,9 @@ export default function MessageList() {
           <div className="p-4 text-center text-gray-500">No enquiries found.</div>
         ) : (
           currentEnquiries.map((enquiry) => (
-            <div key={enquiry._id} className="grid grid-cols-4 gap-2 p-4 border-b">
+            <div key={enquiry._id} className="grid grid-cols-5 gap-2 p-4 border-b items-center">
               <div className="text-gray-500">
-                {enquiry.name || `${enquiry.userId.firstName} ${enquiry.userId.lastName}`}
+                {enquiry.name || `${enquiry.userId?.firstName} ${enquiry.userId?.lastName}`}
               </div>
               <div className="text-gray-500">
                 {enquiry.phoneNumber} / {enquiry.email}
@@ -93,7 +112,23 @@ export default function MessageList() {
               </div>
               <div className="flex items-center">
                 <span className="text-gray-500 truncate max-w-[150px]">{enquiry.message}</span>
-                <a href="#" className="text-blue-400 ml-1">read more...</a>
+                {/* <a href="#" className="text-blue-400 ml-1">read more...</a> */}
+              </div>
+
+              {/* 🟢 NEW status/action column */}
+              <div className="text-center">
+                {enquiry.isRead ? (
+                  <span className="inline-flex items-center text-green-500">
+                    <Check className="w-4 h-4 mr-1" /> Read
+                  </span>
+                ) : (
+                  <button
+                    className="px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition"
+                    onClick={() => handleMarkAsRead(enquiry._id)}
+                  >
+                    Mark as Read
+                  </button>
+                )}
               </div>
             </div>
           ))

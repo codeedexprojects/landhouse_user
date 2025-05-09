@@ -2,6 +2,10 @@ import { ArrowLeft, ArrowRight, Download } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getReferrals } from '../../services/allApi/adminAllApis';
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import 'jspdf-autotable';
+
 
 export default function ReferralAffiliates() {
     const navigate = useNavigate();
@@ -12,6 +16,49 @@ export default function ReferralAffiliates() {
     const handleAddAffiliates = () => {
         navigate('/admin/affiliates');
     };
+
+    const downloadReferralsAsPDF = () => {
+      try {
+        const doc = new jsPDF();
+    
+        // Title
+        doc.setFontSize(16);
+        doc.text("Referrals Report", 14, 15);
+    
+        // Prepare table data
+        const tableData = referrals.map((row, index) => [
+          (index + 1).toString(), // SI No
+          row.referrer || 'N/A', // Agent
+          row.referredUser || 'N/A', // User
+          row.referredEmail || 'N/A', // Email
+          row.property || 'N/A', // Referred Property
+          row.referralCode || 'N/A' // Referral Code
+        ]);
+    
+        // Add table using jspdf-autotable
+        autoTable(doc, {
+          head: [['SI No', 'Agent', 'User', 'Email', 'Referred Property', 'Referral Code']],
+          body: tableData,
+          startY: 25,
+          styles: {
+            fontSize: 8,
+            cellPadding: 2,
+          },
+          headStyles: {
+            fillColor: [93, 133, 191],
+            textColor: 255,
+            fontStyle: 'bold'
+          }
+        });
+    
+        // Save the PDF
+        doc.save(`referrals_report_${new Date().toISOString().slice(0, 10)}.pdf`);
+      } catch (error) {
+        console.error("Error generating PDF:", error);
+        toast.error("Failed to generate PDF. Please try again.");
+      }
+    };
+    
 
     useEffect(() => {
         const fetchData = async () => {
@@ -96,7 +143,7 @@ export default function ReferralAffiliates() {
             </div>
 
             <div className="flex justify-between items-center mt-6">
-                    <button className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm">
+                    <button onClick={downloadReferralsAsPDF} className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm">
                       <Download className="mr-2 w-4 h-4" />
                       Download
                     </button>

@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Menu, Search, Bell, X, LogIn, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  approveVendor, 
-  getVendors, 
+import {
+  approveVendor,
+  getVendors,
   rejectVendor,
   approveAffiliate,
-  getAffiliateRequest
+  getAffiliateRequest,
+  getEnquiryCounts
 } from '../../services/allApi/adminAllApis';
 
 const AdminHeader = ({ toggleSidebar }) => {
@@ -15,35 +16,55 @@ const AdminHeader = ({ toggleSidebar }) => {
   const [showLoginDropdown, setShowLoginDropdown] = useState(false);
   const [vendorRequests, setVendorRequests] = useState([]);
   const [affiliateRequests, setAffiliateRequests] = useState([]);
+  const [totalRequests, setTotalRequests] = useState(0);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('vendors'); // 'vendors' or 'affiliates'
   const dropdownRef = useRef(null);
   const loginDropdownRef = useRef(null);
+  const [unreadCount, setUnreadCount] = useState(0);
+  useEffect(() => {
+    const fetchCount = async () => {
+      const data = await getEnquiryCounts();
+      if (data && data.unreadCount !== undefined) {
+        setUnreadCount(data.unreadCount);
+      }
+    };
+
+    fetchCount();
+  }, []);
 
   // Fetch all pending requests
-  const fetchAllRequests = async () => {
-    try {
-      setLoading(true);
-      
-      // Fetch vendor requests
-      const vendorResponse = await getVendors();
-      const vendors = Array.isArray(vendorResponse?.data) ? vendorResponse.data : [];
-      const pendingVendors = vendors.filter(vendor => !vendor.approvalStatus);
-      setVendorRequests(pendingVendors);
-      
-      // Fetch affiliate requests
-      const affiliateResponse = await getAffiliateRequest();
-      const pendingAffiliates = affiliateResponse?.approvalRequests || [];
-      setAffiliateRequests(pendingAffiliates);
-      
-    } catch (error) {
-      console.error('Error fetching requests:', error.message);
-      setVendorRequests([]);
-      setAffiliateRequests([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const fetchAllRequests = async () => {
+      try {
+        setLoading(true);
+
+        // Fetch vendor requests
+        const vendorResponse = await getVendors();
+        const vendors = Array.isArray(vendorResponse?.data) ? vendorResponse.data : [];
+        const pendingVendors = vendors.filter(vendor => !vendor.approvalStatus);
+        setVendorRequests(pendingVendors);
+
+        // Fetch affiliate requests
+        const affiliateResponse = await getAffiliateRequest();
+        const pendingAffiliates = affiliateResponse?.approvalRequests || [];
+        setAffiliateRequests(pendingAffiliates);
+
+        // Calculate total requests
+        setTotalRequests(pendingVendors.length + pendingAffiliates.length);
+
+      } catch (error) {
+        console.error('Error fetching requests:', error.message);
+        setVendorRequests([]);
+        setAffiliateRequests([]);
+        setTotalRequests(0);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAllRequests(); // Call the function to fetch data immediately
+  }, []); 
 
   // Handle vendor approval
   const handleApproveVendor = async (vendorId) => {
@@ -115,13 +136,13 @@ const AdminHeader = ({ toggleSidebar }) => {
         setShowLoginDropdown(false);
       }
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   // Calculate total pending requests
-  const totalRequests = vendorRequests.length + affiliateRequests.length;
+  // const totalRequests = vendorRequests.length + affiliateRequests.length;
 
   return (
     <header className="bg-white border-b border-gray-200 flex items-center justify-between p-4 relative">
@@ -185,12 +206,17 @@ const AdminHeader = ({ toggleSidebar }) => {
             </div>
           )}
         </div>
-        
-        <button 
-          className="p-2 text-blue-500 bg-blue-100 rounded-lg cursor-pointer hover:bg-blue-200 transition-colors"
+
+        <button
+          className="relative p-2 text-blue-500 bg-blue-100 rounded-lg cursor-pointer hover:bg-blue-200 transition-colors"
           onClick={handleMessageClick}
         >
           <Bell size={20} />
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              {unreadCount}
+            </span>
+          )}
         </button>
 
         {/* Requests Dropdown */}
@@ -229,8 +255,8 @@ const AdminHeader = ({ toggleSidebar }) => {
                     Affiliates ({affiliateRequests.length})
                   </button>
                 </div>
-                <button 
-                  onClick={() => setShowRequests(false)} 
+                <button
+                  onClick={() => setShowRequests(false)}
                   className="text-gray-500 hover:text-gray-700"
                 >
                   <X size={20} />
@@ -321,7 +347,7 @@ const AdminHeader = ({ toggleSidebar }) => {
         </div>
 
         {/* Profile Section */}
-        <div 
+        <div
           className="flex items-center cursor-pointer hover:bg-gray-100 rounded-lg p-1 transition-colors"
           onClick={handleProfileClick}
         >

@@ -248,3 +248,39 @@ export const updateVendorProfile = async (id, updateData) => {
     console.log(error);
   }
 };
+
+
+export const getVendorEnquiryCounts = async (vendorId) => {
+  try {
+    const token = localStorage.getItem('vendorToken'); 
+    const response = await axios.get(`${BASE_URL}/vendor/enquiry/${vendorId}/counts`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const markAsReadVendorEnquiry = async (enquiryId) => {
+  try {
+    const token = localStorage.getItem("vendorToken"); 
+
+    const response = await axios.patch(
+      `${BASE_URL}/vendor/enquiry/${enquiryId}/mark-read`,
+      { isRead: true },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error marking property as sold out:", error);
+    throw error;
+  }
+};

@@ -509,3 +509,52 @@ export const getAffiliateRequest = async () => {
   }
 };
 
+
+export const getEnquiryCounts = async () => {
+  try {
+    const token = localStorage.getItem('adminToken'); 
+    const response = await axios.get(`${BASE_URL}/admin/enquiry/unread-count`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const markAsReadEnquiry = async (id) => {
+  try {
+    const token = localStorage.getItem("admintoken"); 
+
+    const response = await axios.patch(
+      `${BASE_URL}/admin/enquiry/${id}/mark-read`,
+      { isRead: true },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error marking property as sold out:", error);
+    throw error;
+  }
+};
+
+export const getLatestEnquireisProperty = async (id) => {
+  try {
+    const token = localStorage.getItem('adminToken'); 
+    const response = await axios.get(`${BASE_URL}/admin/enquiry/property/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};

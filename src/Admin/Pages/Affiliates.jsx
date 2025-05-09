@@ -3,6 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAffiliates, updateAffiliate } from '../../services/allApi/adminAllApis';
 import { toast } from 'react-hot-toast';
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import 'jspdf-autotable';
 
 export default function Affiliates() {
   const navigate = useNavigate();
@@ -11,6 +14,8 @@ export default function Affiliates() {
   const [error, setError] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [editAmount, setEditAmount] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
   const handleAddAffliates = () => {
     navigate('/admin/create-coupon');
@@ -31,6 +36,14 @@ export default function Affiliates() {
     fetchAffiliates();
   }, []);
 
+  // Pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = affiliatesData.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(affiliatesData.length / itemsPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   const handleEditClick = (id, currentAmount) => {
     setEditingId(id);
     setEditAmount(currentAmount);
@@ -38,6 +51,25 @@ export default function Affiliates() {
 
   const handleAmountChange = (e) => {
     setEditAmount(e.target.value);
+  };
+
+  const handleApprovalToggle = async (id, currentStatus) => {
+    try {
+      const updatedData = { isApproved: !currentStatus };
+      const response = await updateAffiliate(id, updatedData);
+      
+      if (response) {
+        setAffiliatesData(prev => 
+          prev.map(item => 
+            item._id === id ? { ...item, isApproved: !currentStatus } : item
+          )
+        );
+        toast.success(`Affiliate ${!currentStatus ? 'approved' : 'disapproved'} successfully`);
+      }
+    } catch (error) {
+      toast.error('Failed to update approval status');
+      console.error('Update error:', error);
+    }
   };
 
   const handleSaveClick = async (id) => {
@@ -70,6 +102,36 @@ export default function Affiliates() {
   const handleCancelClick = () => {
     setEditingId(null);
     setEditAmount('');
+  };
+
+  const downloadAsPDF = () => {
+    const doc = new jsPDF();
+    doc.text("Affiliates Report", 14, 15);
+    
+    const tableData = affiliatesData.map(affiliate => [
+      affiliate.name || "N/A",
+      affiliate.referralId || "N/A",
+      affiliate.userCount || "0",
+      affiliate.isApproved ? "Approved" : "Pending",
+      affiliate.amount ? `₹${affiliate.amount.toLocaleString()}` : "₹0"
+    ]);
+
+    autoTable(doc, {
+      head: [['Name', 'Referral ID', 'User Count', 'Status', 'Amount']],
+      body: tableData,
+      startY: 25,
+      styles: {
+        fontSize: 8,
+        cellPadding: 2,
+      },
+      headStyles: {
+        fillColor: [93, 133, 191],
+        textColor: 255,
+        fontStyle: 'bold'
+      }
+    });
+
+    doc.save(`affiliates_report_${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
   if (loading) {
@@ -106,22 +168,35 @@ export default function Affiliates() {
         </div>
 
         {/* Table Header */}
-        <div className="grid grid-cols-5 gap-2 p-4 border-b">
+        <div className="grid grid-cols-6 gap-2 p-4 border-b">
           <div className="font-medium">SI No</div>
           <div className="font-medium">Affiliates</div>
           <div className="font-medium">Referral ID</div>
           <div className="font-medium">User count</div>
+          <div className="font-medium">Status</div>
           <div className="font-medium">Amount</div>
         </div>
 
         {/* Table Rows */}
-        {affiliatesData.length > 0 ? (
-          affiliatesData.map((row, index) => (
-            <div key={row._id} className="grid grid-cols-5 gap-2 p-4 border-b items-center">
-              <div className="text-gray-500">{index + 1}</div>
+        {currentItems.length > 0 ? (
+          currentItems.map((row, index) => (
+            <div key={row._id} className="grid grid-cols-6 gap-2 p-4 border-b items-center">
+              <div className="text-gray-500">{(currentPage - 1) * itemsPerPage + index + 1}</div>
               <div className="text-gray-600">{row.name}</div>
               <div className="text-gray-600">{row.referralId}</div>
               <div className="text-gray-600">{row.userCount}</div>
+              <div>
+                <button
+                  onClick={() => handleApprovalToggle(row._id, row.isApproved)}
+                  className={`px-3 py-1 rounded-md text-sm font-medium ${
+                    row.isApproved 
+                      ? 'bg-green-100 text-green-800 hover:bg-green-200' 
+                      : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                  }`}
+                >
+                  {row.isApproved ? 'Approved' : 'Pending'}
+                </button>
+              </div>
               <div>
                 {editingId === row._id ? (
                   <div className="flex items-center gap-2">
@@ -171,35 +246,72 @@ export default function Affiliates() {
         )}
 
         {/* Pagination */}
-       
+        
       </div>
       <div className="flex justify-between items-center p-4 border-t">
-          <button className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm">
+          <button 
+            onClick={downloadAsPDF}
+            className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm"
+          >
             <Download className="mr-2 w-4 h-4" />
             Download
           </button>
 
           <div className="flex items-center">
-            <button className="p-2 text-gray-500">
+            <button 
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className={`p-2 text-gray-500 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
               <ArrowLeft className="w-4 h-4" />
             </button>
             
             <div className="flex space-x-2 mx-2">
-              <button className="w-8 h-8 rounded-md bg-blue-500 text-white flex items-center justify-center text-sm">1</button>
-              <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">2</button>
-              <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">3</button>
-              <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">4</button>
-              <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">5</button>
-              <span className="flex items-center justify-center text-gray-500">...</span>
-              <button className="w-8 h-8 rounded-md bg-white text-gray-500 flex items-center justify-center text-sm shadow-sm">19</button>
+              {Array.from({ length: Math.min(5, totalPages) }).map((_, index) => {
+                const pageNumber = index + 1;
+                return (
+                  <button
+                    key={pageNumber}
+                    onClick={() => paginate(pageNumber)}
+                    className={`w-8 h-8 rounded-md ${
+                      currentPage === pageNumber 
+                        ? 'bg-blue-500 text-white' 
+                        : 'bg-white text-gray-500'
+                    } flex items-center justify-center text-sm shadow-sm`}
+                  >
+                    {pageNumber}
+                  </button>
+                );
+              })}
+              {totalPages > 5 && (
+                <>
+                  <span className="flex items-center justify-center text-gray-500">...</span>
+                  <button
+                    onClick={() => paginate(totalPages)}
+                    className={`w-8 h-8 rounded-md ${
+                      currentPage === totalPages 
+                        ? 'bg-blue-500 text-white' 
+                        : 'bg-white text-gray-500'
+                    } flex items-center justify-center text-sm shadow-sm`}
+                  >
+                    {totalPages}
+                  </button>
+                </>
+              )}
             </div>
 
-            <button className="p-2 text-gray-500">
+            <button 
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className={`p-2 text-gray-500 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
               <ArrowRight className="w-4 h-4" />
             </button>
 
             <div className="ml-4 flex items-center border-l border-gray-200 pl-4">
-              <button className="w-8 h-8 rounded-md bg-white text-gray-600 flex items-center justify-center text-sm shadow-sm">10</button>
+              <button className="w-8 h-8 rounded-md bg-white text-gray-600 flex items-center justify-center text-sm shadow-sm">
+                {itemsPerPage}
+              </button>
             </div>
           </div>
         </div>

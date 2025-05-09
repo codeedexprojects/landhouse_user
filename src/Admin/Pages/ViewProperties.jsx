@@ -5,6 +5,9 @@ import { getAllProperties } from "../../services/allApi/adminAllApis";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { MdLocationOn } from "react-icons/md";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import "jspdf-autotable";
 
 export default function PropertyListingPage() {
   const [properties, setProperties] = useState([]);
@@ -12,7 +15,13 @@ export default function PropertyListingPage() {
   const [loading, setLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    priceSort: "",
+    beds: "",
+    baths: "",
+  });
+
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [propertiesPerPage] = useState(12);
@@ -25,7 +34,7 @@ export default function PropertyListingPage() {
 
   // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
-  
+
   // Go to next page
   const nextPage = () => {
     if (currentPage < totalPages) {
@@ -43,7 +52,7 @@ export default function PropertyListingPage() {
   // Generate page numbers for display
   const getDisplayedPageNumbers = () => {
     const pageNumbers = [];
-    
+
     if (totalPages <= 7) {
       // If there are 7 or fewer pages, show all page numbers
       for (let i = 1; i <= totalPages; i++) {
@@ -72,7 +81,7 @@ export default function PropertyListingPage() {
       // Always include last page
       pageNumbers.push(totalPages);
     }
-    
+
     return pageNumbers;
   };
 
@@ -80,17 +89,116 @@ export default function PropertyListingPage() {
   const handleSearch = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
-    
-    const filtered = properties.filter(
-      (property) =>
-        property.property_type?.toLowerCase().includes(value.toLowerCase()) ||
-        property.address?.toLowerCase().includes(value.toLowerCase()) ||
-        String(property.beds).includes(value)
-    );
-    
+
+    applyFilters(value, filters);
+  };
+
+  // Handle filter changes
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({
+      ...filters,
+      [name]: value,
+    });
+
+    applyFilters(searchTerm, { ...filters, [name]: value });
+  };
+
+  // Apply all filters
+  const applyFilters = (searchValue, filterSettings) => {
+    let filtered = [...properties];
+
+    // Apply search filter
+    if (searchValue) {
+      filtered = filtered.filter(
+        (property) =>
+          property.property_type?.toLowerCase().includes(searchValue.toLowerCase()) ||
+          property.address?.toLowerCase().includes(searchValue.toLowerCase()) ||
+          String(property.beds).includes(searchValue)
+      );
+    }
+
+    // Apply bedroom filter
+    if (filterSettings.beds) {
+      filtered = filtered.filter(
+        (property) => property.beds && property.beds >= parseInt(filterSettings.beds)
+      );
+    }
+
+    // Apply bathroom filter
+    if (filterSettings.baths) {
+      filtered = filtered.filter(
+        (property) => property.baths && property.baths >= parseInt(filterSettings.baths)
+      );
+    }
+
+    // Apply price sorting
+    if (filterSettings.priceSort === "lowToHigh") {
+      filtered.sort((a, b) => (a.property_price || 0) - (b.property_price || 0));
+    } else if (filterSettings.priceSort === "highToLow") {
+      filtered.sort((a, b) => (b.property_price || 0) - (a.property_price || 0));
+    }
+
     setFilteredProperties(filtered);
-    setCurrentPage(1); // Reset to first page on search
+    setCurrentPage(1); // Reset to first page when filters change
     setTotalPages(Math.ceil(filtered.length / propertiesPerPage));
+  };
+
+  // Reset all filters
+  const resetFilters = () => {
+    setSearchTerm("");
+    setFilters({
+      priceSort: "",
+      beds: "",
+      baths: "",
+    });
+    setFilteredProperties(properties);
+    setCurrentPage(1);
+    setTotalPages(Math.ceil(properties.length / propertiesPerPage));
+  };
+
+  // Download as PDF
+  const downloadAsPDF = () => {
+    try {
+      // Initialize jsPDF
+      const doc = new jsPDF();
+      
+      // Add title
+      doc.setFontSize(16);
+      doc.text("Property Listing Report", 14, 15);
+      
+      // Prepare table data
+      const tableData = filteredProperties.map(property => [
+        property.property_type || "N/A",
+        property.address || "N/A",
+        property.beds || "N/A",
+        property.baths || "N/A",
+        property.area ? `${property.area} sqft` : "N/A",
+        property.property_price ? `₹${property.property_price.toLocaleString()}` : "N/A"
+      ]);
+  
+      // Add the table using jspdf-autotable
+      autoTable(doc, {
+        head: [['Type', 'Address', 'Beds', 'Baths', 'Area', 'Price']],
+        body: tableData,
+        startY: 25,
+        styles: {
+          fontSize: 8,
+          cellPadding: 2,
+        },
+        headStyles: {
+          fillColor: [93, 133, 191],
+          textColor: 255,
+          fontStyle: 'bold'
+        }
+      });
+  
+      // Save the PDF
+      doc.save(`property_listing_${new Date().toISOString().slice(0, 10)}.pdf`);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast.error("Failed to generate PDF. Please try again.");
+    }
   };
 
   const handleDelete = (id) => {
@@ -137,15 +245,82 @@ export default function PropertyListingPage() {
               onChange={handleSearch}
             />
           </div>
-          <button className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md">
+          <button 
+            className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md"
+            onClick={() => setShowFilters(!showFilters)}
+          >
             <Filter className="w-4 h-4" />
             Filters
           </button>
-          <button className="flex items-center gap-2 bg-white border border-gray-300 px-4 py-2 rounded-md">
+          <button 
+            className="flex items-center gap-2 bg-white border border-gray-300 px-4 py-2 rounded-md"
+            onClick={downloadAsPDF}
+          >
             <Download className="w-4 h-4" />
             Export
           </button>
         </div>
+
+        {/* Expanded Filters */}
+        {showFilters && (
+          <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Price Sort</label>
+              <select
+                name="priceSort"
+                value={filters.priceSort}
+                onChange={handleFilterChange}
+                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+              >
+                <option value="">None</option>
+                <option value="lowToHigh">Low to High</option>
+                <option value="highToLow">High to Low</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Min Beds</label>
+              <select
+                name="beds"
+                value={filters.beds}
+                onChange={handleFilterChange}
+                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+              >
+                <option value="">Any</option>
+                <option value="1">1+</option>
+                <option value="2">2+</option>
+                <option value="3">3+</option>
+                <option value="4">4+</option>
+                <option value="5">5+</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Min Baths</label>
+              <select
+                name="baths"
+                value={filters.baths}
+                onChange={handleFilterChange}
+                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+              >
+                <option value="">Any</option>
+                <option value="1">1+</option>
+                <option value="2">2+</option>
+                <option value="3">3+</option>
+                <option value="4">4+</option>
+              </select>
+            </div>
+            
+            <div className="flex items-end">
+              <button
+                onClick={resetFilters}
+                className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-md text-sm"
+              >
+                Reset Filters
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Property Cards Grid */}
@@ -215,6 +390,12 @@ export default function PropertyListingPage() {
         ) : (
           <div className="col-span-full text-center py-10">
             <p className="text-gray-500">No properties available</p>
+            <button 
+              onClick={resetFilters}
+              className="mt-2 text-blue-500 hover:text-blue-700 text-sm"
+            >
+              Clear all filters
+            </button>
           </div>
         )}
       </div>
@@ -222,7 +403,10 @@ export default function PropertyListingPage() {
       {/* Pagination */}
       {filteredProperties.length > 0 && (
         <div className="flex justify-between items-center mt-6">
-          <button className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm">
+          <button 
+            className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm"
+            onClick={downloadAsPDF}
+          >
             <Download className="mr-2 w-4 h-4" />
             Download
           </button>

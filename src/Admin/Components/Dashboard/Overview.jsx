@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, MessageSquare, Phone } from 'lucide-react';
 import { getUserList, getVendors, overviewCounts, getAllProperties } from '../../../services/allApi/adminAllApis';
 import EnquiryGraph from './EnquiryGraph';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
@@ -15,10 +16,19 @@ const Dashboard = () => {
   const referredPercentage = Math.round((referredUsers / totalUsers) * 100);
   const directUsers = totalUsers - referredUsers;
   const BASE_URL = "http://localhost:3005"
+  const navigate=useNavigate()
 
   // Calculate degrees for conic-gradient
   const referredDegrees = (referredPercentage / 100) * 360;
   const [agents, setAgents] = useState([]);
+
+  const handleSeeAllClick=()=>{
+    navigate('/admin/user-list')
+  }
+
+  const handleSeeRecentAgent=()=>{
+    navigate('/admin/view-agent')
+  }
 
   // Fetch properties
   useEffect(() => {
@@ -263,7 +273,7 @@ const Dashboard = () => {
             </div>
           )}
 
-          <button className="text-blue-500 text-sm w-full text-center mt-4">
+          <button onClick={handleSeeAllClick} className="text-blue-500 text-sm w-full text-center mt-4 cursor-pointer">
             See All
           </button>
         </div>
@@ -375,11 +385,9 @@ const Dashboard = () => {
           <div className="space-y-4">
             {agents.slice(0, 4).map((agent) => (
               <div key={agent._id} className="flex items-center">
-                <img
-                  src="/api/placeholder/40/40"
-                  alt={agent.name}
-                  className="w-10 h-10 rounded-full mr-3"
-                />
+                 <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-3">
+                    {agent.name.charAt(0)}{agent.name?.charAt(0) || ''}
+                  </div>
                 <div>
                   <p className="font-medium">{agent.name}</p>
                   <p className="text-xs text-gray-500">Referred by Admin</p>
@@ -387,7 +395,7 @@ const Dashboard = () => {
               </div>
             ))}
           </div>
-          <button className="text-blue-500 text-sm w-full text-center mt-4">
+          <button onClick={handleSeeRecentAgent} className="cursor-pointer text-blue-500 text-sm w-full text-center mt-4">
             See All
           </button>
         </div>

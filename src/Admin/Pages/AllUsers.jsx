@@ -3,6 +3,9 @@ import { Download, ArrowLeft, ArrowRight, MoreVertical, Eye, Trash2 } from 'luci
 import { getUserList, deleteUser } from '../../services/allApi/adminAllApis';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import 'jspdf-autotable';
 
 export default function UserListingPage() {
   const [users, setUsers] = useState([]);
@@ -10,9 +13,53 @@ export default function UserListingPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
-  const [activeDropdown, setActiveDropdown] = useState(null); // Track which dropdown is open
-  const usersPerPage = 5;
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const usersPerPage = 10;
 
+  const downloadAsPDF = () => {
+    try {
+      const doc = new jsPDF();
+  
+      // Title
+      doc.setFontSize(16);
+      doc.text("Users Report", 14, 15);
+  
+      // Prepare table data
+      const tableData = currentUsers.map((user, index) => [
+        (indexOfFirstUser + index + 1).toString(), // Sl No
+        `${user.firstName} ${user.lastName}` || "N/A", // Customer
+        user.phoneNumber || "N/A", // Phone Number
+        user.email || "N/A", // Email
+        user.address || "N/A", // Address
+        user.isActive ? "Active" : "Inactive" // Status
+      ]);
+  
+      // Add table using jspdf-autotable
+      autoTable(doc, {
+        head: [['Sl No', 'Customer', 'Phone Number', 'Email', 'Address', 'Status']],
+        body: tableData,
+        startY: 25,
+        styles: {
+          fontSize: 8,
+          cellPadding: 2,
+        },
+        headStyles: {
+          fillColor: [93, 133, 191],
+          textColor: 255,
+          fontStyle: 'bold'
+        }
+      });
+  
+      // Save the PDF
+      doc.save(`users_report_${new Date().toISOString().slice(0, 10)}.pdf`);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast.error("Failed to generate PDF. Please try again.");
+    }
+  };
+  
   const navigate = useNavigate();
 
   const handleUserClick = (id) => {
@@ -33,12 +80,17 @@ export default function UserListingPage() {
     setFilteredUsers(data);
   };
 
-  const handleDeleteUser = async (userId) => {
+  const handleDeleteClick = (userId) => {
+    setUserToDelete(userId);
+    setShowDeleteModal(true);
+    setActiveDropdown(null); // Close dropdown when opening modal
+  };
+
+  const handleDeleteUser = async () => {
     try {
-      const response = await deleteUser(userId);
+      const response = await deleteUser(userToDelete);
       if (response && response.status === 200) {
         toast.success('User deleted successfully');
-        // Refresh the user list
         fetchUsers();
       } else {
         toast.error('Failed to delete user');
@@ -47,7 +99,8 @@ export default function UserListingPage() {
       toast.error('Error deleting user');
       console.error(error);
     } finally {
-      setActiveDropdown(null); // Close dropdown after action
+      setShowDeleteModal(false);
+      setUserToDelete(null);
     }
   };
 
@@ -82,6 +135,32 @@ export default function UserListingPage() {
 
   return (
     <div className="p-4 bg-blue-100 min-h-screen">
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-lg font-semibold mb-4">Confirm Deletion</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this user? This action cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteUser}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white p-3 rounded-md shadow-sm mb-4">
         <div className="flex items-center text-sm text-gray-500">
           <span>Users</span>
@@ -168,7 +247,7 @@ export default function UserListingPage() {
                           View Details
                         </button>
                         <button
-                          onClick={() => handleDeleteUser(user._id)}
+                          onClick={() => handleDeleteClick(user._id)}
                           className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left"
                         >
                           <Trash2 className="w-4 h-4 mr-2" />
@@ -184,10 +263,10 @@ export default function UserListingPage() {
         </table>
 
         {/* Pagination */}
-        
+       
       </div>
       <div className="flex justify-between items-center p-4">
-          <button className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm">
+          <button onClick={downloadAsPDF} className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm">
             <Download className="mr-2 w-4 h-4" />
             Download
           </button>

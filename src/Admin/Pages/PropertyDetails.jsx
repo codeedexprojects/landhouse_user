@@ -9,13 +9,33 @@ import { MdOutlineDeleteOutline, MdOutlinePhoneInTalk } from "react-icons/md";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { deletePropertyAPI } from "../../services/allApi/adminAllApis";
+import { deletePropertyAPI, getLatestEnquireisProperty } from "../../services/allApi/adminAllApis";
 import { Edit } from "lucide-react";
 
 function PropertyDetails() {
   const location = useLocation();
   const navigate = useNavigate();
   const property = location.state?.property;
+  const [latestEnquiry, setLatestEnquiry] = useState(null);
+
+  useEffect(() => {
+    const fetchLatestEnquiry = async () => {
+      try {
+        const data = await getLatestEnquireisProperty(property._id);
+        if (data?.enquiries?.length) {
+          const sortedEnquiries = data.enquiries.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
+          setLatestEnquiry(sortedEnquiries[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching enquiries:", error);
+      }
+    };
+    
+
+    fetchLatestEnquiry();
+  }, [property]);
 
   useEffect(() => {
     if (!property) {
@@ -233,17 +253,17 @@ function PropertyDetails() {
 
       {/* Latest Enquiry */}
       <div className="rounded-lg overflow-hidden shadow-md bg-white p-6">
-        <h2 className="text-2xl font-bold text-[#0B0B45] mb-6">
-          Latest Enquiry
-        </h2>
-        <div className="grid grid-cols-6 font-semibold text-gray-600 py-2 border-b">
-          <h6>Sl No</h6>
-          <h6>Name</h6>
-          <h6>Phone</h6>
-          <h6>Email</h6>
-          <h6>Message</h6>
-          <h6>Action</h6>
-        </div>
+      <h2 className="text-2xl font-bold text-[#0B0B45] mb-6">Latest Enquiry</h2>
+      <div className="grid grid-cols-6 font-semibold text-gray-600 py-2 border-b">
+        <h6>Sl No</h6>
+        <h6>Name</h6>
+        <h6>Phone</h6>
+        <h6>Email</h6>
+        <h6>Message</h6>
+        <h6>Action</h6>
+      </div>
+
+      {latestEnquiry ? (
         <div className="grid grid-cols-6 items-center text-gray-700 py-4 border-b">
           <p>01</p>
           <div className="flex items-center gap-3">
@@ -252,16 +272,23 @@ function PropertyDetails() {
               alt="profile"
               className="w-10 h-10 rounded-full object-cover"
             />
-            <span className="font-semibold">Praveen TP</span>
+            <span className="font-semibold">
+              {latestEnquiry.userId
+                ? `${latestEnquiry.userId.firstName} ${latestEnquiry.userId.lastName}`
+                : latestEnquiry.name}
+            </span>
           </div>
-          <p>+91 98745 65476</p>
-          <p>praveentp@gmail.com</p>
-          <p className="text-blue-500 cursor-pointer">View message</p>
+          <p>{latestEnquiry.phoneNumber || latestEnquiry.userId?.phoneNumber}</p>
+          <p>{latestEnquiry.email || latestEnquiry.userId?.email}</p>
+          <p className="text-blue-500 cursor-pointer">{latestEnquiry.message}</p>
           <div className="text-xl text-blue-500 cursor-pointer">
             <MdOutlinePhoneInTalk />
           </div>
         </div>
-      </div>
+      ) : (
+        <p className="text-gray-500 py-4">No enquiries found.</p>
+      )}
+    </div>
 
       {/* confirmationmodal */}
       {showConfirmModal && (
