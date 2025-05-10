@@ -113,20 +113,22 @@ export default function AgentListingPage() {
     );
   }
 
+  const handleAddAgent=()=>{
+    navigate('/admin/add-agent')
+  }
+
   return (
     <div className="p-4 bg-blue-100 min-h-screen">
       {/* Breadcrumb */}
-      <div className="bg-white p-3 rounded-md shadow-sm mb-4">
+      <div className="bg-white p-3 rounded-md shadow-sm mb-4 flex justify-between items-center">
         <div className="flex items-center text-sm text-gray-500">
           <span>Agent</span>
           <span className="mx-2">/</span>
-          <span className="text-blue-500">All agents</span>
-          <div className="ml-auto">
-            <div className="bg-gray-800 rounded-full w-8 h-8 flex items-center justify-center overflow-hidden">
-              <img src="/api/placeholder/32/32" alt="User profile" className="w-full h-full object-cover" />
-            </div>
-          </div>
+          <span className="text-blue-500">agent list</span>
         </div>
+        <button onClick={handleAddAgent} className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors text-sm">
+          Add Agent
+        </button>
       </div>
 
       {/* Agents Grid */}

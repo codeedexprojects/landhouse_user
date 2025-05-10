@@ -18,14 +18,15 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     {
       name: 'Property',
       icon: <Home size={20} />,
-      dropdown: true,
-      isOpen: isPropertyOpen,
-      toggle: () => setPropertyOpen(!isPropertyOpen),
-      children: [
-        { name: 'Add Property', path: '/vendor/add-prop-vendor' },
-        { name: 'All Properties', path: '/vendor/prop-vendor' },
+      path: '/vendor/prop-vendor',
+      // dropdown: true,
+      // isOpen: isPropertyOpen,
+      // toggle: () => setPropertyOpen(!isPropertyOpen),
+      // children: [
+      //   { name: 'Add Property', path: '/vendor/add-prop-vendor' },
+      //   { name: 'All Properties', path: '/vendor/prop-vendor' },
 
-      ],
+      // ],
     },
 
   ];

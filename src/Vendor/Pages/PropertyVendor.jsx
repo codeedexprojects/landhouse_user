@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Search, ChevronDown, Filter, Download, ArrowRight, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {  } from "../../services/allApi/adminAllApis";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -22,6 +22,7 @@ export default function PropertyListingPage() {
     beds: "",
     baths: "",
   });
+  const navigate=useNavigate()
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -32,6 +33,7 @@ export default function PropertyListingPage() {
   const indexOfLastProperty = currentPage * propertiesPerPage;
   const indexOfFirstProperty = indexOfLastProperty - propertiesPerPage;
   const currentProperties = filteredProperties.slice(indexOfFirstProperty, indexOfLastProperty);
+
 
   // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -222,15 +224,22 @@ export default function PropertyListingPage() {
     fetchProperties();
   }, [propertiesPerPage]);
 
+   const handleAddProperty=()=>{
+    navigate('/vendor/add-prop-vendor')
+  }
+
   return (
     <div className="p-4 bg-blue-100 min-h-screen">
       {/* Breadcrumb */}
-      <div className="bg-white p-3 rounded-md shadow-sm mb-4">
+       <div className="bg-white p-3 rounded-md shadow-sm mb-4 flex justify-between items-center">
         <div className="flex items-center text-sm text-gray-500">
           <span>property</span>
           <span className="mx-2">/</span>
           <span className="text-blue-500">property list</span>
         </div>
+        <button onClick={handleAddProperty} className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors text-sm">
+          Add Property
+        </button>
       </div>
 
       {/* Search and Filter Bar */}

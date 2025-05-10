@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Search, ChevronDown, Filter, Download, ArrowRight, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { getAllProperties } from "../../services/allApi/adminAllApis";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -26,6 +26,7 @@ export default function PropertyListingPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [propertiesPerPage] = useState(12);
   const [totalPages, setTotalPages] = useState(0);
+  const navigate=useNavigate()
 
   // Calculate pagination
   const indexOfLastProperty = currentPage * propertiesPerPage;
@@ -61,23 +62,23 @@ export default function PropertyListingPage() {
     } else {
       // Always include first page
       pageNumbers.push(1);
-      
+
       if (currentPage > 3) {
         pageNumbers.push("...");
       }
-      
+
       // Show current page and surrounding pages
       let start = Math.max(2, currentPage - 1);
       let end = Math.min(totalPages - 1, currentPage + 1);
-      
+
       for (let i = start; i <= end; i++) {
         pageNumbers.push(i);
       }
-      
+
       if (currentPage < totalPages - 2) {
         pageNumbers.push("...");
       }
-      
+
       // Always include last page
       pageNumbers.push(totalPages);
     }
@@ -162,11 +163,11 @@ export default function PropertyListingPage() {
     try {
       // Initialize jsPDF
       const doc = new jsPDF();
-      
+
       // Add title
       doc.setFontSize(16);
       doc.text("Property Listing Report", 14, 15);
-      
+
       // Prepare table data
       const tableData = filteredProperties.map(property => [
         property.property_type || "N/A",
@@ -176,7 +177,7 @@ export default function PropertyListingPage() {
         property.area ? `${property.area} sqft` : "N/A",
         property.property_price ? `₹${property.property_price.toLocaleString()}` : "N/A"
       ]);
-  
+
       // Add the table using jspdf-autotable
       autoTable(doc, {
         head: [['Type', 'Address', 'Beds', 'Baths', 'Area', 'Price']],
@@ -192,7 +193,7 @@ export default function PropertyListingPage() {
           fontStyle: 'bold'
         }
       });
-  
+
       // Save the PDF
       doc.save(`property_listing_${new Date().toISOString().slice(0, 10)}.pdf`);
     } catch (error) {
@@ -221,16 +222,24 @@ export default function PropertyListingPage() {
     fetchProperties();
   }, [propertiesPerPage]);
 
+  const handleAddProperty=()=>{
+    navigate('/admin/property')
+  }
+
   return (
     <div className="p-4 bg-blue-100 min-h-screen">
       {/* Breadcrumb */}
-      <div className="bg-white p-3 rounded-md shadow-sm mb-4">
+      <div className="bg-white p-3 rounded-md shadow-sm mb-4 flex justify-between items-center">
         <div className="flex items-center text-sm text-gray-500">
           <span>property</span>
           <span className="mx-2">/</span>
           <span className="text-blue-500">property list</span>
         </div>
+        <button onClick={handleAddProperty} className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors text-sm">
+          Add Property
+        </button>
       </div>
+
 
       {/* Search and Filter Bar */}
       <div className="bg-white rounded-md shadow-sm p-3 mb-4">
@@ -245,14 +254,14 @@ export default function PropertyListingPage() {
               onChange={handleSearch}
             />
           </div>
-          <button 
+          <button
             className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md"
             onClick={() => setShowFilters(!showFilters)}
           >
             <Filter className="w-4 h-4" />
             Filters
           </button>
-          <button 
+          <button
             className="flex items-center gap-2 bg-white border border-gray-300 px-4 py-2 rounded-md"
             onClick={downloadAsPDF}
           >
@@ -277,7 +286,7 @@ export default function PropertyListingPage() {
                 <option value="highToLow">High to Low</option>
               </select>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Min Beds</label>
               <select
@@ -294,7 +303,7 @@ export default function PropertyListingPage() {
                 <option value="5">5+</option>
               </select>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Min Baths</label>
               <select
@@ -310,7 +319,7 @@ export default function PropertyListingPage() {
                 <option value="4">4+</option>
               </select>
             </div>
-            
+
             <div className="flex items-end">
               <button
                 onClick={resetFilters}
@@ -377,9 +386,8 @@ export default function PropertyListingPage() {
                   <Link
                     to="/admin/property-details"
                     state={{ property }}
-                    className={`px-3 py-1 bg-[#5A85BFB2] text-white text-sm rounded hover:bg-indigo-700 transition-colors ${
-                      isLoading ? "opacity-75 cursor-not-allowed" : ""
-                    }`}
+                    className={`px-3 py-1 bg-[#5A85BFB2] text-white text-sm rounded hover:bg-indigo-700 transition-colors ${isLoading ? "opacity-75 cursor-not-allowed" : ""
+                      }`}
                   >
                     View Details
                   </Link>
@@ -390,7 +398,7 @@ export default function PropertyListingPage() {
         ) : (
           <div className="col-span-full text-center py-10">
             <p className="text-gray-500">No properties available</p>
-            <button 
+            <button
               onClick={resetFilters}
               className="mt-2 text-blue-500 hover:text-blue-700 text-sm"
             >
@@ -403,7 +411,7 @@ export default function PropertyListingPage() {
       {/* Pagination */}
       {filteredProperties.length > 0 && (
         <div className="flex justify-between items-center mt-6">
-          <button 
+          <button
             className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm"
             onClick={downloadAsPDF}
           >
@@ -412,14 +420,14 @@ export default function PropertyListingPage() {
           </button>
 
           <div className="flex items-center">
-            <button 
+            <button
               className={`p-2 text-gray-500 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={prevPage}
               disabled={currentPage === 1}
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
-            
+
             <div className="flex space-x-2 mx-2">
               {getDisplayedPageNumbers().map((pageNumber, index) => (
                 pageNumber === "..." ? (
@@ -427,9 +435,8 @@ export default function PropertyListingPage() {
                 ) : (
                   <button
                     key={pageNumber}
-                    className={`w-8 h-8 rounded-md ${
-                      currentPage === pageNumber ? 'bg-blue-500 text-white' : 'bg-white text-gray-500'
-                    } flex items-center justify-center text-sm shadow-sm`}
+                    className={`w-8 h-8 rounded-md ${currentPage === pageNumber ? 'bg-blue-500 text-white' : 'bg-white text-gray-500'
+                      } flex items-center justify-center text-sm shadow-sm`}
                     onClick={() => paginate(pageNumber)}
                   >
                     {pageNumber}
@@ -438,7 +445,7 @@ export default function PropertyListingPage() {
               ))}
             </div>
 
-            <button 
+            <button
               className={`p-2 text-gray-500 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={nextPage}
               disabled={currentPage === totalPages}

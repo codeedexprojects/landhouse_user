@@ -31,21 +31,22 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       isOpen: isPropertyOpen,
       toggle: () => setPropertyOpen(!isPropertyOpen),
       children: [
-        { name: "Add Property", path: "/admin/property" },
+        // { name: "Add Property", path: "/admin/property" },
         { name: "All Properties", path: "/admin/view-property" },
         { name: "Home Loan", path: "/admin/loan-enquiry" },
       ],
     },
     {
-      name: "Agent",
+      name: "Agents",
       icon: <Users size={20} />,
-      dropdown: true,
-      isOpen: isAgentOpen,
-      toggle: () => setAgentOpen(!isAgentOpen),
-      children: [
-        { name: "Add Agent", path: "/admin/add-agent" },
-        { name: "All Agents", path: "/admin/view-agent" },
-      ],
+       path: "/admin/view-agent",
+      // dropdown: true,
+      // isOpen: isAgentOpen,
+      // toggle: () => setAgentOpen(!isAgentOpen),
+      // children: [
+      //   { name: "Add Agent", path: "/admin/add-agent" },
+      //   { name: "All Agents", path: "/admin/view-agent" },
+      // ],
     },
     {
       name: "User",
