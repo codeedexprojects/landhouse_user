@@ -8,6 +8,7 @@ import 'swiper/css/pagination';
 import { FaBed, FaBath, FaRulerCombined, FaHeart, FaShareAlt, FaTimes, FaFacebook, FaTwitter, FaWhatsapp, FaPhone } from "react-icons/fa";
 import { addToCompare, getSingleProperty, addToFavorites, getFavorites, deleteFavourite } from '../../services/allApi/userAllApi';
 import { Toast } from '../Toast';
+import { FaBuilding } from "react-icons/fa";
 
 export default function SingleProperty() {
     const { propertyId } = useParams();
@@ -378,33 +379,45 @@ export default function SingleProperty() {
                         {/* Right Column: Three rows of content */}
                         <div className="lg:w-1/2 mt-6 lg:mt-0">
                             {/* Row 1: Property Features (Bedrooms, Bathrooms, Sqft) */}
-                            <div className="flex justify-end mb-6">
-                                <div className="grid grid-cols-3 gap-6">
-                                    <div className="flex flex-col items-center">
-                                        <div className="flex items-center">
-                                            <span className="text-xl font-bold text-indigo-900">{property.beds}</span>
-                                            <FaBed className="h-6 w-6 ml-1 text-indigo-900" />
-                                        </div>
-                                        <span className="text-sm text-indigo-900">Bedrooms</span>
-                                    </div>
+                           <div className="flex justify-end mb-6">
+    <div className="grid grid-cols-4 gap-6">
+        {/* Bedrooms */}
+        <div className="flex flex-col items-center">
+            <div className="flex items-center">
+                <span className="text-xl font-bold text-indigo-900">{property.beds}</span>
+                <FaBed className="h-6 w-6 ml-1 text-indigo-900" />
+            </div>
+            <span className="text-sm text-indigo-900">Bedrooms</span>
+        </div>
 
-                                    <div className="flex flex-col items-center">
-                                        <div className="flex items-center">
-                                            <span className="text-xl font-bold text-indigo-900">{property.baths}</span>
-                                            <FaBath className="h-6 w-6 ml-1 text-indigo-900" />
-                                        </div>
-                                        <span className="text-sm text-indigo-900">Bathrooms</span>
-                                    </div>
+        {/* Bathrooms */}
+        <div className="flex flex-col items-center">
+            <div className="flex items-center">
+                <span className="text-xl font-bold text-indigo-900">{property.baths}</span>
+                <FaBath className="h-6 w-6 ml-1 text-indigo-900" />
+            </div>
+            <span className="text-sm text-indigo-900">Bathrooms</span>
+        </div>
 
-                                    <div className="flex flex-col items-center">
-                                        <div className="flex items-center">
-                                            <span className="text-xl font-bold text-indigo-900">{property.area}</span>
-                                            <FaRulerCombined className="h-6 w-6 ml-1 text-indigo-900" />
-                                        </div>
-                                        <span className="text-sm text-indigo-900">Sqft</span>
-                                    </div>
-                                </div>
-                            </div>
+        {/* Sqft */}
+        <div className="flex flex-col items-center">
+            <div className="flex items-center">
+                <span className="text-xl font-bold text-indigo-900">{property.area}</span>
+                <FaRulerCombined className="h-6 w-6 ml-1 text-indigo-900" />
+            </div>
+            <span className="text-sm text-indigo-900">Sqft</span>
+        </div>
+
+        {/* Cent */}
+        <div className="flex flex-col items-center">
+            <div className="flex items-center">
+                <span className="text-xl font-bold text-indigo-900">{property.cent}</span>
+                <FaBuilding className="h-6 w-6 ml-1 text-indigo-900" />
+            </div>
+            <span className="text-sm text-indigo-900">Cent</span>
+        </div>
+    </div>
+</div>
 
                             {/* Row 2: Year Built */}
                             <div className="flex justify-end mb-6">
