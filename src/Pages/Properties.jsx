@@ -172,8 +172,69 @@ const Properties = () => {
     setBathsFilter('');
   };
 
-  // ... (rest of your component code remains the same until the return statement)
+  const handleViewClick = async (propertyId) => {
+    const isLoggedIn = localStorage.getItem('userId') && localStorage.getItem('token');
 
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      navigate(`/single/${propertyId}`);
+      window.scrollTo(0, 0);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const toggleWishlist = async (propertyId) => {
+    try {
+      const userId = localStorage.getItem('userId');
+      const token = localStorage.getItem('token');
+
+      if (!userId || !token) {
+        showToast('Please login to add favorites', 'error');
+        return;
+      }
+
+      const isFavorite = wishlist.includes(propertyId);
+
+      if (isFavorite) {
+        // REMOVE from wishlist
+        await deleteFavourite(propertyId, { userId });
+        setWishlist((prev) => prev.filter((id) => id !== propertyId));
+        showToast('Removed from favorites', 'success');
+      } else {
+        // ADD to wishlist
+        await addToFavorites(userId, propertyId);
+        setWishlist((prev) => [...prev, propertyId]);
+        showToast('Added to favorites', 'success');
+      }
+    } catch (error) {
+      console.error('Favorite error:', error);
+      showToast(error.response?.data?.message || 'Failed to update favorites', 'error');
+    }
+  };
+
+  const generateReferralLink = (userId, referralCode, propertyId) => {
+    return `${window.location.origin}/register?referrerId=${userId}&referralCode=${referralCode}&productId=${propertyId}`;
+  };
+
+  const handleShare = (propertyId) => {
+    const userId = localStorage.getItem('userId');
+    const referralCode = localStorage.getItem('referralId');
+
+    if (!userId || !referralCode) {
+      toast.error('Please login to share properties');
+      return;
+    }
+
+    const link = generateReferralLink(userId, referralCode, propertyId);
+    setReferralLink(link);
+    setShowShareModal(true);
+  };
   return (
     <div>
       <Header />
