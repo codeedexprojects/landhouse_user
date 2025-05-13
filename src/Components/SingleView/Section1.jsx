@@ -396,7 +396,7 @@ export default function SingleProperty() {
 
                         {/* Right Column: Property Specifications */}
                         <div className="lg:w-1/2 mt-6 lg:mt-0 lg:pl-8">
-                            <div className="bg-gray-50 p-6 rounded-lg">
+                            <div className="bg-gray-50 p-6 rounded-lg"> 
                                 <h3 className="text-lg font-semibold text-indigo-900 mb-4">Property Specifications</h3>
 
                                 <div className="grid grid-cols-1 gap-2">

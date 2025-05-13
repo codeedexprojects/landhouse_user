@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Home, Users, User, Link, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { LayoutDashboard, Home, Users, MapPin, User, Link, ChevronDown, ChevronUp, X } from 'lucide-react';
 import image from '../../assets/logo.png'
 
 
@@ -27,6 +27,11 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       //   { name: 'All Properties', path: '/vendor/prop-vendor' },
 
       // ],
+    },
+     {
+      name: "Places",
+      icon: <MapPin size={20} />,
+      path: "/vendor/vendor-places",
     },
 
   ];
