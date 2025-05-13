@@ -424,10 +424,12 @@ const Properties = () => {
               {/* Property Details */}
               <div className="p-3 space-y-2">
                 <h2 className="text-sm font-semibold text-gray-700">{property.property_type} - {property.maxrooms} Rooms</h2>
-                <div className="text-sm text-gray-500 flex flex-wrap gap-1">
-                  <span>{property.beds} Beds</span> |
-                  <span>{property.baths} Baths</span> |
-                  <span>{property.area} sqft</span>
+                 <div className="text-sm text-gray-500 flex flex-wrap gap-1">
+                  {property.beds && <span>{property.beds} Beds</span>}
+                  {property.beds && property.baths && <span>|</span>}
+                  {property.baths && <span>{property.baths} Baths</span>}
+                  {(property.beds || property.baths) && property.area && <span>|</span>}
+                  {property.area && <span>{property.area} sqft</span>}
                 </div>
                 <p className="text-sm text-gray-400 flex items-center gap-1">
                   <MdLocationOn className="text-base text-gray-400" />

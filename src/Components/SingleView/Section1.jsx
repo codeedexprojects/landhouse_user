@@ -24,6 +24,7 @@ export default function SingleProperty() {
     const [loadingFavorites, setLoadingFavorites] = useState(false);
     const [showLoginModal, setShowLoginModal] = useState(false);
     const BASE_URL = "https://landouse-backend.onrender.com";
+    const [showAll, setShowAll] = useState(false);
 
     useEffect(() => {
         const fetchProperty = async () => {
@@ -153,7 +154,7 @@ export default function SingleProperty() {
             showToast('Agent contact information not available', 'error');
             return;
         }
-        
+
         // Use tel: protocol to initiate a call
         window.location.href = `tel:${property.created_by.number}`;
     };
@@ -330,7 +331,7 @@ export default function SingleProperty() {
             <div className="p-6">
                 <div className="container mx-auto">
                     <div className="lg:flex lg:justify-between">
-                        {/* Left Column: Title, Location, Type and Price */}
+                        {/* Left Column: Title, Location, Type, Price and Google Maps Button */}
                         <div className="lg:w-1/2">
                             {/* Title and Location */}
                             <h2 className="text-2xl font-semibold text-indigo-900">
@@ -357,83 +358,10 @@ export default function SingleProperty() {
                                 ₹ {property.property_price.toLocaleString()}
                             </div>
 
-                            <div className="mt-4 flex flex-wrap gap-3">
+                            {/* Google Maps Button */}
+                            <div className="mt-6">
                                 <button
-                                    onClick={handleCompare}
-                                    disabled={compareLoading}
-                                    className={`px-6 py-2 border border-indigo-900 text-indigo-900 rounded hover:bg-indigo-50 transition-colors ${compareLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                >
-                                    {compareLoading ? 'Adding...' : 'Compare'}
-                                </button>
-                                
-                                <button
-                                    onClick={handleContactAgent}
-                                    className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center"
-                                >
-                                    <FaPhone className="mr-2" /> 
-                                    Contact Agent
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Right Column: Three rows of content */}
-                        <div className="lg:w-1/2 mt-6 lg:mt-0">
-                            {/* Row 1: Property Features (Bedrooms, Bathrooms, Sqft) */}
-                           <div className="flex justify-end mb-6">
-    <div className="grid grid-cols-4 gap-6">
-        {/* Bedrooms */}
-        <div className="flex flex-col items-center">
-            <div className="flex items-center">
-                <span className="text-xl font-bold text-indigo-900">{property.beds}</span>
-                <FaBed className="h-6 w-6 ml-1 text-indigo-900" />
-            </div>
-            <span className="text-sm text-indigo-900">Bedrooms</span>
-        </div>
-
-        {/* Bathrooms */}
-        <div className="flex flex-col items-center">
-            <div className="flex items-center">
-                <span className="text-xl font-bold text-indigo-900">{property.baths}</span>
-                <FaBath className="h-6 w-6 ml-1 text-indigo-900" />
-            </div>
-            <span className="text-sm text-indigo-900">Bathrooms</span>
-        </div>
-
-        {/* Sqft */}
-        <div className="flex flex-col items-center">
-            <div className="flex items-center">
-                <span className="text-xl font-bold text-indigo-900">{property.area}</span>
-                <FaRulerCombined className="h-6 w-6 ml-1 text-indigo-900" />
-            </div>
-            <span className="text-sm text-indigo-900">Sqft</span>
-        </div>
-
-        {/* Cent */}
-        <div className="flex flex-col items-center">
-            <div className="flex items-center">
-                <span className="text-xl font-bold text-indigo-900">{property.cent}</span>
-                <FaBuilding className="h-6 w-6 ml-1 text-indigo-900" />
-            </div>
-            <span className="text-sm text-indigo-900">Cent</span>
-        </div>
-    </div>
-</div>
-
-                            {/* Row 2: Year Built */}
-                            <div className="flex justify-end mb-6">
-                                <div className="flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1 text-indigo-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                    <span className="text-indigo-900">Built in {property.buildIn}</span>
-                                </div>
-                            </div>
-
-                            {/* Row 3: Google Maps Button */}
-                            <div className="flex justify-end">
-                                <button
-                                    className="px-6 py-3 bg-indigo-900 text-white rounded-md flex items-center justify-center"
+                                    className="px-6 py-3 bg-indigo-900 text-white rounded-md flex items-center justify-center w-full sm:w-auto"
                                     onClick={() => {
                                         const { latitude, longitude } = property.coordinates;
                                         window.open(`https://www.google.com/maps?q=${latitude},${longitude}`, '_blank');
@@ -442,8 +370,151 @@ export default function SingleProperty() {
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                                     </svg>
-                                    Open on google maps
+                                    View on Google Maps
                                 </button>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="mt-6 flex flex-wrap gap-3">
+                                <button
+                                    onClick={handleCompare}
+                                    disabled={compareLoading}
+                                    className={`px-6 py-2 border border-indigo-900 text-indigo-900 rounded hover:bg-indigo-50 transition-colors ${compareLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    {compareLoading ? 'Adding...' : 'Compare'}
+                                </button>
+
+                                <button
+                                    onClick={handleContactAgent}
+                                    className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center"
+                                >
+                                    <FaPhone className="mr-2" />
+                                    Contact Agent
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Right Column: Property Specifications */}
+                        <div className="lg:w-1/2 mt-6 lg:mt-0 lg:pl-8">
+                            <div className="bg-gray-50 p-6 rounded-lg">
+                                <h3 className="text-lg font-semibold text-indigo-900 mb-4">Property Specifications</h3>
+
+                                <div className="grid grid-cols-1 gap-2">
+                                    {/* Create an array of all possible specifications */}
+                                    {(() => {
+                                        const specs = [];
+
+                                        if (property.buildIn) {
+                                            specs.push({
+                                                label: "Build In",
+                                                value: property.buildIn
+                                            });
+                                        }
+
+                                        if (property.beds) {
+                                            specs.push({
+                                                label: "Bedrooms",
+                                                value: property.beds
+                                            });
+                                        }
+
+                                        if (property.baths) {
+                                            specs.push({
+                                                label: "Bathrooms",
+                                                value: property.baths
+                                            });
+                                        }
+
+                                        if (property.area) {
+                                            specs.push({
+                                                label: "Buildup Area",
+                                                value: `${property.area} sq ft`
+                                            });
+                                        }
+
+                                        if (property.carpet_area) {
+                                            specs.push({
+                                                label: "Carpet Area",
+                                                value: `${property.carpet_area} sq ft`
+                                            });
+                                        }
+
+                                        if (property.cent) {
+                                            specs.push({
+                                                label: "Land Area",
+                                                value: `${property.cent} cent`
+                                            });
+                                        }
+
+                                        if (property.price_per_cent) {
+                                            specs.push({
+                                                label: "Price per Cent",
+                                                value: `₹${property.price_per_cent}`
+                                            });
+                                        }
+
+                                        if (property.car_parking) {
+                                            specs.push({
+                                                label: "Car Parking",
+                                                value: property.car_parking
+                                            });
+                                        }
+
+                                        if (property.car_access) {
+                                            specs.push({
+                                                label: "Car Access",
+                                                value: property.car_access === 'yes' ? 'Yes' : 'No'
+                                            });
+                                        }
+
+                                        if (property.floor) {
+                                            specs.push({
+                                                label: "Floor",
+                                                value: property.floor
+                                            });
+                                        }
+
+                                        if (property.road_frontage) {
+                                            specs.push({
+                                                label: "Road Frontage",
+                                                value: property.road_frontage
+                                            });
+                                        }
+
+                                        if (property.maxrooms) {
+                                            specs.push({
+                                                label: "Max Rooms",
+                                                value: property.maxrooms
+                                            });
+                                        }
+
+                                        // Display only first 4 specs or all if showAll is true
+                                        const displaySpecs = showAll ? specs : specs.slice(0, 4);
+
+                                        return (
+                                            <>
+                                                {displaySpecs.map((spec, index) => (
+                                                    <div key={index} className="flex justify-between py-2 border-b border-gray-200">
+                                                        <span className="text-gray-600">{spec.label}</span>
+                                                        <span className="font-medium">{spec.value}</span>
+                                                    </div>
+                                                ))}
+
+                                                {/* Show "See More" button only if there are more than 4 specs */}
+                                                {specs.length > 4 && (
+                                                    <div className="col-span-full mt-3">
+                                                        <button
+                                                            onClick={() => setShowAll(!showAll)}
+                                                            className="w-full py-2 text-sm font-medium text-indigo-700 bg-indigo-50 rounded-md hover:bg-indigo-100 transition-colors"
+                                                        >
+                                                            {showAll ? 'Show Less' : `See More (${specs.length - 4} more)`}
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </>
+                                        );
+                                    })()}
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -12,21 +12,117 @@ function EditpropertyVendor() {
   const [files, setFiles] = useState([]);
 
   const [formData, setFormData] = useState({
-    property_type: property?.property_type,
-    property_price: property?.property_price,
-    area: property?.area,
-    whatsNearby: property?.whats_nearby,
-    buildIn: property?.buildIn,
-    cent: property?.cent,
-    maxrooms: property?.maxrooms,
-    beds: property?.beds,
-    baths: property?.baths,
-    description: property?.description,
-    address: property?.address,
-    zipCode: property?.zipcode,
-    coordinates: property?.coordinates,
-    private_note: property?.private_note,
-  });
+      property_type: property?.property_type || "",
+      property_price: property?.property_price || "",
+      price_per_cent: property?.price_per_cent || "",
+      area: property?.area || "",
+      carpet_area: property?.carpet_area || "",
+      whats_nearby: property?.whats_nearby || "",
+      buildIn: property?.buildIn || "",
+      cent: property?.cent || "",
+      maxrooms: property?.maxrooms || "",
+      beds: property?.beds || "",
+      baths: property?.baths || "",
+      car_parking: property?.car_parking || "",
+      car_access: property?.car_access || "no",
+      floor: property?.floor || "",
+      road_frontage: property?.road_frontage || "",
+      description: property?.description || "",
+      address: property?.address || "",
+      zipcode: property?.zipcode || "",
+      coordinates: property?.coordinates || { latitude: "", longitude: "" },
+      private_note: property?.private_note || { heading: "", title: "" },
+      photos: property?.photos || []
+    });
+  
+    
+  
+    // Define which fields to show for each property type
+    const getFieldsForPropertyType = (type) => {
+      const commonFields = [
+        { name: 'property_price', label: 'Property Price', placeholder: '₹ 4500000', type: 'text' },
+        { name: 'whats_nearby', label: "What's nearby", placeholder: 'School, Hospital, House', type: 'text' },
+        { name: 'buildIn', label: 'Build in', placeholder: '2002', type: 'text' }
+      ];
+  
+      switch(type) {
+        case 'Home/Villa':
+          return [
+            ...commonFields,
+            { name: 'cent', label: 'Land Area', placeholder: '5 Cent', type: 'text' },
+            { name: 'beds', label: 'Beds', placeholder: '5', type: 'text' },
+            { name: 'maxrooms', label: 'Max Rooms', placeholder: '5', type: 'text' },
+            { name: 'baths', label: 'Baths', placeholder: '3', type: 'text' },
+            { name: 'area', label: 'Building Area', placeholder: '2000 sq ft', type: 'text' },
+            { name: 'car_access', label: 'Car Access', type: 'select', options: ['no', 'yes'] }
+          ];
+        case 'Flat':
+          return [
+            ...commonFields,
+            { name: 'carpet_area', label: 'Carpet Area', placeholder: '1800 sq ft', type: 'text' },
+            { name: 'maxrooms', label: 'Max Rooms', placeholder: '5', type: 'text' },
+            { name: 'beds', label: 'Beds', placeholder: '5', type: 'text' },
+            { name: 'baths', label: 'Baths', placeholder: '3', type: 'text' },
+            { name: 'car_parking', label: 'Car Parking', placeholder: '2', type: 'text' },
+            { name: 'floor', label: 'Floor', placeholder: '2', type: 'text' }
+          ];
+        case 'Residential land':
+          return [
+            ...commonFields,
+            { name: 'price_per_cent', label: 'Price per Cent', placeholder: '₹ 100000', type: 'text' },
+            { name: 'cent', label: 'Land Area', placeholder: '5 Cent', type: 'text' },
+            { name: 'car_access', label: 'Car Access', type: 'select', options: ['no', 'yes'] }
+          ];
+        case 'Agriculture land':
+        case 'Commercial land':
+          return [
+            ...commonFields,
+            { name: 'price_per_cent', label: 'Price per Cent', placeholder: '₹ 100000', type: 'text' },
+            { name: 'cent', label: 'Land Area', placeholder: '5 Cent', type: 'text' },
+            { name: 'road_frontage', label: 'Road Frontage', placeholder: '30 feet', type: 'text' }
+          ];
+        case 'Shop/Office':
+          return [
+            ...commonFields,
+            { name: 'price_per_cent', label: 'Price per Cent', placeholder: '₹ 100000', type: 'text' },
+            { name: 'area', label: 'Buildup Area', placeholder: '2000 sq ft', type: 'text' },
+            { name: 'road_frontage', label: 'Road Frontage', placeholder: '30 feet', type: 'text' },
+            { name: 'floor', label: 'Floor', placeholder: '2', type: 'text' },
+            { name: 'car_access', label: 'Car Access', type: 'select', options: ['no', 'yes'] }
+          ];
+        default:
+          return [];
+      }
+    };
+  
+    const renderField = (field) => {
+      switch(field.type) {
+        case 'select':
+          return (
+            <select
+              name={field.name}
+              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData[field.name]}
+              onChange={handleChange}
+            >
+              {field.options.map(option => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+          );
+        default:
+          return (
+            <input
+              type={field.type || 'text'}
+              name={field.name}
+              placeholder={field.placeholder}
+              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData[field.name]}
+              onChange={handleChange}
+            />
+          );
+      }
+    };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -117,131 +213,31 @@ function EditpropertyVendor() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Property Type */}
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Property Type
-              </label>
-              <input
-                type="text"
+              <label className="block text-sm font-medium mb-2">Property Type</label>
+              <select
                 name="property_type"
-                placeholder="Office, Apartment, House"
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={formData.property_type}
                 onChange={handleChange}
-              />
+              >
+                <option value="">Select Property Type</option>
+                <option value="Home/Villa">Home/Villa</option>
+                <option value="Flat">Flat</option>
+                <option value="Residential land">Residential land</option>
+                <option value="Agriculture land">Agriculture land</option>
+                <option value="Commercial land">Commercial land</option>
+                <option value="Shop/Office">Shop/Office</option>
+              </select>
             </div>
 
-            {/* Property Price */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Property Price
-              </label>
-              <input
-                type="text"
-                name="property_price"
-                placeholder="₹ 4500000"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.
-                    property_price}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Area */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Area</label>
-              <input
-                type="text"
-                name="area"
-                placeholder="2000 sq ft"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.area}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* What's nearby */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                What's nearby
-              </label>
-              <input
-                type="text"
-                name="whatsNearby"
-                placeholder="School, Hospital, House"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.whatsNearby}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Build in */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Build in</label>
-              <input
-                type="text"
-                name="buildIn"
-                placeholder="2002"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.buildIn}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Cent */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Cent</label>
-              <input
-                type="text"
-                name="cent"
-                placeholder="Palakkad"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.cent}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Max Rooms */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Max Rooms
-              </label>
-              <input
-                type="text"
-                name="maxrooms"
-                placeholder="5"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.maxrooms}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Beds */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Beds</label>
-              <input
-                type="text"
-                name="beds"
-                placeholder="5"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.beds}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Baths */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Baths</label>
-              <input
-                type="text"
-                name="baths"
-                placeholder="3"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.baths}
-                onChange={handleChange}
-              />
-            </div>
+            {/* Dynamic Fields */}
+            {formData.property_type && getFieldsForPropertyType(formData.property_type).map((field, index) => (
+              <div key={index}>
+                <label className="block text-sm font-medium mb-2">{field.label}</label>
+                {renderField(field)}
+              </div>
+            ))}
           </div>
-
           {/* Description */}
           <div className="mt-6">
             <label className="block text-sm font-medium mb-2">

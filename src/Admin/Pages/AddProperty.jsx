@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Upload, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { addProperty } from '../../services/allApi/adminAllApis';
+import { addProperty, fetchDistricts } from '../../services/allApi/adminAllApis';
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -13,19 +13,23 @@ const AddProperty = () => {
   const [formData, setFormData] = useState({
     property_type: '',
     property_price: '',
+    price_per_cent: '', // New field
     area: '',
+    carpet_area: '', // New field
     whats_nearby: '',
     buildIn: '',
     cent: '',
     maxrooms: '',
     beds: '',
     baths: '',
+    car_parking: '',
+    car_access: 'no',
+    floor: '', // New field
+    road_frontage: '', // New field
     description: '',
     address: '',
     zipcode: '',
-    // Removed coordinates field from here
   });
-
   // Separate state for coordinates
   const [coordinates, setCoordinates] = useState({
     latitude: '',
@@ -36,6 +40,21 @@ const AddProperty = () => {
   const [files, setFiles] = useState([]);
   const [privateNote, setPrivateNote] = useState('');
   const [noteTitle, setNoteTitle] = useState('');
+  const [places, setPlaces] = useState([]);
+
+  useEffect(() => {
+    const getPlaces = async () => {
+      try {
+        const data = await fetchDistricts();
+        setPlaces(data);
+      } catch (err) {
+        console.error("Failed to load places", err);
+      }
+    };
+
+    getPlaces();
+  }, []);
+
 
   // Handle file uploads
   const handleFileChange = (e) => {
@@ -57,7 +76,7 @@ const AddProperty = () => {
             latitude: lat,
             longitude: lng
           });
-          
+
           toast.info("Location coordinates obtained successfully");
         },
         (error) => {
@@ -94,7 +113,7 @@ const AddProperty = () => {
     console.log("Form submission started");
 
     // Validate required fields
-    if (!formData.property_type || !formData.property_price || !formData.area || !formData.address || !formData.zipcode) {
+    if (!formData.property_type || !formData.property_price || !formData.address || !formData.zipcode) {
       toast.error("Required fields are missing");
       return;
     }
@@ -122,7 +141,7 @@ const AddProperty = () => {
     // Method 1: Try sending as a JSON string exactly as shown in your successful example
     formDataToSend.append('coordinates[latitude]', coordinates.latitude);
     formDataToSend.append('coordinates[longitude]', coordinates.longitude);
-    
+
     console.log("Coordinates being sent:", coordinates.latitude, coordinates.longitude);
 
     // Append files
@@ -163,6 +182,94 @@ const AddProperty = () => {
     }
   };
 
+
+  const getFieldsForPropertyType = (type) => {
+    const commonFields = [
+      { name: 'property_price', label: 'Property Price', placeholder: '₹ 4500000', type: 'text' },
+      { name: 'whats_nearby', label: "What's nearby", placeholder: 'School, Hospital, House', type: 'text' },
+      { name: 'buildIn', label: 'Build in', placeholder: '2002', type: 'text' }
+    ];
+
+    switch (type) {
+      case 'Home/Villa':
+        return [
+          ...commonFields,
+          { name: 'cent', label: 'Land Area', placeholder: '5 Cent', type: 'text' },
+          { name: 'beds', label: 'Beds', placeholder: '5', type: 'text' },
+          { name: 'maxrooms', label: 'Max Rooms', placeholder: '5', type: 'text' },
+          { name: 'baths', label: 'Baths', placeholder: '3', type: 'text' },
+          { name: 'area', label: 'Buildup Area', placeholder: '2000 sq ft', type: 'text' },
+          { name: 'car_access', label: 'Car Access', type: 'select', options: ['no', 'yes'] }
+        ];
+      case 'Flat':
+        return [
+          ...commonFields,
+          { name: 'carpet_area', label: 'Carpet Area', placeholder: '1800 sq ft', type: 'text' },
+          { name: 'maxrooms', label: 'Max Rooms', placeholder: '5', type: 'text' },
+          { name: 'beds', label: 'Beds', placeholder: '5', type: 'text' },
+          { name: 'baths', label: 'Baths', placeholder: '3', type: 'text' },
+          { name: 'car_parking', label: 'Car Parking', placeholder: '2', type: 'text' },
+          { name: 'floor', label: 'Floor', placeholder: '2', type: 'text' }
+        ];
+      case 'Residential land':
+        return [
+          ...commonFields,
+          { name: 'price_per_cent', label: 'Price per Cent', placeholder: '₹ 100000', type: 'text' },
+          { name: 'cent', label: 'Land Area', placeholder: '5 Cent', type: 'text' },
+          { name: 'car_access', label: 'Car Access', type: 'select', options: ['no', 'yes'] }
+        ];
+      case 'Agriculture land':
+      case 'Commercial land':
+        return [
+          ...commonFields,
+          // { name: 'price_per_cent', label: 'Price per Cent', placeholder: '₹ 100000', type: 'text' },
+          { name: 'area', label: 'Buildup Area', placeholder: '2000 sq ft', type: 'text' },
+          { name: 'cent', label: 'Land Area', placeholder: '5 Cent', type: 'text' },
+          { name: 'road_frontage', label: 'Road Frontage', placeholder: '30 feet', type: 'text' }
+        ];
+      case 'Shop/Office':
+        return [
+          ...commonFields,
+          { name: 'price_per_cent', label: 'Price per Cent', placeholder: '₹ 100000', type: 'text' },
+          { name: 'area', label: 'Buildup Area', placeholder: '2000 sq ft', type: 'text' },
+          { name: 'road_frontage', label: 'Road Frontage', placeholder: '30 feet', type: 'text' },
+          { name: 'floor', label: 'Floor', placeholder: '2', type: 'text' },
+          { name: 'car_access', label: 'Car Access', type: 'select', options: ['no', 'yes'] }
+        ];
+      default:
+        return [];
+    }
+  };
+
+  const renderField = (field) => {
+    switch (field.type) {
+      case 'select':
+        return (
+          <select
+            name={field.name}
+            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={formData[field.name]}
+            onChange={handleChange}
+          >
+            {field.options.map(option => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+        );
+      default:
+        return (
+          <input
+            type={field.type || 'text'}
+            name={field.name}
+            placeholder={field.placeholder}
+            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={formData[field.name]}
+            onChange={handleChange}
+          />
+        );
+    }
+  };
+
   return (
     <div className="p-4 bg-blue-100 min-h-screen">
       {/* Breadcrumb */}
@@ -185,119 +292,29 @@ const AddProperty = () => {
             {/* Property Type */}
             <div>
               <label className="block text-sm font-medium mb-2">Property Type</label>
-              <input
-                type="text"
+              <select
                 name="property_type"
-                placeholder="Office, Apartment, House"
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={formData.property_type}
                 onChange={handleChange}
-              />
+              >
+                <option value="">Select Property Type</option>
+                <option value="Home/Villa">Home/Villa</option>
+                <option value="Flat">Flat</option>
+                <option value="Residential land">Residential land</option>
+                <option value="Agriculture land">Agriculture land</option>
+                <option value="Commercial land">Commercial land</option>
+                <option value="Shop/Office">Shop/Office</option>
+              </select>
             </div>
 
-            {/* Property Price */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Property Price</label>
-              <input
-                type="text"
-                name="property_price"
-                placeholder="₹ 4500000"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.property_price}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Area */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Area</label>
-              <input
-                type="text"
-                name="area"
-                placeholder="2000 sq ft"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.area}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* What's nearby */}
-            <div>
-              <label className="block text-sm font-medium mb-2">What's nearby</label>
-              <input
-                type="text"
-                name="whats_nearby"
-                placeholder="School, Hospital, House"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.whats_nearby}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Build in */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Build in</label>
-              <input
-                type="text"
-                name="buildIn"
-                placeholder="2002"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.buildIn}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Cent */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Cent</label>
-              <input
-                type="text"
-                name="cent"
-                placeholder="5 Cent"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.cent}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Max Rooms */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Max Rooms</label>
-              <input
-                type="text"
-                name="maxrooms"
-                placeholder="5"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.maxrooms}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Beds */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Beds</label>
-              <input
-                type="text"
-                name="beds"
-                placeholder="5"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.beds}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Baths */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Baths</label>
-              <input
-                type="text"
-                name="baths"
-                placeholder="3"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.baths}
-                onChange={handleChange}
-              />
-            </div>
+            {/* Dynamic Fields */}
+            {formData.property_type && getFieldsForPropertyType(formData.property_type).map((field, index) => (
+              <div key={index}>
+                <label className="block text-sm font-medium mb-2">{field.label}</label>
+                {renderField(field)}
+              </div>
+            ))}
           </div>
 
           {/* Description */}
@@ -316,15 +333,26 @@ const AddProperty = () => {
             {/* Address */}
             <div>
               <label className="block text-sm font-medium mb-2">Address</label>
-              <input
-                type="text"
-                name="address"
-                placeholder="Address of your property"
+              <select
+                name="address"  // <-- Important
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.address}
+                value={formData.address || ''}
                 onChange={handleChange}
-              />
+              >
+                <option value="">Select Address</option>
+                {places.map(district =>
+                  district.subPlaces.map(sub => {
+                    const fullName = `${sub.name}, ${district.name}`;
+                    return (
+                      <option key={sub._id} value={fullName}>
+                        {fullName}
+                      </option>
+                    );
+                  })
+                )}
+              </select>
             </div>
+
 
             {/* Zip code */}
             <div>
@@ -468,7 +496,7 @@ const AddProperty = () => {
           {/* Submit Button */}
           <div className="mt-8 flex justify-end">
             <button
-            
+
               type="submit"
               className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >

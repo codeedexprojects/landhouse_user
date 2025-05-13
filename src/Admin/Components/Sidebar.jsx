@@ -9,6 +9,7 @@ import {
   ChevronDown,
   ChevronUp,
   X,
+  MapPin,
 } from "lucide-react";
 import image from '../../assets/logo.png'
 
@@ -57,6 +58,11 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       name: "Referral",
       icon: <Link size={20} />,
       path: "/admin/referrels",
+    },
+     {
+      name: "Places",
+      icon: <MapPin size={20} />,
+      path: "/admin/add-places",
     },
   ];
 

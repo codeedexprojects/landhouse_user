@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Search, ChevronDown, Filter, Download, ArrowRight, ArrowLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import {  } from "../../services/allApi/adminAllApis";
+import { } from "../../services/allApi/adminAllApis";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { MdLocationOn } from "react-icons/md";
@@ -21,8 +21,9 @@ export default function PropertyListingPage() {
     priceSort: "",
     beds: "",
     baths: "",
+    soldOut:""
   });
-  const navigate=useNavigate()
+  const navigate = useNavigate()
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -64,23 +65,23 @@ export default function PropertyListingPage() {
     } else {
       // Always include first page
       pageNumbers.push(1);
-      
+
       if (currentPage > 3) {
         pageNumbers.push("...");
       }
-      
+
       // Show current page and surrounding pages
       let start = Math.max(2, currentPage - 1);
       let end = Math.min(totalPages - 1, currentPage + 1);
-      
+
       for (let i = start; i <= end; i++) {
         pageNumbers.push(i);
       }
-      
+
       if (currentPage < totalPages - 2) {
         pageNumbers.push("...");
       }
-      
+
       // Always include last page
       pageNumbers.push(totalPages);
     }
@@ -108,7 +109,7 @@ export default function PropertyListingPage() {
   };
 
   // Apply all filters
-  const applyFilters = (searchValue, filterSettings) => {
+   const applyFilters = (searchValue, filterSettings) => {
     let filtered = [...properties];
 
     // Apply search filter
@@ -135,6 +136,14 @@ export default function PropertyListingPage() {
       );
     }
 
+    // Apply sold out filter
+    if (filterSettings.soldOut !== "") {
+      const showSoldOut = filterSettings.soldOut === "true";
+      filtered = filtered.filter(
+        (property) => property.soldOut === showSoldOut
+      );
+    }
+
     // Apply price sorting
     if (filterSettings.priceSort === "lowToHigh") {
       filtered.sort((a, b) => (a.property_price || 0) - (b.property_price || 0));
@@ -154,6 +163,7 @@ export default function PropertyListingPage() {
       priceSort: "",
       beds: "",
       baths: "",
+      soldOut: "" // Reset soldOut filter
     });
     setFilteredProperties(properties);
     setCurrentPage(1);
@@ -165,11 +175,11 @@ export default function PropertyListingPage() {
     try {
       // Initialize jsPDF
       const doc = new jsPDF();
-      
+
       // Add title
       doc.setFontSize(16);
       doc.text("Property Listing Report", 14, 15);
-      
+
       // Prepare table data
       const tableData = filteredProperties.map(property => [
         property.property_type || "N/A",
@@ -179,7 +189,7 @@ export default function PropertyListingPage() {
         property.area ? `${property.area} sqft` : "N/A",
         property.property_price ? `₹${property.property_price.toLocaleString()}` : "N/A"
       ]);
-  
+
       // Add the table using jspdf-autotable
       autoTable(doc, {
         head: [['Type', 'Address', 'Beds', 'Baths', 'Area', 'Price']],
@@ -195,7 +205,7 @@ export default function PropertyListingPage() {
           fontStyle: 'bold'
         }
       });
-  
+
       // Save the PDF
       doc.save(`property_listing_${new Date().toISOString().slice(0, 10)}.pdf`);
     } catch (error) {
@@ -224,14 +234,14 @@ export default function PropertyListingPage() {
     fetchProperties();
   }, [propertiesPerPage]);
 
-   const handleAddProperty=()=>{
+  const handleAddProperty = () => {
     navigate('/vendor/add-prop-vendor')
   }
 
   return (
     <div className="p-4 bg-blue-100 min-h-screen">
       {/* Breadcrumb */}
-       <div className="bg-white p-3 rounded-md shadow-sm mb-4 flex justify-between items-center">
+      <div className="bg-white p-3 rounded-md shadow-sm mb-4 flex justify-between items-center">
         <div className="flex items-center text-sm text-gray-500">
           <span>property</span>
           <span className="mx-2">/</span>
@@ -255,14 +265,14 @@ export default function PropertyListingPage() {
               onChange={handleSearch}
             />
           </div>
-          <button 
+          <button
             className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md"
             onClick={() => setShowFilters(!showFilters)}
           >
             <Filter className="w-4 h-4" />
             Filters
           </button>
-          <button 
+          <button
             className="flex items-center gap-2 bg-white border border-gray-300 px-4 py-2 rounded-md"
             onClick={downloadAsPDF}
           >
@@ -287,7 +297,7 @@ export default function PropertyListingPage() {
                 <option value="highToLow">High to Low</option>
               </select>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Min Beds</label>
               <select
@@ -304,7 +314,7 @@ export default function PropertyListingPage() {
                 <option value="5">5+</option>
               </select>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Min Baths</label>
               <select
@@ -320,7 +330,20 @@ export default function PropertyListingPage() {
                 <option value="4">4+</option>
               </select>
             </div>
-            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Availability</label>
+              <select
+                name="soldOut"
+                value={filters.soldOut}
+                onChange={handleFilterChange}
+                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+              >
+                <option value="">All Properties</option>
+                <option value="false">Available</option>
+                <option value="true">Sold Out</option>
+              </select>
+            </div>
+
             <div className="flex items-end">
               <button
                 onClick={resetFilters}
@@ -349,7 +372,7 @@ export default function PropertyListingPage() {
               className="border rounded-lg shadow-sm overflow-hidden w-full max-w-[360px] mx-auto relative"
               style={{ backgroundColor: "#E7F1FF" }}
             >
-              {/* Property Image */}
+              {/* Property Image with Sold Out Badge */}
               <div className="relative">
                 <img
                   src={
@@ -364,6 +387,11 @@ export default function PropertyListingPage() {
                     e.target.src = "https://via.placeholder.com/400x300?text=No+Image";
                   }}
                 />
+                {property.soldOut && (
+                  <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
+                    Sold Out
+                  </div>
+                )}
                 <div className="absolute top-2 left-2 bg-[#EAF2FF] text-xs text-gray-600 font-semibold px-2 py-1 rounded cursor-pointer hover:bg-[#D5E3FF]">
                   Price: ₹{property.property_price?.toLocaleString() || 'N/A'}
                 </div>
@@ -372,13 +400,16 @@ export default function PropertyListingPage() {
               {/* Property Details */}
               <div className="p-3 space-y-2">
                 <h2 className="text-sm font-semibold text-gray-700">
-                  {property.property_type || "Untitled Property"} - {property.maxrooms || property.beds || "N/A"} Rooms
+                  {property.property_type || "Untitled Property"}
                 </h2>
                 <div className="text-sm text-gray-500 flex flex-wrap gap-1">
-                  <span>{property.beds || "N/A"} Beds</span> |
-                  <span>{property.baths || "N/A"} Baths</span> |
-                  <span>{property.area || "N/A"} sqft</span>
+                  {property.beds && <span>{property.beds} Beds</span>}
+                  {property.baths && property.beds && <span>|</span>}
+                  {property.baths && <span>{property.baths} Baths</span>}
+                  {property.area && (property.beds || property.baths) && <span>|</span>}
+                  {property.area && <span>{property.area} sqft</span>}
                 </div>
+
                 <p className="text-sm text-gray-400 flex items-center gap-1">
                   <MdLocationOn className="text-base text-gray-400" />
                   {property.address || "No address provided"}
@@ -387,9 +418,8 @@ export default function PropertyListingPage() {
                   <Link
                     to="/vendor/prop-details-vendor"
                     state={{ property }}
-                    className={`px-3 py-1 bg-[#5A85BFB2] text-white text-sm rounded hover:bg-indigo-700 transition-colors ${
-                      isLoading ? "opacity-75 cursor-not-allowed" : ""
-                    }`}
+                    className={`px-3 py-1 bg-[#5A85BFB2] text-white text-sm rounded hover:bg-indigo-700 transition-colors ${isLoading ? "opacity-75 cursor-not-allowed" : ""
+                      }`}
                   >
                     View Details
                   </Link>
@@ -400,7 +430,7 @@ export default function PropertyListingPage() {
         ) : (
           <div className="col-span-full text-center py-10">
             <p className="text-gray-500">No properties available</p>
-            <button 
+            <button
               onClick={resetFilters}
               className="mt-2 text-blue-500 hover:text-blue-700 text-sm"
             >
@@ -413,7 +443,7 @@ export default function PropertyListingPage() {
       {/* Pagination */}
       {filteredProperties.length > 0 && (
         <div className="flex justify-between items-center mt-6">
-          <button 
+          <button
             className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm"
             onClick={downloadAsPDF}
           >
@@ -422,14 +452,14 @@ export default function PropertyListingPage() {
           </button>
 
           <div className="flex items-center">
-            <button 
+            <button
               className={`p-2 text-gray-500 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={prevPage}
               disabled={currentPage === 1}
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
-            
+
             <div className="flex space-x-2 mx-2">
               {getDisplayedPageNumbers().map((pageNumber, index) => (
                 pageNumber === "..." ? (
@@ -437,9 +467,8 @@ export default function PropertyListingPage() {
                 ) : (
                   <button
                     key={pageNumber}
-                    className={`w-8 h-8 rounded-md ${
-                      currentPage === pageNumber ? 'bg-blue-500 text-white' : 'bg-white text-gray-500'
-                    } flex items-center justify-center text-sm shadow-sm`}
+                    className={`w-8 h-8 rounded-md ${currentPage === pageNumber ? 'bg-blue-500 text-white' : 'bg-white text-gray-500'
+                      } flex items-center justify-center text-sm shadow-sm`}
                     onClick={() => paginate(pageNumber)}
                   >
                     {pageNumber}
@@ -448,7 +477,7 @@ export default function PropertyListingPage() {
               ))}
             </div>
 
-            <button 
+            <button
               className={`p-2 text-gray-500 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={nextPage}
               disabled={currentPage === totalPages}

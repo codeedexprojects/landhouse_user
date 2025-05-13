@@ -20,13 +20,14 @@ export default function PropertyListingPage() {
     priceSort: "",
     beds: "",
     baths: "",
+    soldOut: ""
   });
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [propertiesPerPage] = useState(12);
   const [totalPages, setTotalPages] = useState(0);
-  const navigate=useNavigate()
+  const navigate = useNavigate()
 
   // Calculate pagination
   const indexOfLastProperty = currentPage * propertiesPerPage;
@@ -133,6 +134,14 @@ export default function PropertyListingPage() {
       );
     }
 
+    // Apply sold out filter
+    if (filterSettings.soldOut !== "") {
+      const showSoldOut = filterSettings.soldOut === "true";
+      filtered = filtered.filter(
+        (property) => property.soldOut === showSoldOut
+      );
+    }
+
     // Apply price sorting
     if (filterSettings.priceSort === "lowToHigh") {
       filtered.sort((a, b) => (a.property_price || 0) - (b.property_price || 0));
@@ -152,11 +161,13 @@ export default function PropertyListingPage() {
       priceSort: "",
       beds: "",
       baths: "",
+      soldOut: "" // Reset soldOut filter
     });
     setFilteredProperties(properties);
     setCurrentPage(1);
     setTotalPages(Math.ceil(properties.length / propertiesPerPage));
   };
+
 
   // Download as PDF
   const downloadAsPDF = () => {
@@ -222,7 +233,7 @@ export default function PropertyListingPage() {
     fetchProperties();
   }, [propertiesPerPage]);
 
-  const handleAddProperty=()=>{
+  const handleAddProperty = () => {
     navigate('/admin/property')
   }
 
@@ -319,6 +330,19 @@ export default function PropertyListingPage() {
                 <option value="4">4+</option>
               </select>
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Availability</label>
+              <select
+                name="soldOut"
+                value={filters.soldOut}
+                onChange={handleFilterChange}
+                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+              >
+                <option value="">All Properties</option>
+                <option value="false">Available</option>
+                <option value="true">Sold Out</option>
+              </select>
+            </div>
 
             <div className="flex items-end">
               <button
@@ -348,7 +372,7 @@ export default function PropertyListingPage() {
               className="border rounded-lg shadow-sm overflow-hidden w-full max-w-[360px] mx-auto relative"
               style={{ backgroundColor: "#E7F1FF" }}
             >
-              {/* Property Image */}
+              {/* Property Image with Sold Out Badge */}
               <div className="relative">
                 <img
                   src={
@@ -363,21 +387,30 @@ export default function PropertyListingPage() {
                     e.target.src = "https://via.placeholder.com/400x300?text=No+Image";
                   }}
                 />
+                {property.soldOut && (
+                  <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
+                    Sold Out
+                  </div>
+                )}
                 <div className="absolute top-2 left-2 bg-[#EAF2FF] text-xs text-gray-600 font-semibold px-2 py-1 rounded cursor-pointer hover:bg-[#D5E3FF]">
                   Price: ₹{property.property_price?.toLocaleString() || 'N/A'}
                 </div>
               </div>
 
+
               {/* Property Details */}
               <div className="p-3 space-y-2">
                 <h2 className="text-sm font-semibold text-gray-700">
-                  {property.property_type || "Untitled Property"} - {property.maxrooms || property.beds || "N/A"} Rooms
+                  {property.property_type || "Untitled Property"}
                 </h2>
                 <div className="text-sm text-gray-500 flex flex-wrap gap-1">
-                  <span>{property.beds || "N/A"} Beds</span> |
-                  <span>{property.baths || "N/A"} Baths</span> |
-                  <span>{property.area || "N/A"} sqft</span>
+                  {property.beds && <span>{property.beds} Beds</span>}
+                  {property.baths && property.beds && <span>|</span>}
+                  {property.baths && <span>{property.baths} Baths</span>}
+                  {property.area && (property.beds || property.baths) && <span>|</span>}
+                  {property.area && <span>{property.area} sqft</span>}
                 </div>
+
                 <p className="text-sm text-gray-400 flex items-center gap-1">
                   <MdLocationOn className="text-base text-gray-400" />
                   {property.address || "No address provided"}

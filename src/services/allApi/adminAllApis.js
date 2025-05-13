@@ -411,7 +411,7 @@ export const deleteVendor = async (id) => {
 
 export const updateVendor = async (id, updateData) => {
   try {
-    const token = localStorage.getItem('admintoken');
+    const token = localStorage.getItem('adminToken');
     const response = await axios.patch(`${BASE_URL}/admin/vendor/update/${id}`, updateData, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -440,7 +440,7 @@ export const getEnquireisVendor = async (id) => {
 
 export const adminSoldOutAPI = async (id, soldOut) => {
   try {
-    const token = localStorage.getItem("admintoken"); 
+    const token = localStorage.getItem("adminToken"); 
 
     const response = await axios.put(
       `${BASE_URL}/admin/property/soldout/${id}`,
@@ -463,7 +463,7 @@ export const adminSoldOutAPI = async (id, soldOut) => {
 
 export const deleteUser = async (id) => {
   try {
-    const token = localStorage.getItem('admintoken'); 
+    const token = localStorage.getItem('adminToken'); 
     const response = await axios.delete(`${BASE_URL}/admin/user/delete/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -477,7 +477,7 @@ export const deleteUser = async (id) => {
 
 export const approveAffiliate = async (affiliateId) => {
   try {
-    const token = localStorage.getItem('admintoken');
+    const token = localStorage.getItem('adminToken');
     const response = await axios.patch(
       `${BASE_URL}/admin/affiliate/approve/${affiliateId}`,
       {},
@@ -555,5 +555,55 @@ export const getLatestEnquireisProperty = async (id) => {
     return response.data;
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const fetchDistricts = async () => {
+  try {
+    const token = localStorage.getItem('adminToken');
+    const response = await axios.get(`${BASE_URL}/admin/place/get`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching districts:', error);
+    throw error;
+  }
+};
+
+// Add a sub-place to a district
+export const addSubPlace = async ({ districtId, subPlaceName }) => {
+  try {
+    const token = localStorage.getItem('adminToken');
+    const response = await axios.post(
+      `${BASE_URL}/admin/place/sub-places`,
+      { districtId, subPlaceName },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error adding sub-place:', error);
+    throw error;
+  }
+};
+
+export const deletePlace = async (districtId,subPlaceId) => {
+  try {
+    const token = localStorage.getItem('adminToken');
+    const response = await axios.delete(`${BASE_URL}/admin/place/delete/${districtId}/${subPlaceId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching districts:', error);
+    throw error;
   }
 };

@@ -5,37 +5,127 @@ import { EditPropertyAPI } from "../../services/allApi/adminAllApis";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
 const EditProperty = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const property = location.state?.property;
 
-  console.log(property);
-
   const [formData, setFormData] = useState({
-    property_type: property?.property_type,
-    property_price: property?.property_price,
-    area: property?.area,
-    whatsNearby: property?.whats_nearby,
-    buildIn: property?.buildIn,
-    cent: property?.cent,
-    maxrooms: property?.maxrooms,
-    beds: property?.beds,
-    baths: property?.baths,
-    description: property?.description,
-    address: property?.address,
-    zipCode: property?.zipcode,
-    coordinates: property?.coordinates,
-    private_note: property?.private_note,
-    photos: property?.photos
+    property_type: property?.property_type || "",
+    property_price: property?.property_price || "",
+    price_per_cent: property?.price_per_cent || "",
+    area: property?.area || "",
+    carpet_area: property?.carpet_area || "",
+    whats_nearby: property?.whats_nearby || "",
+    buildIn: property?.buildIn || "",
+    cent: property?.cent || "",
+    maxrooms: property?.maxrooms || "",
+    beds: property?.beds || "",
+    baths: property?.baths || "",
+    car_parking: property?.car_parking || "",
+    car_access: property?.car_access || "no",
+    floor: property?.floor || "",
+    road_frontage: property?.road_frontage || "",
+    description: property?.description || "",
+    address: property?.address || "",
+    zipcode: property?.zipcode || "",
+    coordinates: property?.coordinates || { latitude: "", longitude: "" },
+    private_note: property?.private_note || { heading: "", title: "" },
+    photos: property?.photos || []
   });
 
   const [files, setFiles] = useState([]);
 
+  // Define which fields to show for each property type
+  const getFieldsForPropertyType = (type) => {
+    const commonFields = [
+      { name: 'property_price', label: 'Property Price', placeholder: '₹ 4500000', type: 'text' },
+      { name: 'whats_nearby', label: "What's nearby", placeholder: 'School, Hospital, House', type: 'text' },
+      { name: 'buildIn', label: 'Build in', placeholder: '2002', type: 'text' }
+    ];
+
+    switch(type) {
+      case 'Home/Villa':
+        return [
+          ...commonFields,
+          { name: 'cent', label: 'Land Area', placeholder: '5 Cent', type: 'text' },
+          { name: 'beds', label: 'Beds', placeholder: '5', type: 'text' },
+          { name: 'maxrooms', label: 'Max Rooms', placeholder: '5', type: 'text' },
+          { name: 'baths', label: 'Baths', placeholder: '3', type: 'text' },
+          { name: 'area', label: 'Building Area', placeholder: '2000 sq ft', type: 'text' },
+          { name: 'car_access', label: 'Car Access', type: 'select', options: ['no', 'yes'] }
+        ];
+      case 'Flat':
+        return [
+          ...commonFields,
+          { name: 'carpet_area', label: 'Carpet Area', placeholder: '1800 sq ft', type: 'text' },
+          { name: 'maxrooms', label: 'Max Rooms', placeholder: '5', type: 'text' },
+          { name: 'beds', label: 'Beds', placeholder: '5', type: 'text' },
+          { name: 'baths', label: 'Baths', placeholder: '3', type: 'text' },
+          { name: 'car_parking', label: 'Car Parking', placeholder: '2', type: 'text' },
+          { name: 'floor', label: 'Floor', placeholder: '2', type: 'text' }
+        ];
+      case 'Residential land':
+        return [
+          ...commonFields,
+          { name: 'price_per_cent', label: 'Price per Cent', placeholder: '₹ 100000', type: 'text' },
+          { name: 'cent', label: 'Land Area', placeholder: '5 Cent', type: 'text' },
+          { name: 'car_access', label: 'Car Access', type: 'select', options: ['no', 'yes'] }
+        ];
+      case 'Agriculture land':
+      case 'Commercial land':
+        return [
+          ...commonFields,
+          { name: 'price_per_cent', label: 'Price per Cent', placeholder: '₹ 100000', type: 'text' },
+          { name: 'cent', label: 'Land Area', placeholder: '5 Cent', type: 'text' },
+          { name: 'road_frontage', label: 'Road Frontage', placeholder: '30 feet', type: 'text' }
+        ];
+      case 'Shop/Office':
+        return [
+          ...commonFields,
+          { name: 'price_per_cent', label: 'Price per Cent', placeholder: '₹ 100000', type: 'text' },
+          { name: 'area', label: 'Buildup Area', placeholder: '2000 sq ft', type: 'text' },
+          { name: 'road_frontage', label: 'Road Frontage', placeholder: '30 feet', type: 'text' },
+          { name: 'floor', label: 'Floor', placeholder: '2', type: 'text' },
+          { name: 'car_access', label: 'Car Access', type: 'select', options: ['no', 'yes'] }
+        ];
+      default:
+        return [];
+    }
+  };
+
+  const renderField = (field) => {
+    switch(field.type) {
+      case 'select':
+        return (
+          <select
+            name={field.name}
+            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={formData[field.name]}
+            onChange={handleChange}
+          >
+            {field.options.map(option => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+        );
+      default:
+        return (
+          <input
+            type={field.type || 'text'}
+            name={field.name}
+            placeholder={field.placeholder}
+            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={formData[field.name]}
+            onChange={handleChange}
+          />
+        );
+    }
+  };
+
   const handleFileChange = (e) => {
     if (e.target.files) {
-      setFormData([...formData, ...Array.from(e.target.files)]);
+      setFiles([...files, ...Array.from(e.target.files)]);
     }
   };
 
@@ -46,16 +136,19 @@ const EditProperty = () => {
           setFormData((prev) => ({
             ...prev,
             coordinates: {
-              ...prev.coordinates,
               latitude: position.coords.latitude.toString(),
               longitude: position.coords.longitude.toString(),
             },
           }));
+          toast.success("Location coordinates obtained successfully");
         },
         (error) => {
           console.error("Error getting location:", error);
+          toast.error("Failed to get current location");
         }
       );
+    } else {
+      toast.error("Geolocation is not supported by this browser");
     }
   };
 
@@ -82,7 +175,27 @@ const EditProperty = () => {
     e.preventDefault();
 
     try {
-      const response = await EditPropertyAPI(property._id, formData);
+      const formDataToSend = new FormData();
+      
+      // Append all form data
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key === 'coordinates') {
+          formDataToSend.append('coordinates[latitude]', value.latitude);
+          formDataToSend.append('coordinates[longitude]', value.longitude);
+        } else if (key === 'private_note') {
+          formDataToSend.append('private_note[heading]', value.heading);
+          formDataToSend.append('private_note[title]', value.title);
+        } else if (key !== 'photos') {
+          formDataToSend.append(key, value);
+        }
+      });
+
+      // Append files
+      files.forEach((file) => {
+        formDataToSend.append('photos', file);
+      });
+
+      const response = await EditPropertyAPI(property._id, formDataToSend);
 
       if (response?.data?.success) {
         toast.success("Property updated successfully!");
@@ -94,10 +207,9 @@ const EditProperty = () => {
       }
     } catch (error) {
       console.error("Edit error:", error);
-      toast.error(error.message || "An error occurred while updating.");
+      toast.error(error.response?.data?.message || "An error occurred while updating.");
     }
   };
-
 
   return (
     <div className="p-4 bg-blue-100 min-h-screen">
@@ -116,139 +228,39 @@ const EditProperty = () => {
           <h1 className="text-xl font-medium">Edit Property</h1>
         </div>
 
-        <form className="p-4">
+        <form onSubmit={handleEdit} className="p-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Property Type */}
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Property Type
-              </label>
-              <input
-                type="text"
+              <label className="block text-sm font-medium mb-2">Property Type</label>
+              <select
                 name="property_type"
-                placeholder="Office, Apartment, House"
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={formData.property_type}
                 onChange={handleChange}
-              />
+              >
+                <option value="">Select Property Type</option>
+                <option value="Home/Villa">Home/Villa</option>
+                <option value="Flat">Flat</option>
+                <option value="Residential land">Residential land</option>
+                <option value="Agriculture land">Agriculture land</option>
+                <option value="Commercial land">Commercial land</option>
+                <option value="Shop/Office">Shop/Office</option>
+              </select>
             </div>
 
-            {/* Property Price */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Property Price
-              </label>
-              <input
-                type="text"
-                name="property_price"
-                placeholder="₹ 4500000"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.property_price}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Area */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Area</label>
-              <input
-                type="text"
-                name="area"
-                placeholder="2000 sq ft"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.area}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* What's nearby */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                What's nearby
-              </label>
-              <input
-                type="text"
-                name="whatsNearby"
-                placeholder="School, Hospital, House"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.whatsNearby}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Build in */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Build in</label>
-              <input
-                type="text"
-                name="buildIn"
-                placeholder="2002"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.buildIn}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Cent */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Cent</label>
-              <input
-                type="text"
-                name="cent"
-                placeholder="Palakkad"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.cent}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Max Rooms */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Max Rooms
-              </label>
-              <input
-                type="text"
-                name="maxrooms"
-                placeholder="5"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.maxrooms}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Beds */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Beds</label>
-              <input
-                type="text"
-                name="beds"
-                placeholder="5"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.beds}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Baths */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Baths</label>
-              <input
-                type="text"
-                name="baths"
-                placeholder="3"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.baths}
-                onChange={handleChange}
-              />
-            </div>
+            {/* Dynamic Fields */}
+            {formData.property_type && getFieldsForPropertyType(formData.property_type).map((field, index) => (
+              <div key={index}>
+                <label className="block text-sm font-medium mb-2">{field.label}</label>
+                {renderField(field)}
+              </div>
+            ))}
           </div>
 
           {/* Description */}
           <div className="mt-6">
-            <label className="block text-sm font-medium mb-2">
-              Description
-            </label>
+            <label className="block text-sm font-medium mb-2">Description</label>
             <textarea
               name="description"
               rows={5}
@@ -277,10 +289,10 @@ const EditProperty = () => {
               <label className="block text-sm font-medium mb-2">Zip code</label>
               <input
                 type="text"
-                name="zipCode"
+                name="zipcode"
                 placeholder="Add your pincode"
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.zipCode}
+                value={formData.zipcode}
                 onChange={handleChange}
               />
             </div>
@@ -314,41 +326,47 @@ const EditProperty = () => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Coordinates
             </label>
-            <input
-              type="text"
-              name="longitude"
-              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={formData?.coordinates?.longitude || ""}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  coordinates: {
-                    ...prev.coordinates,
-                    longitude: e.target.value,
-                  },
-                }))
-              }
-            />
-            <div className="text-center my-2 text-gray-400">or</div>
-            <input
-              type="text"
-              name="latitude"
-              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={formData?.coordinates?.latitude || ""}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  coordinates: {
-                    ...prev.coordinates,
-                    latitude: e.target.value,
-                  },
-                }))
-              }
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs text-gray-500 mb-1 block">Longitude</label>
+                <input
+                  type="text"
+                  name="longitude"
+                  className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={formData.coordinates?.longitude || ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      coordinates: {
+                        ...prev.coordinates,
+                        longitude: e.target.value,
+                      },
+                    }))
+                  }
+                />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 mb-1 block">Latitude</label>
+                <input
+                  type="text"
+                  name="latitude"
+                  className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={formData.coordinates?.latitude || ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      coordinates: {
+                        ...prev.coordinates,
+                        latitude: e.target.value,
+                      },
+                    }))
+                  }
+                />
+              </div>
+            </div>
           </div>
 
           {/* Photos */}
-
           {property?.photos && property.photos[0] && (
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2 mt-5">
@@ -390,9 +408,20 @@ const EditProperty = () => {
                 {files.map((file, index) => (
                   <div
                     key={index}
-                    className="p-3 border border-gray-200 rounded-md text-gray-400 text-sm hover:bg-gray-50"
+                    className="flex items-center justify-between p-3 border border-gray-200 rounded-md text-gray-400 text-sm hover:bg-gray-50"
                   >
-                    {file.name}
+                    <span>{file.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newFiles = [...files];
+                        newFiles.splice(index, 1);
+                        setFiles(newFiles);
+                      }}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      ×
+                    </button>
                   </div>
                 ))}
                 <button
@@ -409,37 +438,33 @@ const EditProperty = () => {
           {/* Private note */}
           <div className="mt-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Private note <span className="text-red-500">*</span>
+              Private note
             </label>
             <input
               type="text"
               name="heading"
+              placeholder="Note heading"
               className="w-full p-3 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={formData?.private_note?.heading || ""}
+              value={formData.private_note?.heading || ""}
               onChange={handlePrivateNoteChange}
             />
-            <input
-              type="text"
+            <textarea
               name="title"
+              placeholder="Note content"
               className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={formData?.private_note?.title || ""}
+              rows={4}
+              value={formData.private_note?.title || ""}
               onChange={handlePrivateNoteChange}
             />
-            <button
-              type="button"
-              className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors mt-2"
-            >
-              Add more
-            </button>
           </div>
 
           {/* Submit Button */}
           <div className="mt-8 flex justify-end">
             <button
+              type="submit"
               className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onClick={(e) => handleEdit(e, property?._id)}
             >
-              Save
+              Save Changes
             </button>
           </div>
         </form>

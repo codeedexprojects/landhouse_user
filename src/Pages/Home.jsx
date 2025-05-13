@@ -61,7 +61,7 @@ function Home() {
     try {
       const data = await getProperties();
       // Show only first 3 properties for the home page
-      setProperties(data.slice(0, 3));
+      setProperties(data.slice(0, 6));
     } catch (error) {
       console.error('Error fetching properties:', error);
     }
@@ -286,10 +286,13 @@ function Home() {
               <div className="p-3 space-y-2">
                 <h2 className="text-sm font-semibold text-gray-700">{property.property_type} - {property.maxrooms} Rooms</h2>
                 <div className="text-sm text-gray-500 flex flex-wrap gap-1">
-                  <span>{property.beds} Beds</span> |
-                  <span>{property.baths} Baths</span> |
-                  <span>{property.area} sqft</span>
+                  {property.beds && <span>{property.beds} Beds</span>}
+                  {property.beds && property.baths && <span>|</span>}
+                  {property.baths && <span>{property.baths} Baths</span>}
+                  {(property.beds || property.baths) && property.area && <span>|</span>}
+                  {property.area && <span>{property.area} sqft</span>}
                 </div>
+
                 <p className="text-sm text-gray-400 flex items-center gap-1">
                   <MdLocationOn className="text-base text-gray-400" />
                   {property.address}
@@ -350,16 +353,16 @@ function Home() {
                 </button>
               </div>
               <div className="flex justify-center space-x-4 mb-6">
-                            <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
-                              <FaFacebook className="text-blue-600" />
-                            </button>
-                            <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
-                              <FaTwitter className="text-blue-400" />
-                            </button>
-                            <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
-                              <FaWhatsapp className="text-green-500" />
-                            </button>
-                          </div>
+                <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                  <FaFacebook className="text-blue-600" />
+                </button>
+                <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                  <FaTwitter className="text-blue-400" />
+                </button>
+                <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                  <FaWhatsapp className="text-green-500" />
+                </button>
+              </div>
               <button
                 onClick={() => setShowShareModal(false)}
                 className="w-full py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"

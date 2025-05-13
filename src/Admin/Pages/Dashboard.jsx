@@ -19,6 +19,7 @@ import AdminLogin from './AdminLogin';
 import MessageList from './Messages';
 import Affiliates from './Affiliates';
 import EditProperty from './EditProperty';
+import SubPlaceManager from './AddPlace';
 
 function MainDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -44,14 +45,14 @@ function MainDashboard() {
     <PrivateRoute>
       <div className="flex h-screen bg-gray-100 relative">
         {sidebarOpen && (
-          <div 
+          <div
             className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
-        
+
         <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
-        
+
         <div className="flex-1 flex flex-col overflow-hidden">
           <AdminHeader toggleSidebar={toggleSidebar} />
           <div className="flex-1 overflow-y-auto">
@@ -73,6 +74,8 @@ function MainDashboard() {
               <Route path="/messages" element={<MessageList />} />
               <Route path="/affiliates" element={<Affiliates />} />
               <Route path="/edit-property" element={<EditProperty />} />
+              <Route path="/add-places" element={<SubPlaceManager />} />
+
 
               <Route path="*" element={<Navigate to="/admin/dashboard" />} />
             </Routes>

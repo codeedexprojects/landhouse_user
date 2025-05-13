@@ -150,8 +150,9 @@ function PropertyDetails() {
         <div className="p-6">
           <div className="flex justify-between items-start mb-4">
             <h2 className="text-2xl font-semibold text-indigo-900">
-              {property.beds} BHK @ {city}
+              {property.property_type} @ {city}
             </h2>
+
 
             <div className="flex gap-2">
               <button
@@ -209,27 +210,94 @@ function PropertyDetails() {
             </p>
           </div>
 
-          <div className="flex flex-wrap justify-between gap-4 bg-blue-50 p-4 rounded-lg">
-            <div className="flex items-center gap-2">
-              <FaBed className="text-blue-500" size={18} />
-              <span className="text-sm">{property?.beds}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <FaBath className="text-blue-500" size={18} />
-              <span className="text-sm">{property?.baths}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <BsSquare className="text-blue-500" size={18} />
-              <span className="text-sm">{property?.area} sqft</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <BiTimeFive className="text-blue-500" size={18} />
-              <span className="text-sm">{property?.buildIn}</span>
-            </div>
-            {/* Added cent */}
-            <div className="flex items-center gap-2">
-              <BsBoundingBoxCircles className="text-blue-500" size={18} />
-              <span className="text-sm">{property?.cent} cent</span>
+          <div className="bg-gray-50 p-6 rounded-lg">
+            <h3 className="text-lg font-semibold text-indigo-900 mb-4">Property Specifications</h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Show specifications only if they exist */}
+              {property?.buildIn && (
+                <div className="flex justify-between py-2 border-b border-gray-200">
+                  <span className="text-gray-600">Build In</span>
+                  <span className="font-medium">{property?.buildIn}</span>
+                </div>
+              )}
+
+              {property?.beds && (
+                <div className="flex justify-between py-2 border-b border-gray-200">
+                  <span className="text-gray-600">Bedrooms</span>
+                  <span className="font-medium">{property?.beds}</span>
+                </div>
+              )}
+
+              {property?.baths && (
+                <div className="flex justify-between py-2 border-b border-gray-200">
+                  <span className="text-gray-600">Bathrooms</span>
+                  <span className="font-medium">{property?.baths}</span>
+                </div>
+              )}
+
+              {property?.area && (
+                <div className="flex justify-between py-2 border-b border-gray-200">
+                  <span className="text-gray-600">Buildup Area</span>
+                  <span className="font-medium">{property?.area} sqft</span>
+                </div>
+              )}
+
+              {property?.carpet_area && (
+                <div className="flex justify-between py-2 border-b border-gray-200">
+                  <span className="text-gray-600">Carpet Area</span>
+                  <span className="font-medium">{property?.carpet_area} sqft</span>
+                </div>
+              )}
+
+              {property?.cent && (
+                <div className="flex justify-between py-2 border-b border-gray-200">
+                  <span className="text-gray-600">Land Area</span>
+                  <span className="font-medium">{property?.cent} cent</span>
+                </div>
+              )}
+
+              {property?.price_per_cent && (
+                <div className="flex justify-between py-2 border-b border-gray-200">
+                  <span className="text-gray-600">Price per Cent</span>
+                  <span className="font-medium">₹{property?.price_per_cent}</span>
+                </div>
+              )}
+
+              {property?.car_parking && (
+                <div className="flex justify-between py-2 border-b border-gray-200">
+                  <span className="text-gray-600">Car Parking</span>
+                  <span className="font-medium">{property?.car_parking}</span>
+                </div>
+              )}
+
+              {property?.car_access && (
+                <div className="flex justify-between py-2 border-b border-gray-200">
+                  <span className="text-gray-600">Car Access</span>
+                  <span className="font-medium">{property?.car_access === 'yes' ? 'Yes' : 'No'}</span>
+                </div>
+              )}
+
+              {property?.floor && (
+                <div className="flex justify-between py-2 border-b border-gray-200">
+                  <span className="text-gray-600">Floor</span>
+                  <span className="font-medium">{property?.floor}</span>
+                </div>
+              )}
+
+              {property?.road_frontage && (
+                <div className="flex justify-between py-2 border-b border-gray-200">
+                  <span className="text-gray-600">Road Frontage</span>
+                  <span className="font-medium">{property?.road_frontage}</span>
+                </div>
+              )}
+
+              {property?.maxrooms && (
+                <div className="flex justify-between py-2 border-b border-gray-200">
+                  <span className="text-gray-600">Max Rooms</span>
+                  <span className="font-medium">{property?.maxrooms}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -269,6 +337,7 @@ function PropertyDetails() {
           <div className="w-1/3 p-4 space-y-2 rounded-xl">
             <p className="font-bold text-blue-900">Name</p>
             <p className="font-bold text-blue-900">Email</p>
+            <p className="font-bold text-blue-900">Number</p>
           </div>
           <div className="w-2/3 p-4 space-y-2 rounded-xl">
             <p className="text-gray-800">
@@ -276,6 +345,9 @@ function PropertyDetails() {
             </p>
             <p className="text-sm text-gray-700">
               {property?.created_by?.email || "N/A"}
+            </p>
+            <p className="text-gray-800">
+              {property?.created_by?.number || "N/A"}
             </p>
           </div>
         </div>
