@@ -3,11 +3,12 @@ import { MapPin, Upload, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { addPropertyVendor } from '../../services/allApi/vendorAllAPi';
+import { addPropertyVendor, fetchVendorDistricts } from '../../services/allApi/vendorAllAPi';
 
 
-const AddProperty = () => {
-  const navigate = useNavigate();
+function AddPropertyVendor() {
+
+ const navigate = useNavigate();
 
   // Consolidated formData without coordinates
   const [formData, setFormData] = useState({
@@ -41,6 +42,22 @@ const AddProperty = () => {
   const [files, setFiles] = useState([]);
   const [privateNote, setPrivateNote] = useState('');
   const [noteTitle, setNoteTitle] = useState('');
+  const [places, setPlaces] = useState([])
+
+
+  useEffect(()=>{
+ const getPlaces = async ()=>{
+  try{
+    const data = await fetchVendorDistricts();
+    setPlaces(data)
+  }catch (err){
+  console.error("failed to load places", err);
+
+  }
+  
+ }
+ getPlaces()
+  }, [])
 
   // Handle file uploads
   const handleFileChange = (e) => {
@@ -255,7 +272,8 @@ const AddProperty = () => {
     }
   };
 
-  return (
+
+ return (
     <div className="p-4 bg-blue-100 min-h-screen">
       {/* Breadcrumb */}
       <div className="bg-white p-3 rounded-md shadow-sm mb-4">
@@ -318,14 +336,24 @@ const AddProperty = () => {
             {/* Address */}
             <div>
               <label className="block text-sm font-medium mb-2">Address</label>
-              <input
-                type="text"
-                name="address"
-                placeholder="Address of your property"
+              <select
+                name="address"  // <-- Important
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.address}
+                value={formData.address || ''}
                 onChange={handleChange}
-              />
+              >
+                <option value="">Select Address</option>
+                {places.map(district =>
+                  district.subPlaces.map(sub => {
+                    const fullName = `${sub.name}, ${district.name}`;
+                    return (
+                      <option key={sub._id} value={fullName}>
+                        {fullName}
+                      </option>
+                    );
+                  })
+                )}
+              </select>
             </div>
 
             {/* Zip code */}
@@ -481,7 +509,8 @@ const AddProperty = () => {
       </div>
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
-  );
-};
 
-export default AddProperty;
+  )
+}
+
+export default AddPropertyVendor

@@ -284,3 +284,57 @@ export const markAsReadVendorEnquiry = async (enquiryId) => {
     throw error;
   }
 };
+
+
+export const fetchVendorDistricts = async () => {
+  try {
+    const token = localStorage.getItem('vendorToken');
+    const response = await axios.get(`${BASE_URL}/admin/place/get`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching districts:', error);
+    throw error;
+  }
+};
+
+export const addVendorSubPlace = async ({ districtId, subPlaceName }) => {
+  try {
+    const token = localStorage.getItem('vendorToken');
+    const response = await axios.post(
+      `${BASE_URL}/admin/place/sub-places`,
+      { districtId, subPlaceName },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error adding sub-place:', error);
+    throw error;
+  }
+};
+
+export const deleteVendorPlace = async (districtId,subPlaceId) => {
+  try {
+    const token = localStorage.getItem('vendorToken');
+    const response = await axios.delete(`${BASE_URL}/admin/place/delete/${districtId}/${subPlaceId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching districts:', error);
+    throw error;
+  }
+};
+
+
+
+
