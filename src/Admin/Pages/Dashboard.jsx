@@ -20,6 +20,7 @@ import MessageList from './Messages';
 import Affiliates from './Affiliates';
 import EditProperty from './EditProperty';
 import SubPlaceManager from './AddPlace';
+import Contact from './Contact';
 
 function MainDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -75,6 +76,7 @@ function MainDashboard() {
               <Route path="/affiliates" element={<Affiliates />} />
               <Route path="/edit-property" element={<EditProperty />} />
               <Route path="/add-places" element={<SubPlaceManager />} />
+              <Route path="/contact" element={<Contact />} />
 
 
               <Route path="*" element={<Navigate to="/admin/dashboard" />} />
