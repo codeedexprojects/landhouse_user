@@ -4,12 +4,14 @@ import { getEnquireis, markAsReadVendorEnquiry } from '../../services/allApi/ven
 import { Toast } from '../../Components/Toast';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { useNavigate } from 'react-router-dom';
 
 export default function EnquireVendor() {
   const [enquiries, setEnquiries] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
+  const navigate = useNavigate();
 
   const enquiriesPerPage = 10;
 
@@ -116,6 +118,14 @@ export default function EnquireVendor() {
     doc.save(`vendor_enquiries_${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
+   const handlePropertyClick = (property) => {
+    if (property) {
+      navigate('/vendor/prop-details-vendor', { state: { property } });
+    } else {
+      setToast({ message: 'Property details not available', type: 'error' });
+    }
+  };
+
   return (
     <div className="bg-blue-50 min-h-screen p-4">
       {toast && (
@@ -165,10 +175,18 @@ export default function EnquireVendor() {
               <div className="text-gray-500">
                 {enq.phoneNumber} <br /> {enq.email}
               </div>
-              <div className="text-blue-500">
-                {enq.propertyId
-                  ? `${enq.propertyId.property_type}, ₹${enq.propertyId.property_price}`
-                  : 'N/A'}
+              <div>
+                {/* 🟢 Modified property display to make it clickable */}
+                {enq.propertyId ? (
+                  <button 
+                    className="text-blue-500 hover:text-blue-700 hover:underline focus:outline-none"
+                    onClick={() => handlePropertyClick(enq.propertyId)}
+                  >
+                    {enq.propertyId.address}
+                  </button>
+                ) : (
+                  <span className="text-gray-500">No property</span>
+                )}
               </div>
               <div className="text-gray-500 truncate max-w-[150px]">
                 {enq.message}

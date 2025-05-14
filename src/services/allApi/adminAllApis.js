@@ -607,3 +607,17 @@ export const deletePlace = async (districtId,subPlaceId) => {
     throw error;
   }
 };
+
+export const getRecentAffliateUsers = async (id) => {
+  try {
+    const token = localStorage.getItem('affiliateToken'); 
+    const response = await axios.get(`${BASE_URL}/admin/affiliate/recent-users/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};

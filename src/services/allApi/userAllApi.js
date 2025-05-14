@@ -296,3 +296,15 @@ export const contactUs = async (reqBody) => {
     throw error.response?.data || { message: 'Something went wrong' };
   }
 };
+
+export const fetchDistricts = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}/admin/place/get`, {
+
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching districts:', error);
+    throw error;
+  }
+};

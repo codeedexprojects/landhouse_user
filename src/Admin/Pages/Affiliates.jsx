@@ -1,7 +1,7 @@
-import { ArrowLeft, ArrowRight, Download } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Download, Eye } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAffiliates, updateAffiliate } from '../../services/allApi/adminAllApis';
+import { getAffiliates, updateAffiliate, getRecentAffliateUsers } from '../../services/allApi/adminAllApis';
 import { toast } from 'react-hot-toast';
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -16,6 +16,10 @@ export default function Affiliates() {
   const [editAmount, setEditAmount] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+  const [showModal, setShowModal] = useState(false);
+  const [referredUsers, setReferredUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [selectedAffiliate, setSelectedAffiliate] = useState(null);
 
   const handleAddAffliates = () => {
     navigate('/admin/create-coupon');
@@ -35,6 +39,25 @@ export default function Affiliates() {
 
     fetchAffiliates();
   }, []);
+
+  const handleViewUsers = async (id, name) => {
+    setLoadingUsers(true);
+    setSelectedAffiliate(name);
+    try {
+      const response = await getRecentAffliateUsers(id);
+      if (response && response.referredUsers) {
+        setReferredUsers(response.referredUsers);
+        setShowModal(true);
+      } else {
+        toast.error('Failed to fetch referred users');
+      }
+    } catch (error) {
+      console.error('Error fetching referred users:', error);
+      toast.error('Failed to fetch referred users');
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
 
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -57,10 +80,10 @@ export default function Affiliates() {
     try {
       const updatedData = { isApproved: !currentStatus };
       const response = await updateAffiliate(id, updatedData);
-      
+
       if (response) {
-        setAffiliatesData(prev => 
-          prev.map(item => 
+        setAffiliatesData(prev =>
+          prev.map(item =>
             item._id === id ? { ...item, isApproved: !currentStatus } : item
           )
         );
@@ -81,10 +104,10 @@ export default function Affiliates() {
     try {
       const updatedData = { amount: Number(editAmount) };
       const response = await updateAffiliate(id, updatedData);
-      
+
       if (response) {
-        setAffiliatesData(prev => 
-          prev.map(item => 
+        setAffiliatesData(prev =>
+          prev.map(item =>
             item._id === id ? { ...item, amount: Number(editAmount) } : item
           )
         );
@@ -107,7 +130,7 @@ export default function Affiliates() {
   const downloadAsPDF = () => {
     const doc = new jsPDF();
     doc.text("Affiliates Report", 14, 15);
-    
+
     const tableData = affiliatesData.map(affiliate => [
       affiliate.name || "N/A",
       affiliate.referralId || "N/A",
@@ -134,6 +157,15 @@ export default function Affiliates() {
     doc.save(`affiliates_report_${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
   if (loading) {
     return <div className="bg-blue-50 min-h-screen p-4 flex items-center justify-center">Loading...</div>;
   }
@@ -150,8 +182,8 @@ export default function Affiliates() {
           <span className="text-blue-500">Affiliates</span>
 
           <div className="ml-auto flex items-center space-x-3">
-            <button 
-              onClick={handleAddAffliates} 
+            <button
+              onClick={handleAddAffliates}
               className="bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold px-5 py-2 rounded-md"
             >
               Add Affiliates
@@ -168,23 +200,36 @@ export default function Affiliates() {
         </div>
 
         {/* Table Header */}
-        <div className="grid grid-cols-6 gap-2 p-4 border-b">
+        <div className="grid grid-cols-8 gap-2 p-4 border-b">
           <div className="font-medium">SI No</div>
           <div className="font-medium">Affiliates</div>
+          <div className="font-medium">Number</div>
           <div className="font-medium">Referral ID</div>
           <div className="font-medium">User count</div>
+          <div className="font-medium">View Users</div>
           <div className="font-medium">Status</div>
+          
           <div className="font-medium">Amount</div>
         </div>
 
         {/* Table Rows */}
         {currentItems.length > 0 ? (
           currentItems.map((row, index) => (
-            <div key={row._id} className="grid grid-cols-6 gap-2 p-4 border-b items-center">
+            <div key={row._id} className="grid grid-cols-8 gap-2 p-4 border-b items-center">
               <div className="text-gray-500">{(currentPage - 1) * itemsPerPage + index + 1}</div>
               <div className="text-gray-600">{row.name}</div>
+              <div className="text-gray-600">{row.number || '—'}</div>
               <div className="text-gray-600">{row.referralId}</div>
-              <div className="text-gray-600">{row.userCount}</div>
+              <div className="text-gray-600">{row.userCount || 0}</div>
+              <div>
+                <button
+                  onClick={() => handleViewUsers(row._id, row.name)}
+                  className="flex items-center justify-center p-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200"
+                >
+                  <Eye className="w-4 h-4 mr-1" />
+                  View
+                </button>
+              </div>
               <div>
                 <button
                   onClick={() => handleApprovalToggle(row._id, row.isApproved)}
@@ -197,6 +242,7 @@ export default function Affiliates() {
                   {row.isApproved ? 'Approved' : 'Pending'}
                 </button>
               </div>
+              
               <div>
                 {editingId === row._id ? (
                   <div className="flex items-center gap-2">
@@ -244,77 +290,149 @@ export default function Affiliates() {
         ) : (
           <div className="p-4 text-center text-gray-500">No affiliates found</div>
         )}
-
-        {/* Pagination */}
-        
       </div>
+
+      {/* Pagination */}
       <div className="flex justify-between items-center p-4 border-t">
-          <button 
-            onClick={downloadAsPDF}
-            className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm"
+        <button
+          onClick={downloadAsPDF}
+          className="flex items-center text-sm text-gray-600 bg-white px-3 py-2 rounded-md shadow-sm"
+        >
+          <Download className="mr-2 w-4 h-4" />
+          Download
+        </button>
+
+        <div className="flex items-center">
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className={`p-2 text-gray-500 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            <Download className="mr-2 w-4 h-4" />
-            Download
+            <ArrowLeft className="w-4 h-4" />
           </button>
 
-          <div className="flex items-center">
-            <button 
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className={`p-2 text-gray-500 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
-              <ArrowLeft className="w-4 h-4" />
+          <div className="flex space-x-2 mx-2">
+            {Array.from({ length: Math.min(5, totalPages) }).map((_, index) => {
+              const pageNumber = index + 1;
+              return (
+                <button
+                  key={pageNumber}
+                  onClick={() => paginate(pageNumber)}
+                  className={`w-8 h-8 rounded-md ${currentPage === pageNumber
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-white text-gray-500'
+                    } flex items-center justify-center text-sm shadow-sm`}
+                >
+                  {pageNumber}
+                </button>
+              );
+            })}
+            {totalPages > 5 && (
+              <>
+                <span className="flex items-center justify-center text-gray-500">...</span>
+                <button
+                  onClick={() => paginate(totalPages)}
+                  className={`w-8 h-8 rounded-md ${currentPage === totalPages
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-white text-gray-500'
+                    } flex items-center justify-center text-sm shadow-sm`}
+                >
+                  {totalPages}
+                </button>
+              </>
+            )}
+          </div>
+
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className={`p-2 text-gray-500 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            <ArrowRight className="w-4 h-4" />
+          </button>
+
+          <div className="ml-4 flex items-center border-l border-gray-200 pl-4">
+            <button className="w-8 h-8 rounded-md bg-white text-gray-600 flex items-center justify-center text-sm shadow-sm">
+              {itemsPerPage}
             </button>
-            
-            <div className="flex space-x-2 mx-2">
-              {Array.from({ length: Math.min(5, totalPages) }).map((_, index) => {
-                const pageNumber = index + 1;
-                return (
-                  <button
-                    key={pageNumber}
-                    onClick={() => paginate(pageNumber)}
-                    className={`w-8 h-8 rounded-md ${
-                      currentPage === pageNumber 
-                        ? 'bg-blue-500 text-white' 
-                        : 'bg-white text-gray-500'
-                    } flex items-center justify-center text-sm shadow-sm`}
-                  >
-                    {pageNumber}
-                  </button>
-                );
-              })}
-              {totalPages > 5 && (
-                <>
-                  <span className="flex items-center justify-center text-gray-500">...</span>
-                  <button
-                    onClick={() => paginate(totalPages)}
-                    className={`w-8 h-8 rounded-md ${
-                      currentPage === totalPages 
-                        ? 'bg-blue-500 text-white' 
-                        : 'bg-white text-gray-500'
-                    } flex items-center justify-center text-sm shadow-sm`}
-                  >
-                    {totalPages}
-                  </button>
-                </>
-              )}
+          </div>
+        </div>
+      </div>
+
+      {/* Modal for viewing users */}
+      {showModal && (
+        <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium">
+                Users referred by {selectedAffiliate}
+              </h3>
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
-
-            <button 
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              className={`p-2 text-gray-500 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
-              <ArrowRight className="w-4 h-4" />
-            </button>
-
-            <div className="ml-4 flex items-center border-l border-gray-200 pl-4">
-              <button className="w-8 h-8 rounded-md bg-white text-gray-600 flex items-center justify-center text-sm shadow-sm">
-                {itemsPerPage}
+            
+            {loadingUsers ? (
+              <div className="flex justify-center items-center h-40">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              </div>
+            ) : referredUsers.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Referral ID</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined On</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {referredUsers.map((user) => (
+                      <tr key={user._id}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {user.firstName} {user.lastName}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {user.email}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {user.phoneNumber}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {user.referralId}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {formatDate(user.createdAt)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="py-10 text-center text-gray-500">
+                No users found for this affiliate.
+              </div>
+            )}
+            
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={() => setShowModal(false)}
+                className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300"
+              >
+                Close
               </button>
             </div>
           </div>
         </div>
+      )}
     </div>
   );
 }

@@ -118,10 +118,20 @@ function Collections() {
                 <div className="p-3 space-y-2">
                   <h2 className="text-xs font-semibold text-gray-700">{property.title}</h2>
                   <div className="text-xs text-gray-500 flex flex-wrap gap-1">
-                    <span>{property.beds} Beds</span> |
-                    <span>{property.baths} Baths</span> |
-                    <span>{property.sqft} sqft</span>
+                    {[
+                      property.beds ? `${property.beds} Beds` : null,
+                      property.baths ? `${property.baths} Baths` : null,
+                      property.sqft ? `${property.sqft} sqft` : null,
+                    ]
+                      .filter(Boolean) // removes null values
+                      .map((text, index, arr) => (
+                        <span key={index}>
+                          {text}
+                          {index < arr.length - 1 && ' |'}
+                        </span>
+                      ))}
                   </div>
+
                   <p className="text-xs text-gray-400 flex items-center gap-1">
                     <MdLocationOn className="text-base text-gray-400" />
                     {property.location}

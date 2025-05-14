@@ -107,13 +107,14 @@ export default function UserListingPage() {
   const handleSearchAndFilter = () => {
     let updatedUsers = [...users];
 
-    // Search
+    // Search - now includes phone number
     if (searchTerm) {
       updatedUsers = updatedUsers.filter(
         (u) =>
-          u.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          u.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          u.email.toLowerCase().includes(searchTerm.toLowerCase())
+          u.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          u.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          u.phoneNumber?.includes(searchTerm) // Add phone number search
       );
     }
 
@@ -126,6 +127,7 @@ export default function UserListingPage() {
     setFilteredUsers(updatedUsers);
     setCurrentPage(1); // Reset to first page on search/filter
   };
+
 
   // Pagination
   const indexOfLastUser = currentPage * usersPerPage;
@@ -171,27 +173,27 @@ export default function UserListingPage() {
 
       <div className="overflow-x-auto bg-white rounded-md shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold">Total Users ({filteredUsers.length})</h2>
+        <h2 className="text-lg font-semibold">Total Users ({filteredUsers.length})</h2>
 
-          <div className="flex flex-wrap gap-2 mt-3 md:mt-0">
-            <input
-              type="text"
-              placeholder="Search Users"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="border rounded-md px-3 py-2 text-sm w-48"
-            />
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="border rounded-md px-3 py-2 text-sm"
-            >
-              <option value="All">Filter by: All</option>
-              <option value="Active">Filter by: Active</option>
-              <option value="Inactive">Filter by: Inactive</option>
-            </select>
-          </div>
+        <div className="flex flex-wrap gap-2 mt-3 md:mt-0">
+          <input
+            type="text"
+            placeholder="Search by name, email, or phone"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="border rounded-md px-3 py-2 text-sm w-48 md:w-64"
+          />
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="border rounded-md px-3 py-2 text-sm"
+          >
+            <option value="All">Filter by: All</option>
+            <option value="Active">Filter by: Active</option>
+            <option value="Inactive">Filter by: Inactive</option>
+          </select>
         </div>
+      </div>
 
         <table className="w-full text-sm text-left text-gray-700">
           <thead className="bg-gray-50">

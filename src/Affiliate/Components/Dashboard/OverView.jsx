@@ -103,12 +103,14 @@ export default function AffiliateDashboard() {
   };
 
   // Function to copy referral ID
-  const copyReferralId = () => {
-    if (profileData?.referralId) {
-      navigator.clipboard.writeText(profileData.referralId);
-      toast.success('Referral ID copied to clipboard!');
-    }
-  };
+ const copyReferralId = () => {
+  if (profileData?.referralId) {
+    const referralLink = `https://landouse.com/register?referralCode=${profileData.referralId}`;
+    navigator.clipboard.writeText(referralLink);
+    toast.success('Referral link copied to clipboard!');
+  }
+};
+
 
   if (loading) {
     return (
