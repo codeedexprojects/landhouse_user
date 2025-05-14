@@ -11,6 +11,7 @@ import {
   X,
   MapPin,
 } from "lucide-react";
+import { MdPhoneInTalk } from "react-icons/md";
 import image from '../../assets/logo.png'
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
@@ -63,6 +64,11 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       name: "Places",
       icon: <MapPin size={20} />,
       path: "/admin/add-places",
+    },
+     {
+      name: "Contact",
+      icon: <MdPhoneInTalk size={20} />,
+      path: "/admin/contact",
     },
   ];
 

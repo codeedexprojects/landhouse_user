@@ -607,7 +607,6 @@ export const deletePlace = async (districtId,subPlaceId) => {
     throw error;
   }
 };
-
 export const getRecentAffliateUsers = async (id) => {
   try {
     const token = localStorage.getItem('adminToken'); 
@@ -619,5 +618,20 @@ export const getRecentAffliateUsers = async (id) => {
     return response.data;
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const contactUsAPI = async () => {
+  try {
+    const token = localStorage.getItem('adminToken');
+    const response = await axios.get(`${BASE_URL}/admin/contact/view`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching contact data:", error);
+    throw error;
   }
 };
