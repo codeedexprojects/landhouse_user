@@ -610,7 +610,7 @@ export const deletePlace = async (districtId,subPlaceId) => {
 
 export const getRecentAffliateUsers = async (id) => {
   try {
-    const token = localStorage.getItem('affiliateToken'); 
+    const token = localStorage.getItem('adminToken'); 
     const response = await axios.get(`${BASE_URL}/admin/affiliate/recent-users/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`
