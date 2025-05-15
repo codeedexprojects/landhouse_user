@@ -55,7 +55,7 @@ const Properties = () => {
     closeModal();
     navigate('/login');
   };
-  
+
   const showToast = (message, type) => {
     setToast({ show: true, message, type });
     setTimeout(() => {
@@ -146,7 +146,8 @@ const Properties = () => {
         property.address?.toLowerCase().includes(term) ||
         property.property_type?.toLowerCase().includes(term) ||
         property.city?.toLowerCase().includes(term) ||
-        property.pincode?.toString().includes(term)
+        property.pincode?.toString().includes(term) ||
+        property.productCode?.toString().toLowerCase().includes(term)
       );
     }
 
@@ -161,8 +162,8 @@ const Properties = () => {
     if (placeFilter) {
       const selectedPlace = places.find(place => place._id === placeFilter);
       if (selectedPlace) {
-        filtered = filtered.filter(property => 
-          property.address?.includes(selectedPlace.name) || 
+        filtered = filtered.filter(property =>
+          property.address?.includes(selectedPlace.name) ||
           property.city?.includes(selectedPlace.name)
         );
       }
@@ -172,7 +173,7 @@ const Properties = () => {
     if (subPlaceFilter) {
       const selectedSubPlace = availableSubPlaces.find(subPlace => subPlace._id === subPlaceFilter);
       if (selectedSubPlace) {
-        filtered = filtered.filter(property => 
+        filtered = filtered.filter(property =>
           property.address?.includes(selectedSubPlace.name)
         );
       }
@@ -341,7 +342,7 @@ const Properties = () => {
         <div className="relative w-full mb-4">
           <input
             type="text"
-            placeholder="Search City, Pincode, Address, Property Type"
+            placeholder="Search City, Pincode, Address, Property Type, Product Code"
             value={searchTerm}
             onChange={handleSearchChange}
             className="w-full px-4 py-3 pl-10 border rounded-md"
@@ -353,11 +354,11 @@ const Properties = () => {
 
         {/* Mobile filter toggle button */}
         <div className="block md:hidden mb-4">
-          <button 
+          <button
             onClick={toggleMobileFilters}
             className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 border rounded-md text-gray-700 hover:bg-gray-200 transition-colors"
           >
-            <FaFilter /> 
+            <FaFilter />
             {showMobileFilters ? 'Hide Filters' : 'Show Filters'}
           </button>
         </div>
@@ -397,7 +398,7 @@ const Properties = () => {
                 ))}
               </select>
             </div>
-            
+
             {/* Property type filter */}
             <div className="w-full">
               <select
@@ -486,45 +487,45 @@ const Properties = () => {
                   <button onClick={() => setSearchTerm('')} className="ml-1 text-blue-500 hover:text-blue-700">×</button>
                 </span>
               )}
-              
+
               {placeFilter && (
                 <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
                   Location: {places.find(p => p._id === placeFilter)?.name || ''}
                   <button onClick={() => setPlaceFilter('')} className="ml-1 text-blue-500 hover:text-blue-700">×</button>
                 </span>
               )}
-              
+
               {subPlaceFilter && (
                 <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
                   Area: {availableSubPlaces.find(sp => sp._id === subPlaceFilter)?.name || ''}
                   <button onClick={() => setSubPlaceFilter('')} className="ml-1 text-blue-500 hover:text-blue-700">×</button>
                 </span>
               )}
-              
+
               {propertyTypeFilter && (
                 <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
                   Type: {propertyTypeFilter}
                   <button onClick={() => setPropertyTypeFilter('')} className="ml-1 text-blue-500 hover:text-blue-700">×</button>
                 </span>
               )}
-              
+
               {priceRangeFilter && (
                 <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
                   Price: {priceRangeFilter === 'under50' ? 'Under ₹50L' :
                     priceRangeFilter === '50to100' ? '₹50L - ₹1Cr' :
-                    priceRangeFilter === '100to200' ? '₹1Cr - ₹2Cr' :
-                    priceRangeFilter === '200to500' ? '₹2Cr - ₹5Cr' : 'Over ₹5Cr'}
+                      priceRangeFilter === '100to200' ? '₹1Cr - ₹2Cr' :
+                        priceRangeFilter === '200to500' ? '₹2Cr - ₹5Cr' : 'Over ₹5Cr'}
                   <button onClick={() => setPriceRangeFilter('')} className="ml-1 text-blue-500 hover:text-blue-700">×</button>
                 </span>
               )}
-              
+
               {bedsFilter && (
                 <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
                   {bedsFilter} {parseInt(bedsFilter) === 1 ? 'Bedroom' : 'Bedrooms'}
                   <button onClick={() => setBedsFilter('')} className="ml-1 text-blue-500 hover:text-blue-700">×</button>
                 </span>
               )}
-              
+
               {bathsFilter && (
                 <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
                   {bathsFilter} {parseInt(bathsFilter) === 1 ? 'Bathroom' : 'Bathrooms'}
@@ -628,7 +629,7 @@ const Properties = () => {
 
               {/* Property Details */}
               <div className="p-3 space-y-2">
-                <h2 className="text-sm font-semibold text-gray-700">{property.property_type} - {property.maxrooms} Rooms</h2>
+                <h2 className="text-sm font-semibold text-gray-700">{property.property_type} -   {property.productCode || "No code provided"}</h2>
                 <div className="text-sm text-gray-500 flex flex-wrap gap-1">
                   {property.beds && <span>{property.beds} Beds</span>}
                   {property.beds && property.baths && <span>|</span>}

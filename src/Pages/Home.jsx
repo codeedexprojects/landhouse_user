@@ -284,7 +284,7 @@ function Home() {
 
               {/* Property Details */}
               <div className="p-3 space-y-2">
-                <h2 className="text-sm font-semibold text-gray-700">{property.property_type} - {property.maxrooms} Rooms</h2>
+                <h2 className="text-sm font-semibold text-gray-700">{property.property_type} - {property.productCode || "No code provided"}</h2>
                 <div className="text-sm text-gray-500 flex flex-wrap gap-1">
                   {property.beds && <span>{property.beds} Beds</span>}
                   {property.beds && property.baths && <span>|</span>}

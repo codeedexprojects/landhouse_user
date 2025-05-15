@@ -222,6 +222,7 @@ function AddPropertyVendor() {
         ];
       case 'Agriculture land':
       case 'Commercial land':
+        case 'Other':
         return [
           ...commonFields,
           // { name: 'price_per_cent', label: 'Price per Cent', placeholder: '₹ 100000', type: 'text' },
@@ -308,6 +309,7 @@ function AddPropertyVendor() {
                 <option value="Agriculture land">Agriculture land</option>
                 <option value="Commercial land">Commercial land</option>
                 <option value="Shop/Office">Shop/Office</option>
+                <option value="Other">Other</option>
               </select>
             </div>
 

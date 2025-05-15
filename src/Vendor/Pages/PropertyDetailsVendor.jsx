@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { IoLocation } from "react-icons/io5";
+import { IoBarcode, IoLocation } from "react-icons/io5";
 import { AiFillHome } from "react-icons/ai";
 import { FaBed, FaBath } from "react-icons/fa";
 import { BsBoundingBoxCircles, BsSquare } from "react-icons/bs";
@@ -149,6 +149,10 @@ function PropertyDetailsVendor() {
             <IoLocation className="text-blue-900" size={20} />
             <p>{property?.address}</p>
           </div>
+           <div className="flex items-center gap-2 mb-2 text-gray-700">
+                      <IoBarcode  className="text-blue-900" size={20} />
+                      <p> <b>Product Code :</b> {property?.productCode}</p>
+                    </div>
           <div className="flex justify-end">
             <div className="w-fit">
               <a

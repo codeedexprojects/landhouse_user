@@ -9,6 +9,7 @@ import { MdOutlineDeleteOutline, MdOutlinePhoneInTalk } from "react-icons/md";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { IoBarcode } from "react-icons/io5";
 import {
   deletePropertyAPI,
   getLatestEnquireisProperty,
@@ -185,6 +186,10 @@ function PropertyDetails() {
           <div className="flex items-center gap-2 mb-2 text-gray-700">
             <IoLocation className="text-blue-900" size={20} />
             <p>{property?.address}</p>
+          </div>
+          <div className="flex items-center gap-2 mb-2 text-gray-700">
+            <IoBarcode  className="text-blue-900" size={20} />
+            <p> <b>Product Code :</b> {property?.productCode}</p>
           </div>
           <div className="flex justify-end">
             <div className="w-fit">

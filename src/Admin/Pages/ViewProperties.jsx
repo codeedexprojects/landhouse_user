@@ -8,6 +8,7 @@ import { MdLocationOn } from "react-icons/md";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import "jspdf-autotable";
+import { IoBarcode } from "react-icons/io5";
 
 export default function PropertyListingPage() {
   const [properties, setProperties] = useState([]);
@@ -112,11 +113,13 @@ export default function PropertyListingPage() {
 
     // Apply search filter
     if (searchValue) {
+      const term = searchValue.toLowerCase();
       filtered = filtered.filter(
         (property) =>
-          property.property_type?.toLowerCase().includes(searchValue.toLowerCase()) ||
-          property.address?.toLowerCase().includes(searchValue.toLowerCase()) ||
-          String(property.beds).includes(searchValue)
+          property.property_type?.toLowerCase().includes(term) ||
+          property.address?.toLowerCase().includes(term) ||
+          String(property.beds).includes(searchValue) || // beds are likely numbers, so compare directly
+          property.productCode?.toString().toLowerCase().includes(term) // ✅ product code match
       );
     }
 
@@ -259,7 +262,7 @@ export default function PropertyListingPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
-              placeholder="Search by property name, bedroom, place..."
+              placeholder="Search by property name, bedroom, place, productcode..."
               className="w-full pl-10 py-2 pr-3 bg-transparent outline-none text-sm border-none focus:ring-0"
               value={searchTerm}
               onChange={handleSearch}
@@ -401,7 +404,7 @@ export default function PropertyListingPage() {
               {/* Property Details */}
               <div className="p-3 space-y-2">
                 <h2 className="text-sm font-semibold text-gray-700">
-                  {property.property_type || "Untitled Property"}
+                  {property.property_type || "Untitled Property"} - {property.productCode || "No code provided"}
                 </h2>
                 <div className="text-sm text-gray-500 flex flex-wrap gap-1">
                   {property.beds && <span>{property.beds} Beds</span>}
@@ -410,7 +413,10 @@ export default function PropertyListingPage() {
                   {property.area && (property.beds || property.baths) && <span>|</span>}
                   {property.area && <span>{property.area} sqft</span>}
                 </div>
-
+                {/* <p className="text-sm text-black-400 flex items-center gap-1">
+                  <IoBarcode className="text-base text-gray-400" />
+                  Code : {property.productCode || "No code provided"}
+                </p> */}
                 <p className="text-sm text-gray-400 flex items-center gap-1">
                   <MdLocationOn className="text-base text-gray-400" />
                   {property.address || "No address provided"}

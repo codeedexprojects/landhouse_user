@@ -352,6 +352,12 @@ export default function SingleProperty() {
                                 </svg>
                                 <span>{property.property_type}</span>
                             </div>
+                            <div className="flex items-center mt-2 text-indigo-900">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                </svg>
+                                <span>Code : {property.productCode}</span>
+                            </div>
 
                             {/* Price */}
                             <div className="mt-4 text-2xl font-bold text-indigo-900">
@@ -396,7 +402,7 @@ export default function SingleProperty() {
 
                         {/* Right Column: Property Specifications */}
                         <div className="lg:w-1/2 mt-6 lg:mt-0 lg:pl-8">
-                            <div className="bg-gray-50 p-6 rounded-lg"> 
+                            <div className="bg-gray-50 p-6 rounded-lg">
                                 <h3 className="text-lg font-semibold text-indigo-900 mb-4">Property Specifications</h3>
 
                                 <div className="grid grid-cols-1 gap-2">
