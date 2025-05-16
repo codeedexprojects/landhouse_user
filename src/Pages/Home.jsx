@@ -512,7 +512,6 @@ function Home() {
             </div>
           </div>
         </div>
-
         <div className="bg-blue-50 w-full flex items-center justify-center py-16 px-4 overflow-hidden" data-aos="fade-up">
           <div className="max-w-6xl w-full flex flex-col md:flex-row items-center justify-between">
 
