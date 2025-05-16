@@ -23,6 +23,7 @@ import 'aos/dist/aos.css';
 import LoginRequiredModal from '../Components/LoginRequired';
 import { addToFavorites, deleteFavourite, getFavorites, getProperties } from '../services/allApi/userAllApi';
 import { Toast } from '../Components/Toast';
+import QRCode from 'react-qr-code';
 
 
 
@@ -156,6 +157,24 @@ function Home() {
     navigate('/contact')
     window.scrollTo(0, 0);
   }
+
+  //share link functions
+
+  const shareOnFacebook = () => {
+  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralLink)}`;
+  window.open(facebookUrl, '_blank');
+};
+
+const shareOnTwitter = () => {
+  const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(referralLink)}&text=Check out this property!`;
+  window.open(twitterUrl, '_blank');
+};
+
+const shareOnWhatsApp = () => {
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent("Check out this property: " + referralLink)}`;
+  window.open(whatsappUrl, '_blank');
+};
+
 
   return (
     <div>
@@ -352,17 +371,35 @@ function Home() {
                   Copy
                 </button>
               </div>
-              <div className="flex justify-center space-x-4 mb-6">
-                <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
-                  <FaFacebook className="text-blue-600" />
-                </button>
-                <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
-                  <FaTwitter className="text-blue-400" />
-                </button>
-                <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
-                  <FaWhatsapp className="text-green-500" />
-                </button>
-              </div>
+         <div className="flex justify-center space-x-4 mb-6">
+  <button
+    onClick={shareOnFacebook}
+    className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+  >
+    <FaFacebook className="text-blue-600" />
+  </button>
+
+  <button
+    onClick={shareOnTwitter}
+    className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+  >
+    <FaTwitter className="text-blue-400" />
+  </button>
+
+  <button
+    onClick={shareOnWhatsApp}
+    className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+  >
+    <FaWhatsapp className="text-green-500" />
+  </button>
+</div>
+
+              <div className="flex justify-center mb-4">
+  <div className="p-4 border rounded-lg bg-gray-50">
+    <QRCode value={referralLink} size={128} />
+    <p className="text-xs text-gray-500 text-center mt-2">Scan to open this link</p>
+  </div>
+</div>
               <button
                 onClick={() => setShowShareModal(false)}
                 className="w-full py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
