@@ -7,7 +7,7 @@ const CompareProperties = () => {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const BASE_URL="https://landouse-backend.onrender.com"
+  const BASE_URL = "https://landouse-backend.onrender.com"
 
   useEffect(() => {
     const fetchCompareData = async () => {
@@ -97,21 +97,22 @@ const CompareProperties = () => {
                 alt="Property 1"
                 className="h-48 w-full max-w-[300px] object-cover rounded-md"
                 onError={(e) => {
-                  e.target.onerror = null; 
+                  e.target.onerror = null;
                   e.target.src = "/path/to/default/image.jpg";
                 }}
               />
             </div>
             <div className="flex justify-center">
               <img
-                src={`${BASE_URL}/${property2.photos[0]}`}
+                src={property2.photos[0] ? property2.photos[0].replace(/\\/g, '/') : "/path/to/default/image.jpg"}
                 alt="Property 2"
                 className="h-48 w-full max-w-[300px] object-cover rounded-md"
                 onError={(e) => {
-                  e.target.onerror = null; 
+                  e.target.onerror = null;
                   e.target.src = "/path/to/default/image.jpg";
                 }}
               />
+
             </div>
           </div>
 
@@ -133,9 +134,8 @@ const CompareProperties = () => {
             ].map((row, idx) => (
               <div
                 key={idx}
-                className={`grid grid-cols-3 px-4 py-3 text-sm ${
-                  idx % 2 === 0 ? "bg-[#E9F1FF]" : "bg-white"
-                }`}
+                className={`grid grid-cols-3 px-4 py-3 text-sm ${idx % 2 === 0 ? "bg-[#E9F1FF]" : "bg-white"
+                  }`}
               >
                 <div className="font-medium text-[#131A5A]">{row[0]}</div>
                 <div>{row[1]}</div>

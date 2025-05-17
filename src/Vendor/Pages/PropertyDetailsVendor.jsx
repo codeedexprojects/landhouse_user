@@ -102,13 +102,11 @@ function PropertyDetailsVendor() {
       <div className="rounded-lg overflow-hidden shadow-md bg-white">
         <div className="w-full">
           <img
-            src={
-              property.photos &&
-              `https://landouse-backend.onrender.com/${property.photos[0]}`
-            }
-            alt="Property"
-            className="w-full h-64 object-cover"
-          />
+  src={property.photos && property.photos[0] ? property.photos[0].replace(/\\/g, "/") : "/placeholder-property.jpg"}
+  alt="Property"
+  className="w-full h-64 object-cover"
+/>
+
         </div>
 
         <div className="p-6">

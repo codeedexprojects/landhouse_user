@@ -161,19 +161,19 @@ function Home() {
   //share link functions
 
   const shareOnFacebook = () => {
-  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralLink)}`;
-  window.open(facebookUrl, '_blank');
-};
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralLink)}`;
+    window.open(facebookUrl, '_blank');
+  };
 
-const shareOnTwitter = () => {
-  const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(referralLink)}&text=Check out this property!`;
-  window.open(twitterUrl, '_blank');
-};
+  const shareOnTwitter = () => {
+    const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(referralLink)}&text=Check out this property!`;
+    window.open(twitterUrl, '_blank');
+  };
 
-const shareOnWhatsApp = () => {
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent("Check out this property: " + referralLink)}`;
-  window.open(whatsappUrl, '_blank');
-};
+  const shareOnWhatsApp = () => {
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent("Check out this property: " + referralLink)}`;
+    window.open(whatsappUrl, '_blank');
+  };
 
 
   return (
@@ -241,10 +241,11 @@ const shareOnWhatsApp = () => {
               {/* Property Image */}
               <div className="relative">
                 <img
-                  src={`https://landouse-backend.onrender.com/${property.photos[0]?.replace(/\\/g, "/")}`}
+                  src={property.photos[0] ? property.photos[0].replace(/\\/g, "/") : "/placeholder-property.jpg"}
                   alt={property.property_type}
                   className="w-full h-36 object-cover"
                 />
+
                 <div
                   className="absolute top-2 left-2 bg-[#EAF2FF] text-xs text-gray-600 font-semibold px-2 py-1 rounded cursor-pointer hover:bg-[#D5E3FF]"
                   onClick={handlePriceClick}
@@ -371,35 +372,35 @@ const shareOnWhatsApp = () => {
                   Copy
                 </button>
               </div>
-         <div className="flex justify-center space-x-4 mb-6">
-  <button
-    onClick={shareOnFacebook}
-    className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
-  >
-    <FaFacebook className="text-blue-600" />
-  </button>
+              <div className="flex justify-center space-x-4 mb-6">
+                <button
+                  onClick={shareOnFacebook}
+                  className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+                >
+                  <FaFacebook className="text-blue-600" />
+                </button>
 
-  <button
-    onClick={shareOnTwitter}
-    className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
-  >
-    <FaTwitter className="text-blue-400" />
-  </button>
+                <button
+                  onClick={shareOnTwitter}
+                  className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+                >
+                  <FaTwitter className="text-blue-400" />
+                </button>
 
-  <button
-    onClick={shareOnWhatsApp}
-    className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
-  >
-    <FaWhatsapp className="text-green-500" />
-  </button>
-</div>
+                <button
+                  onClick={shareOnWhatsApp}
+                  className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+                >
+                  <FaWhatsapp className="text-green-500" />
+                </button>
+              </div>
 
               <div className="flex justify-center mb-4">
-  <div className="p-4 border rounded-lg bg-gray-50">
-    <QRCode value={referralLink} size={128} />
-    <p className="text-xs text-gray-500 text-center mt-2">Scan to open this link</p>
-  </div>
-</div>
+                <div className="p-4 border rounded-lg bg-gray-50">
+                  <QRCode value={referralLink} size={128} />
+                  <p className="text-xs text-gray-500 text-center mt-2">Scan to open this link</p>
+                </div>
+              </div>
               <button
                 onClick={() => setShowShareModal(false)}
                 className="w-full py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"

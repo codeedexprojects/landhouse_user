@@ -15,7 +15,7 @@ const CompareListings = () => {
   const [toast, setToast] = useState({ show: false, message: '', type: '' });
   const [wishlist, setWishlist] = useState([]);
   const [loadingFavorites, setLoadingFavorites] = useState(false);
-  const BASE_URL="https://landouse-backend.onrender.com";
+  const BASE_URL = "https://landouse-backend.onrender.com";
 
   useEffect(() => {
     const fetchComparisons = async () => {
@@ -25,7 +25,7 @@ const CompareListings = () => {
           navigate('/login');
           return;
         }
-        
+
         const data = await getComparisons(userId);
         setProperties(data.properties || []);
       } catch (error) {
@@ -45,10 +45,10 @@ const CompareListings = () => {
       if (userId) {
         setLoadingFavorites(true);
         const response = await getFavorites(userId);
-        
+
         // Extract property IDs from the nested structure
         const favoriteIds = response.favourites.map(fav => fav.propertyId._id);
-        
+
         setWishlist(favoriteIds);
         setLoadingFavorites(false);
       }
@@ -67,7 +67,7 @@ const CompareListings = () => {
       }
 
       const isFavorite = wishlist.includes(propertyId);
-      
+
       if (isFavorite) {
         // Remove from favorites
         await deleteFavourite(propertyId, { userId });
@@ -83,17 +83,17 @@ const CompareListings = () => {
           : [...prev, propertyId];
       });
 
-      setToast({ 
-        show: true, 
-        message: isFavorite ? 'Removed from favorites' : 'Added to favorites', 
-        type: 'success' 
+      setToast({
+        show: true,
+        message: isFavorite ? 'Removed from favorites' : 'Added to favorites',
+        type: 'success'
       });
     } catch (error) {
       console.error('Favorite error:', error);
-      setToast({ 
-        show: true, 
-        message: error.response?.data?.message || 'Failed to update favorites', 
-        type: 'error' 
+      setToast({
+        show: true,
+        message: error.response?.data?.message || 'Failed to update favorites',
+        type: 'error'
       });
     }
   };
@@ -143,7 +143,7 @@ const CompareListings = () => {
     <div>
       <Header />
       {toast.show && <Toast message={toast.message} type={toast.type} onClose={closeToast} />}
-      
+
       <div className="min-h-screen flex items-center justify-center bg-white px-4 py-8">
         <div className="w-full max-w-3xl">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-[#131A5A]">
@@ -156,13 +156,13 @@ const CompareListings = () => {
               {showDeleteConfirm === property._id ? (
                 <div className="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center gap-4 rounded-lg">
                   <p className="text-gray-700">Remove this property?</p>
-                  <button 
+                  <button
                     onClick={() => handleDelete(property._id)}
                     className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
                   >
                     Yes
                   </button>
-                  <button 
+                  <button
                     onClick={() => setShowDeleteConfirm(null)}
                     className="bg-gray-300 text-gray-700 px-3 py-1 rounded hover:bg-gray-400"
                   >
@@ -171,7 +171,7 @@ const CompareListings = () => {
                 </div>
               ) : (
                 <>
-                  <button 
+                  <button
                     onClick={() => setShowDeleteConfirm(property._id)}
                     className="absolute top-2 right-2 text-gray-400 hover:text-red-500"
                     title="Remove from comparison"
@@ -180,7 +180,7 @@ const CompareListings = () => {
                   </button>
                   <div className="w-32 h-24 rounded-md overflow-hidden">
                     <img
-                      src={property.photos[0] ? `${BASE_URL}/${property.photos[0]}` : '/placeholder-property.jpg'}
+                      src={property.photos[0] ? property.photos[0].replace(/\\/g, "/") : '/placeholder-property.jpg'}
                       alt={property.property_type}
                       className="object-cover w-full h-full"
                       onError={(e) => {
@@ -188,6 +188,7 @@ const CompareListings = () => {
                         e.target.src = '/placeholder-property.jpg';
                       }}
                     />
+
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-lg text-[#131A5A]">
@@ -199,7 +200,7 @@ const CompareListings = () => {
                       ₹ {property.property_price.toLocaleString()}
                     </p>
                   </div>
-                  <button 
+                  <button
                     onClick={() => {
                       const isLoggedIn = localStorage.getItem('userId') && localStorage.getItem('token');
                       if (!isLoggedIn) {
@@ -214,10 +215,10 @@ const CompareListings = () => {
                     {loadingFavorites ? (
                       <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
                     ) : (
-                      <FaHeart 
+                      <FaHeart
                         className={
                           wishlist.includes(property._id)
-                            ? "text-red-500 fill-current" 
+                            ? "text-red-500 fill-current"
                             : "text-gray-500"
                         }
                         size={14}
@@ -233,7 +234,7 @@ const CompareListings = () => {
           {properties.length < 2 && (
             <div className="border border-blue-300 rounded-lg p-4 flex items-center justify-between">
               <p className="text-gray-500">Add another property to compare</p>
-              <button 
+              <button
                 onClick={handleAddProperty}
                 className="flex items-center gap-2 text-blue-600 border border-blue-600 px-4 py-2 rounded hover:bg-blue-50 transition"
               >
@@ -245,15 +246,15 @@ const CompareListings = () => {
 
           {/* Action Buttons */}
           <div className="flex justify-center mt-8 gap-4">
-            <button 
-              onClick={handleCompareClick} 
+            <button
+              onClick={handleCompareClick}
               className="bg-[#131A5A] text-white px-6 py-2 rounded hover:bg-[#0f154a] transition disabled:opacity-50"
               disabled={properties.length < 2}
             >
               Compare
             </button>
-            <button 
-              onClick={() => navigate('/')} 
+            <button
+              onClick={() => navigate('/')}
               className="border border-gray-300 px-6 py-2 rounded hover:bg-gray-100 transition"
             >
               Close

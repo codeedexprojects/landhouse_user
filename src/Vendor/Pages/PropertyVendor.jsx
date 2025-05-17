@@ -380,8 +380,8 @@ export default function PropertyListingPage() {
               <div className="relative">
                 <img
                   src={
-                    property.photos && property.photos.length > 0
-                      ? `https://landouse-backend.onrender.com/${property.photos[0]?.replace(/\\/g, "/")}`
+                    property.photos && property.photos.length > 0 && property.photos[0]
+                      ? property.photos[0].replace(/\\/g, "/")
                       : "https://via.placeholder.com/400x300?text=No+Image"
                   }
                   alt={property.property_type || "Property"}
@@ -391,6 +391,7 @@ export default function PropertyListingPage() {
                     e.target.src = "https://via.placeholder.com/400x300?text=No+Image";
                   }}
                 />
+
                 {property.soldOut && (
                   <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
                     Sold Out

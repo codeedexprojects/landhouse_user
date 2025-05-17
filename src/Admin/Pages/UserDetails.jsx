@@ -9,7 +9,7 @@ export default function UserDetailsPage() {
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const BASE_URL_IMG="https://landouse-backend.onrender.com"
+  const BASE_URL_IMG = "https://landouse-backend.onrender.com"
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -48,10 +48,10 @@ export default function UserDetailsPage() {
           <span className="text-blue-500">User details</span>
           <div className="ml-auto">
             <div className="bg-gray-800 rounded-full w-8 h-8 flex items-center justify-center overflow-hidden">
-              <img 
-                src={user?.profileImage || "/api/placeholder/32/32"} 
-                alt="User profile" 
-                className="w-full h-full object-cover" 
+              <img
+                src={user?.profileImage || "/api/placeholder/32/32"}
+                alt="User profile"
+                className="w-full h-full object-cover"
               />
             </div>
           </div>
@@ -122,7 +122,7 @@ export default function UserDetailsPage() {
                 </button>
               </div>
             </div>
-            
+
             {latestEnquiry ? (
               <div className="p-4 border-t border-gray-100">
                 <div className="flex">
@@ -160,11 +160,14 @@ export default function UserDetailsPage() {
                   </div>
                   {latestEnquiry.propertyId?.photos?.length > 0 ? (
                     <div className="w-24 h-24">
-                      <img 
-                        src={`${BASE_URL_IMG}/${latestEnquiry.propertyId.photos[0]}`} 
-                        alt="Property" 
-                        className="w-full h-full object-cover rounded-md" 
+                      <img
+                        src={latestEnquiry.propertyId.photos && latestEnquiry.propertyId.photos.length > 0
+                          ? latestEnquiry.propertyId.photos[0].replace(/\\/g, '/')
+                          : '/path/to/placeholder.jpg'}
+                        alt="Property"
+                        className="w-full h-full object-cover rounded-md"
                       />
+
                     </div>
                   ) : (
                     <div className="w-24 h-24 bg-gray-100 rounded-md flex items-center justify-center">

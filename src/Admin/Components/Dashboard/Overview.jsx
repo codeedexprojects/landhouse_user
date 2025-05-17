@@ -16,17 +16,17 @@ const Dashboard = () => {
   const referredPercentage = Math.round((referredUsers / totalUsers) * 100);
   const directUsers = totalUsers - referredUsers;
   const BASE_URL = "https://landouse-backend.onrender.com"
-  const navigate=useNavigate()
+  const navigate = useNavigate()
 
   // Calculate degrees for conic-gradient
   const referredDegrees = (referredPercentage / 100) * 360;
   const [agents, setAgents] = useState([]);
 
-  const handleSeeAllClick=()=>{
+  const handleSeeAllClick = () => {
     navigate('/admin/user-list')
   }
 
-  const handleSeeRecentAgent=()=>{
+  const handleSeeRecentAgent = () => {
     navigate('/admin/view-agent')
   }
 
@@ -285,7 +285,7 @@ const Dashboard = () => {
           {properties.length > 0 ? (
             <div className="relative">
               <img
-                src={`${BASE_URL}/${properties[currentPropertyIndex]?.photos?.[0]?.replace(/\\/g, '/') || 'api/placeholder/400/200'}`}
+                src={properties[currentPropertyIndex]?.photos?.[0]?.replace(/\\/g, '/') || '/api/placeholder/400/200'}
                 alt="Property"
                 className="w-full h-48 object-cover rounded-lg"
                 onError={(e) => {
@@ -293,6 +293,7 @@ const Dashboard = () => {
                   e.target.src = "/api/placeholder/400/200";
                 }}
               />
+
 
               <div className="mt-2">
                 <h4 className="font-medium">{properties[currentPropertyIndex]?.property_type || 'Property'}</h4>
@@ -385,9 +386,9 @@ const Dashboard = () => {
           <div className="space-y-4">
             {agents.slice(0, 4).map((agent) => (
               <div key={agent._id} className="flex items-center">
-                 <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-3">
-                    {agent.name.charAt(0)}{agent.name?.charAt(0) || ''}
-                  </div>
+                <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-3">
+                  {agent.name.charAt(0)}{agent.name?.charAt(0) || ''}
+                </div>
                 <div>
                   <p className="font-medium">{agent.name}</p>
                   <p className="text-xs text-gray-500">Referred by Admin</p>

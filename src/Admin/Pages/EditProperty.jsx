@@ -44,7 +44,7 @@ const EditProperty = () => {
       { name: 'buildIn', label: 'Build in', placeholder: '2002', type: 'text' }
     ];
 
-    switch(type) {
+    switch (type) {
       case 'Home/Villa':
         return [
           ...commonFields,
@@ -95,7 +95,7 @@ const EditProperty = () => {
   };
 
   const renderField = (field) => {
-    switch(field.type) {
+    switch (field.type) {
       case 'select':
         return (
           <select
@@ -171,12 +171,12 @@ const EditProperty = () => {
     }));
   };
 
-  const handleEdit = async (e) => { 
+  const handleEdit = async (e) => {
     e.preventDefault();
 
     try {
       const formDataToSend = new FormData();
-      
+
       // Append all form data
       Object.entries(formData).forEach(([key, value]) => {
         if (key === 'coordinates') {
@@ -373,10 +373,11 @@ const EditProperty = () => {
                 Current Photo
               </label>
               <img
-                src={`https://landouse-backend.onrender.com/${property.photos[0]}`}
+                src={property.photos[0]}
                 alt="Current Property"
                 className="w-64 h-40 object-cover rounded border"
               />
+
             </div>
           )}
 

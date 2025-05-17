@@ -139,13 +139,11 @@ function PropertyDetails() {
       <div className="rounded-lg overflow-hidden shadow-md bg-white">
         <div className="w-full">
           <img
-            src={
-              property.photos &&
-              `https://landouse-backend.onrender.com/${property.photos[0]}`
-            }
+            src={property.photos && property.photos[0]}
             alt="Property"
             className="w-full h-64 object-cover"
           />
+
         </div>
 
         <div className="p-6">
@@ -188,7 +186,7 @@ function PropertyDetails() {
             <p>{property?.address}</p>
           </div>
           <div className="flex items-center gap-2 mb-2 text-gray-700">
-            <IoBarcode  className="text-blue-900" size={20} />
+            <IoBarcode className="text-blue-900" size={20} />
             <p> <b>Product Code :</b> {property?.productCode}</p>
           </div>
           <div className="flex justify-end">
