@@ -42,7 +42,6 @@ const Properties = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  // const [priceRangeFilter, setPriceRangeFilter] = useState("");
   const [bedsFilter, setBedsFilter] = useState("");
   const [bathsFilter, setBathsFilter] = useState("");
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
@@ -52,12 +51,9 @@ const Properties = () => {
   const [subPlaceFilter, setSubPlaceFilter] = useState("");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [availableSubPlaces, setAvailableSubPlaces] = useState([]);
-  const [priceInput, setPriceInput] = useState("");
   const [minPrice, setMinPrice] = useState("");
-const [maxPrice, setMaxPrice] = useState("");
-const [showPriceModal, setShowPriceModal] = useState(false);
-
-
+  const [maxPrice, setMaxPrice] = useState("");
+  const [showPriceModal, setShowPriceModal] = useState(false);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(referralLink);
@@ -125,7 +121,8 @@ const [showPriceModal, setShowPriceModal] = useState(false);
     propertyTypeFilter,
     placeFilter,
     subPlaceFilter,
-      priceInput,
+    minPrice,
+    maxPrice,
   ]);
 
   useEffect(() => {
@@ -240,13 +237,15 @@ const [showPriceModal, setShowPriceModal] = useState(false);
     }
 
     // Apply price range filter
-   if (priceInput) {
-  const maxPrice = parseInt(priceInput);
-  filtered = filtered.filter((property) => {
-    const price = property.property_price || 0;
-    return price <= maxPrice;
-  });
-}
+    if (minPrice !== "" || maxPrice !== "") {
+      const min = minPrice !== "" ? parseInt(minPrice, 10) : 0;
+      const max = maxPrice !== "" ? parseInt(maxPrice, 10) : Infinity;
+
+      filtered = filtered.filter((property) => {
+        const price = property.property_price || 0;
+        return price >= min && price <= max;
+      });
+    }
 
     // Apply beds filter
     if (bedsFilter) {
@@ -281,9 +280,10 @@ const [showPriceModal, setShowPriceModal] = useState(false);
 
   const clearAllFilters = () => {
     setSearchTerm("");
-setPriceInput("");
     setBedsFilter("");
     setBathsFilter("");
+    setMinPrice("");
+    setMaxPrice("");
     setPropertyTypeFilter("");
     setPlaceFilter("");
     setSubPlaceFilter("");
@@ -412,7 +412,6 @@ setPriceInput("");
           className={`${showMobileFilters ? "block" : "hidden"} md:block mb-8`}
         >
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-            
             {/* Place filter */}
             <div className="w-full">
               <select
@@ -463,24 +462,14 @@ setPriceInput("");
               </select>
             </div>
 
-           {/* Price filter input */}
-{/* <div className="w-full">
-  <input
-    type="number"
-    placeholder="Enter max price"
-    className="w-full px-3 py-2 border rounded-md"
-    value={priceInput}
-    onChange={(e) => setPriceInput(e.target.value)}
-  />
-</div> */}
-<button
-  onClick={() => setShowPriceModal(true)}
-  className="px-4 py-2 border bg-white-100 text-black-700 rounded-md"
->
-  Open Price Filter
-</button>
+            {/* Price filter input */}
 
-
+            <button
+              onClick={() => setShowPriceModal(true)}
+              className="px-4 py-2 border bg-white-100 text-black-700 rounded-md"
+            >
+              Open Price Filter
+            </button>
 
             {/* Beds filter */}
             <div className="w-full">
@@ -516,7 +505,8 @@ setPriceInput("");
 
           {/* Clear filters button */}
           {(searchTerm ||
-            priceInput  ||
+            minPrice ||
+            maxPrice ||
             bedsFilter ||
             bathsFilter ||
             propertyTypeFilter ||
@@ -535,7 +525,8 @@ setPriceInput("");
 
         {/* Active filters display */}
         {(searchTerm ||
-          priceInput  ||
+          minPrice ||
+          maxPrice ||
           bedsFilter ||
           bathsFilter ||
           propertyTypeFilter ||
@@ -593,18 +584,20 @@ setPriceInput("");
                   </button>
                 </span>
               )}
-
-             {priceInput && (
-  <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-    Price ≤ ₹{parseInt(priceInput).toLocaleString()}
-    <button
-      onClick={() => setPriceInput("")}
-      className="ml-1 text-blue-500 hover:text-blue-700"
-    >
-      ×
-    </button>
-  </span>
-)}
+              {(minPrice || maxPrice) && (
+                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
+                  Price: ₹{minPrice || 0} – ₹{maxPrice || "∞"}
+                  <button
+                    onClick={() => {
+                      setMinPrice("");
+                      setMaxPrice("");
+                    }}
+                    className="ml-1 text-blue-500 hover:text-blue-700"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
 
               {bedsFilter && (
                 <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
@@ -798,50 +791,49 @@ setPriceInput("");
           ))}
         </div>
       </div>
-      {/* ... (rest of your modal and footer code remains the same) */}
 
-{showPriceModal && (
-  <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center z-50">
-    <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-lg">
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">Filter by Price</h2>
-      <div className="flex flex-col gap-3">
-        <input
-          type="number"
-          placeholder="From"
-          value={minPrice}
-          onChange={(e) => setMinPrice(e.target.value)}
-          className="px-3 py-2 border rounded-md"
-        />
-        <input
-          type="number"
-          placeholder="To"
-          value={maxPrice}
-          onChange={(e) => setMaxPrice(e.target.value)}
-          className="px-3 py-2 border rounded-md"
-        />
-        <div className="flex justify-end gap-2">
-          <button
-            onClick={() => setShowPriceModal(false)}
-            className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-100"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={() => {
-              filterProperties();
-              setShowPriceModal(false);
-            }}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-          >
-            Apply Filter
-          </button>
+      {showPriceModal && (
+        <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Filter by Price
+            </h2>
+            <div className="flex flex-col gap-3">
+              <input
+                type="number"
+                placeholder="From"
+                value={minPrice}
+                onChange={(e) => setMinPrice(e.target.value)}
+                className="px-3 py-2 border rounded-md"
+              />
+              <input
+                type="number"
+                placeholder="To"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+                className="px-3 py-2 border rounded-md"
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setShowPriceModal(false)}
+                  className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    filterProperties();
+                    setShowPriceModal(false);
+                  }}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                >
+                  Apply Filter
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-)}
-
-
+      )}
 
       {showShareModal && (
         <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4">
