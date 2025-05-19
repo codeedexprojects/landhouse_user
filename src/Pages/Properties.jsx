@@ -27,8 +27,7 @@ import "react-toastify/dist/ReactToastify.css";
 import LoginRequiredModal from "../Components/LoginRequired";
 import { Toast } from "../Components/Toast";
 import { fetchVendorDistricts } from "../services/allApi/vendorAllAPi";
-import QRCode from 'react-qr-code';
-
+import QRCode from "react-qr-code";
 
 const Properties = () => {
   const [wishlist, setWishlist] = useState([]);
@@ -43,7 +42,7 @@ const Properties = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [priceRangeFilter, setPriceRangeFilter] = useState("");
+  // const [priceRangeFilter, setPriceRangeFilter] = useState("");
   const [bedsFilter, setBedsFilter] = useState("");
   const [bathsFilter, setBathsFilter] = useState("");
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
@@ -53,27 +52,38 @@ const Properties = () => {
   const [subPlaceFilter, setSubPlaceFilter] = useState("");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [availableSubPlaces, setAvailableSubPlaces] = useState([]);
+const [priceInput, setPriceInput] = useState("");
+
+
+
+
 
   const handleCopy = () => {
     navigator.clipboard.writeText(referralLink);
     setToastMessage("Link copied to clipboard!");
   };
-// share link function
+  // share link function
 
   const shareOnFacebook = () => {
-  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralLink)}`;
-  window.open(facebookUrl, '_blank');
-};
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+      referralLink
+    )}`;
+    window.open(facebookUrl, "_blank");
+  };
 
-const shareOnTwitter = () => {
-  const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(referralLink)}&text=Check out this property!`;
-  window.open(twitterUrl, '_blank');
-};
+  const shareOnTwitter = () => {
+    const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
+      referralLink
+    )}&text=Check out this property!`;
+    window.open(twitterUrl, "_blank");
+  };
 
-const shareOnWhatsApp = () => {
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent("Check out this property: " + referralLink)}`;
-  window.open(whatsappUrl, '_blank');
-};
+  const shareOnWhatsApp = () => {
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
+      "Check out this property: " + referralLink
+    )}`;
+    window.open(whatsappUrl, "_blank");
+  };
 
   const handlePriceClick = () => {
     const isLoggedIn =
@@ -109,8 +119,8 @@ const shareOnWhatsApp = () => {
   }, [
     properties,
     searchTerm,
-    priceRangeFilter,
     bedsFilter,
+    priceInput,
     bathsFilter,
     propertyTypeFilter,
     placeFilter,
@@ -229,43 +239,13 @@ const shareOnWhatsApp = () => {
     }
 
     // Apply price range filter
-    if (priceRangeFilter) {
-      switch (priceRangeFilter) {
-        case "under50":
-          filtered = filtered.filter(
-            (property) => (property.property_price || 0) < 5000000
-          );
-          break;
-        case "50to100":
-          filtered = filtered.filter(
-            (property) =>
-              (property.property_price || 0) >= 5000000 &&
-              (property.property_price || 0) < 10000000
-          );
-          break;
-        case "100to200":
-          filtered = filtered.filter(
-            (property) =>
-              (property.property_price || 0) >= 10000000 &&
-              (property.property_price || 0) < 20000000
-          );
-          break;
-        case "200to500":
-          filtered = filtered.filter(
-            (property) =>
-              (property.property_price || 0) >= 20000000 &&
-              (property.property_price || 0) < 50000000
-          );
-          break;
-        case "over500":
-          filtered = filtered.filter(
-            (property) => (property.property_price || 0) >= 50000000
-          );
-          break;
-        default:
-          break;
-      }
-    }
+if (priceInput) {
+  const maxPrice = parseInt(priceInput);
+  filtered = filtered.filter((property) => {
+    const price = property.property_price || 0;
+    return price <= maxPrice;
+  });
+}
 
     // Apply beds filter
     if (bedsFilter) {
@@ -286,9 +266,9 @@ const shareOnWhatsApp = () => {
     setSearchTerm(e.target.value);
   };
 
-  const handlePriceRangeFilterChange = (e) => {
-    setPriceRangeFilter(e.target.value);
-  };
+  // const handlePriceRangeFilterChange = (e) => {
+  //   setPriceRangeFilter(e.target.value);
+  // };
 
   const handleBedsFilterChange = (e) => {
     setBedsFilter(e.target.value);
@@ -300,13 +280,14 @@ const shareOnWhatsApp = () => {
 
   const clearAllFilters = () => {
     setSearchTerm("");
-    setPriceRangeFilter("");
+    // setPriceRangeFilter("");
     setBedsFilter("");
     setBathsFilter("");
     setPropertyTypeFilter("");
     setPlaceFilter("");
     setSubPlaceFilter("");
     setShowMobileFilters(false);
+     setPriceInput("");
   };
 
   const handleViewClick = async (propertyId) => {
@@ -482,20 +463,17 @@ const shareOnWhatsApp = () => {
             </div>
 
             {/* Price range filter */}
-            <div className="w-full">
-              <select
-                className="w-full px-3 py-2 border rounded-md"
-                value={priceRangeFilter}
-                onChange={handlePriceRangeFilterChange}
-              >
-                <option value="">Price Range</option>
-                <option value="under50">Under ₹50L</option>
-                <option value="50to100">₹50L - ₹1Cr</option>
-                <option value="100to200">₹1Cr - ₹2Cr</option>
-                <option value="200to500">₹2Cr - ₹5Cr</option>
-                <option value="over500">Over ₹5Cr</option>
-              </select>
-            </div>
+<div className="w-full">
+  <input
+    type="number"
+    placeholder="Enter max price"
+    className="w-full px-3 py-2 border rounded-md"
+    value={priceInput}
+    onChange={(e) => setPriceInput(e.target.value)}
+  />
+</div>
+
+
 
             {/* Beds filter */}
             <div className="w-full">
@@ -531,7 +509,7 @@ const shareOnWhatsApp = () => {
 
           {/* Clear filters button */}
           {(searchTerm ||
-            priceRangeFilter ||
+            priceInput ||
             bedsFilter ||
             bathsFilter ||
             propertyTypeFilter ||
@@ -550,7 +528,7 @@ const shareOnWhatsApp = () => {
 
         {/* Active filters display */}
         {(searchTerm ||
-          priceRangeFilter ||
+          priceInput ||
           bedsFilter ||
           bathsFilter ||
           propertyTypeFilter ||
@@ -609,27 +587,17 @@ const shareOnWhatsApp = () => {
                 </span>
               )}
 
-              {priceRangeFilter && (
-                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-                  Price:{" "}
-                  {priceRangeFilter === "under50"
-                    ? "Under ₹50L"
-                    : priceRangeFilter === "50to100"
-                    ? "₹50L - ₹1Cr"
-                    : priceRangeFilter === "100to200"
-                    ? "₹1Cr - ₹2Cr"
-                    : priceRangeFilter === "200to500"
-                    ? "₹2Cr - ₹5Cr"
-                    : "Over ₹5Cr"}
-                  <button
-                    onClick={() => setPriceRangeFilter("")}
-                    className="ml-1 text-blue-500 hover:text-blue-700"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
-
+             {priceInput && (
+  <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
+    Price ≤ ₹{parseInt(priceInput).toLocaleString()}
+    <button
+      onClick={() => setPriceInput("")}
+      className="ml-1 text-blue-500 hover:text-blue-700"
+    >
+      ×
+    </button>
+  </span>
+)}
               {bedsFilter && (
                 <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
                   {bedsFilter}{" "}
@@ -823,81 +791,89 @@ const shareOnWhatsApp = () => {
         </div>
       </div>
       {/* ... (rest of your modal and footer code remains the same) */}
-     {showShareModal && (
-  <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4">
-    <div className="bg-white p-6 rounded-xl max-w-md w-full relative shadow-xl animate-fade-in">
-      <button onClick={() => setShowShareModal(false)} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors">
-        <FaTimes className="text-lg" />
-      </button>
+      {showShareModal && (
+        <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-6 rounded-xl max-w-md w-full relative shadow-xl animate-fade-in">
+            <button
+              onClick={() => setShowShareModal(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              <FaTimes className="text-lg" />
+            </button>
 
-      <div className="text-center mb-6">
-        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
-          <FaShareAlt className="text-blue-600" />
+            <div className="text-center mb-6">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
+                <FaShareAlt className="text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                Share Property
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Share this property with friends and family
+              </p>
+            </div>
+
+            <div className="relative mb-6">
+              <input
+                type="text"
+                value={referralLink}
+                readOnly
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                onClick={(e) => e.target.select()}
+              />
+              <button
+                onClick={handleCopy}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1 bg-blue-100 text-blue-600 text-xs rounded hover:bg-blue-200 transition-colors"
+              >
+                Copy
+              </button>
+            </div>
+
+            {/* Social icons */}
+            <div className="flex justify-center space-x-4 mb-6">
+              <button
+                onClick={shareOnFacebook}
+                className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+              >
+                <FaFacebook className="text-blue-600" />
+              </button>
+
+              <button
+                onClick={shareOnTwitter}
+                className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+              >
+                <FaTwitter className="text-blue-400" />
+              </button>
+
+              <button
+                onClick={shareOnWhatsApp}
+                className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+              >
+                <FaWhatsapp className="text-green-500" />
+              </button>
+            </div>
+
+            {/* QR code section */}
+            <div className="flex justify-center mb-4">
+              <div className="p-4 border rounded-lg bg-gray-50">
+                <QRCode value={referralLink || ""} size={128} />
+                <p className="text-xs text-gray-500 text-center mt-2">
+                  Scan to open this link
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-center">
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
-        <h3 className="text-xl font-bold text-gray-900 mb-2">Share Property</h3>
-        <p className="text-gray-600 mb-4">Share this property with friends and family</p>
-      </div>
-
-      <div className="relative mb-6">
-        <input
-          type="text"
-          value={referralLink}
-          readOnly
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-          onClick={(e) => e.target.select()}
-        />
-        <button
-          onClick={handleCopy}
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1 bg-blue-100 text-blue-600 text-xs rounded hover:bg-blue-200 transition-colors"
-        >
-          Copy
-        </button>
-      </div>
-
-      {/* Social icons */}
-      <div className="flex justify-center space-x-4 mb-6">
-  <button
-    onClick={shareOnFacebook}
-    className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
-  >
-    <FaFacebook className="text-blue-600" />
-  </button>
-
-  <button
-    onClick={shareOnTwitter}
-    className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
-  >
-    <FaTwitter className="text-blue-400" />
-  </button>
-
-  <button
-    onClick={shareOnWhatsApp}
-    className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
-  >
-    <FaWhatsapp className="text-green-500" />
-  </button>
-</div>
-
-
-      {/* QR code section */}
-     <div className="flex justify-center mb-4">
-  <div className="p-4 border rounded-lg bg-gray-50">
-    <QRCode value={referralLink || ''} size={128} />
-    <p className="text-xs text-gray-500 text-center mt-2">Scan to open this link</p>
-  </div>
-</div>
-
-      <div className="flex justify-center">
-        <button
-          onClick={() => setShowShareModal(false)}
-          className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all"
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+      )}
 
       {toastMessage && (
         <Toast message={toastMessage} onClose={() => setToastMessage("")} />
