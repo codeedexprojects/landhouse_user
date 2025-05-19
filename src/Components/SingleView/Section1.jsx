@@ -174,15 +174,10 @@ export default function SingleProperty() {
     setShowShareModal(true);
   };
 
+
   //share link functions
 
   const shareOnFacebook = () => {
-<<<<<<< HEAD
-    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-      referralLink
-    )}`;
-    window.open(facebookUrl, "_blank");
-=======
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralLink)}`;
     window.open(facebookUrl, '_blank');
   };
@@ -195,22 +190,9 @@ export default function SingleProperty() {
   const shareOnWhatsApp = () => {
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent("Check out this property: " + referralLink)}`;
     window.open(whatsappUrl, '_blank');
->>>>>>> 3c720406c8bc9be193e6771077f13993e164e4bb
   };
 
-  const shareOnTwitter = () => {
-    const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-      referralLink
-    )}&text=Check out this property!`;
-    window.open(twitterUrl, "_blank");
-  };
 
-  const shareOnWhatsApp = () => {
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
-      "Check out this property: " + referralLink
-    )}`;
-    window.open(whatsappUrl, "_blank");
-  };
 
   const handleContactAgent = () => {
     if (!property || !property.created_by || !property.created_by.number) {
