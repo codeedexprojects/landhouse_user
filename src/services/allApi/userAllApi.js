@@ -1,26 +1,64 @@
 import axios from "axios";
 import { BASE_URL } from "../baseUrl";
 
-export const loginUser = async (phoneNumber) => {
+export const sendLoginOTP = async (phoneNumber) => {
   try {
-    const response = await axios.post(`${BASE_URL}/user/auth/login`, {
-      phoneNumber
-    });
-
-    return response.data; // contains token and user object
+    const response = await axios.post(`${BASE_URL}/user/auth/login/send-otp`, { phoneNumber });
+    return response.data;
   } catch (error) {
-    // Return a clear error message
-    const message = error.response?.data?.message || 'Login failed';
+    const message = error.response?.data?.message || 'Failed to send OTP';
     throw new Error(message);
   }
 };
 
-export const registerUser = async (formData) => {
+export const verifyLoginOTP = async (phoneNumber, otp) => {
   try {
-    const res = await axios.post(`${BASE_URL}/user/auth/register`, formData);
-    return res.data;
+    const response = await axios.post(`${BASE_URL}/user/auth/login/verify`, { 
+      phoneNumber, 
+      otp 
+    });
+    return response.data;
   } catch (error) {
-    throw error.response?.data || { message: 'Something went wrong.' };
+    const message = error.response?.data?.message || 'OTP verification failed';
+    throw new Error(message);
+  }
+};
+
+// OTP Flow for Registration
+export const sendRegistrationOTP = async (phoneNumber) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/user/auth/register/send-otp`, { phoneNumber });
+    return response.data;
+  } catch (error) {
+    const message = error.response?.data?.message || 'Failed to send OTP';
+    throw new Error(message);
+  }
+};
+
+export const verifyRegistrationOTP = async (formData, otp) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/user/auth/register/verify`, {
+      ...formData,
+      otp
+    });
+    return response.data;
+  } catch (error) {
+    const message = error.response?.data?.message || 'Registration failed';
+    throw new Error(message);
+  }
+};
+
+// Resend OTP
+export const resendOTP = async (phoneNumber, purpose) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/user/auth/resend-otp`, {
+      phoneNumber,
+      purpose // 'registration' or 'login'
+    });
+    return response.data;
+  } catch (error) {
+    const message = error.response?.data?.message || 'Failed to resend OTP';
+    throw new Error(message);
   }
 };
 

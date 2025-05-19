@@ -574,12 +574,16 @@ export const fetchDistricts = async () => {
 };
 
 // Add a sub-place to a district
-export const addSubPlace = async ({ districtId, subPlaceName }) => {
+export const addSubPlace = async ({ districtId, subPlaceName, nearPlaces }) => {
   try {
     const token = localStorage.getItem('adminToken');
     const response = await axios.post(
       `${BASE_URL}/admin/place/sub-places`,
-      { districtId, subPlaceName },
+      { 
+        districtId, 
+        subPlaceName, 
+        nearPlaces // This should be an array of strings
+      },
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -592,6 +596,7 @@ export const addSubPlace = async ({ districtId, subPlaceName }) => {
     throw error;
   }
 };
+
 
 export const deletePlace = async (districtId,subPlaceId) => {
   try {

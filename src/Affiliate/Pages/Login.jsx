@@ -191,8 +191,8 @@ export default function AffiliateAuth() {
                     required
                   >
                     <option value="Affiliate">Affiliate</option>
-                    <option value="Broker">Broker</option>
-                    <option value="Employee">Employee</option>
+                    {/* <option value="Broker">Broker</option>
+                    <option value="Employee">Employee</option> */}
                   </select>
                 )}
 

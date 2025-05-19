@@ -13,9 +13,9 @@ const AddProperty = () => {
   const [formData, setFormData] = useState({
     property_type: '',
     property_price: '',
-    price_per_cent: '', // New field
+    price_per_cent: '',
     area: '',
-    carpet_area: '', // New field
+    carpet_area: '',
     whats_nearby: '',
     buildIn: '',
     cent: '',
@@ -24,11 +24,13 @@ const AddProperty = () => {
     baths: '',
     car_parking: '',
     car_access: 'no',
-    floor: '', // New field
-    road_frontage: '', // New field
+    floor: '',
+    road_frontage: '',
     description: '',
     address: '',
     zipcode: '',
+    isFeatured: false,
+    isLatest: false
   });
   // Separate state for coordinates
   const [coordinates, setCoordinates] = useState({
@@ -123,7 +125,7 @@ const AddProperty = () => {
       toast.error("User not authenticated. Please login again.");
       return;
     }
-    // Make sure coordinates are available
+
     if (!coordinates.latitude || !coordinates.longitude) {
       toast.error("Location coordinates not available. Please set your coordinates.");
       return;
@@ -132,13 +134,18 @@ const AddProperty = () => {
     // Prepare FormData
     const formDataToSend = new FormData();
     formDataToSend.append('user_id', user_id);
-    // Append all form data
+
+    // Append all form data including the new fields
     Object.entries(formData).forEach(([key, value]) => {
-      formDataToSend.append(key, value);
+      // For boolean values, convert to string
+      if (typeof value === 'boolean') {
+        formDataToSend.append(key, value.toString());
+      } else {
+        formDataToSend.append(key, value);
+      }
     });
 
-    // IMPORTANT: Match exactly how Postman sends coordinates
-    // Method 1: Try sending as a JSON string exactly as shown in your successful example
+    // Append coordinates
     formDataToSend.append('coordinates[latitude]', coordinates.latitude);
     formDataToSend.append('coordinates[longitude]', coordinates.longitude);
 
@@ -220,7 +227,7 @@ const AddProperty = () => {
         ];
       case 'Agriculture land':
       case 'Commercial land':
-        case 'Other':
+      case 'Other':
         return [
           ...commonFields,
           // { name: 'price_per_cent', label: 'Price per Cent', placeholder: '₹ 100000', type: 'text' },
@@ -367,6 +374,37 @@ const AddProperty = () => {
                 value={formData.zipcode}
                 onChange={handleChange}
               />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            {/* Featured Property Toggle */}
+            <div className="flex items-center">
+              <label className="block text-sm font-medium mr-4">Featured Property</label>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="isFeatured"
+                  checked={formData.isFeatured}
+                  onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+
+            {/* Latest Property Toggle */}
+            <div className="flex items-center">
+              <label className="block text-sm font-medium mr-4">Latest Property</label>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="isLatest"
+                  checked={formData.isLatest}
+                  onChange={(e) => setFormData({ ...formData, isLatest: e.target.checked })}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
             </div>
           </div>
 

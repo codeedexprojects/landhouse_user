@@ -1,38 +1,79 @@
 import { useState } from 'react';
 import { Phone } from 'lucide-react';
 import image1 from "../assets/Sign up.png";
-import { loginUser } from '../services/allApi/userAllApi';
+import { sendLoginOTP, verifyLoginOTP, resendOTP } from '../services/allApi/userAllApi';
 import { useNavigate } from 'react-router-dom';
 
 export default function LandouseLoginForm() {
-  const [formData, setFormData] = useState({ phoneNumber: '' });
+  const [formData, setFormData] = useState({ 
+    phoneNumber: '',
+    otp: ''
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const navigate = useNavigate()
+  const [step, setStep] = useState(1); // 1 = phone input, 2 = OTP input
+  const [canResend, setCanResend] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({ phoneNumber: e.target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSendOTP = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    setSuccess('');
-
+    
     try {
-      const data = await loginUser(formData.phoneNumber);
+      await sendLoginOTP(formData.phoneNumber);
+      setStep(2);
+      setSuccess('OTP sent successfully!');
+      
+      // Enable resend button after 30 seconds
+      setTimeout(() => setCanResend(true), 30000);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  const handleVerifyOTP = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    
+    try {
+      const data = await verifyLoginOTP(formData.phoneNumber, formData.otp);
+      
       // Save required data
       localStorage.setItem('token', data.token);
       localStorage.setItem('userId', data.user._id);
       localStorage.setItem('referralId', data.user.referralId);
 
       setSuccess('Login successful!');
-      navigate('/properties')
+      navigate('/properties');
     } catch (err) {
-      setError(err.message || 'Something went wrong');
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendOTP = async () => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      await resendOTP(formData.phoneNumber, 'login');
+      setSuccess('OTP resent successfully!');
+      setCanResend(false);
+      
+      // Enable resend button after 30 seconds
+      setTimeout(() => setCanResend(true), 30000);
+    } catch (err) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -56,32 +97,66 @@ export default function LandouseLoginForm() {
                 <a href="/register" className="ml-2 text-white font-medium hover:underline">Create Account</a>
               </p>
             </div>
+            
             {error && <p className="text-red-500 mb-4">{error}</p>}
             {success && <p className="text-green-500 mb-4">{success}</p>}
 
-            <form onSubmit={handleSubmit} className="w-full">
-              <div className="mb-4 relative">
-                <input
-                  type="tel"
-                  name="phoneNumber"
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                  placeholder="Phone Number"
-                  className="w-full p-3 pl-4 pr-10 bg-black/20 backdrop-blur-sm border border-white/30 rounded text-white placeholder-white/70"
-                  required
-                />
-                <Phone className="absolute right-3 top-3 h-5 w-5 text-white/70" />
-              </div>
+            <form onSubmit={step === 1 ? handleSendOTP : handleVerifyOTP} className="w-full">
+              {step === 1 ? (
+                <div className="mb-4 relative">
+                  <input
+                    type="tel"
+                    name="phoneNumber"
+                    value={formData.phoneNumber}
+                    onChange={handleChange}
+                    placeholder="Phone Number"
+                    className="w-full p-3 pl-4 pr-10 bg-black/20 backdrop-blur-sm border border-white/30 rounded text-white placeholder-white/70"
+                    required
+                  />
+                  <Phone className="absolute right-3 top-3 h-5 w-5 text-white/70" />
+                </div>
+              ) : (
+                <>
+                  <div className="mb-4 relative">
+                    <input
+                      type="text"
+                      name="otp"
+                      value={formData.otp}
+                      onChange={handleChange}
+                      placeholder="Enter OTP"
+                      className="w-full p-3 pl-4 pr-10 bg-black/20 backdrop-blur-sm border border-white/30 rounded text-white placeholder-white/70"
+                      required
+                    />
+                    <p className="text-white text-sm mt-1">OTP sent to {formData.phoneNumber}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleResendOTP}
+                    disabled={!canResend || loading}
+                    className="text-white text-sm mb-4 hover:underline disabled:opacity-50"
+                  >
+                    Didn't receive OTP? Resend
+                  </button>
+                </>
+              )}
 
               <button
                 type="submit"
                 disabled={loading}
                 className="w-full bg-white text-blue-600 font-medium p-3 rounded hover:bg-blue-50 transition duration-200"
               >
-                {loading ? 'Logging in...' : 'Login'}
+                {loading ? 'Processing...' : step === 1 ? 'Send OTP' : 'Verify OTP'}
               </button>
 
-              <div className="h-6"></div>
+              {step === 2 && (
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="w-full mt-2 text-white font-medium p-3 rounded hover:underline"
+                >
+                  Change Phone Number
+                </button>
+              )}
             </form>
           </div>
         </div>

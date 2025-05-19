@@ -2,18 +2,33 @@ import React, { useEffect, useState } from 'react';
 import { addSubPlace, fetchDistricts, deletePlace } from '../../services/allApi/adminAllApis';
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Trash2 } from 'lucide-react';
+import { Trash2, Plus, X } from 'lucide-react';
 
 const SubPlaceManager = () => {
   const [districts, setDistricts] = useState([]);
   const [selectedDistrictId, setSelectedDistrictId] = useState('');
   const [subPlaceName, setSubPlaceName] = useState('');
+  const [nearPlaces, setNearPlaces] = useState([]);
+  const [availableSubPlaces, setAvailableSubPlaces] = useState([]);
+  const [selectedNearPlace, setSelectedNearPlace] = useState('');
   const [loading, setLoading] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
     loadDistricts();
   }, []);
+
+  useEffect(() => {
+    if (selectedDistrictId) {
+      const district = districts.find(d => d._id === selectedDistrictId);
+      if (district) {
+        setAvailableSubPlaces(district.subPlaces);
+      }
+    } else {
+      setAvailableSubPlaces([]);
+    }
+    setNearPlaces([]);
+  }, [selectedDistrictId, districts]);
 
   const loadDistricts = async () => {
     try {
@@ -23,6 +38,17 @@ const SubPlaceManager = () => {
       console.error('Error loading districts:', error);
       toast.error("Failed to load districts");
     }
+  };
+
+  const handleAddNearPlace = () => {
+    if (selectedNearPlace && !nearPlaces.includes(selectedNearPlace)) {
+      setNearPlaces([...nearPlaces, selectedNearPlace]);
+      setSelectedNearPlace('');
+    }
+  };
+
+  const handleRemoveNearPlace = (placeToRemove) => {
+    setNearPlaces(nearPlaces.filter(place => place !== placeToRemove));
   };
 
   const handleAddSubPlace = async (e) => {
@@ -38,10 +64,20 @@ const SubPlaceManager = () => {
 
     try {
       setLoading(true);
-      await addSubPlace({ districtId: selectedDistrictId, subPlaceName });
+      // Prepare the request data
+      const requestData = {
+        districtId: selectedDistrictId,
+        subPlaceName,
+        nearPlaces
+      };
+
+      console.log("Sending data:", requestData); // Debug log
+
+      await addSubPlace(requestData);
       toast.success("Sub-place added successfully!");
       setSubPlaceName('');
-      await loadDistricts(); // Refresh data
+      setNearPlaces([]);
+      await loadDistricts();
     } catch (error) {
       console.error('Error adding sub-place:', error);
       toast.error(error.response?.data?.message || "Failed to add sub-place");
@@ -108,7 +144,7 @@ const SubPlaceManager = () => {
 
           {/* Add Sub-place Form */}
           <form onSubmit={handleAddSubPlace} className="mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div className="grid grid-cols-1 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-2">Sub-place Name</label>
                 <input
@@ -119,6 +155,61 @@ const SubPlaceManager = () => {
                   placeholder="Enter sub-place name"
                 />
               </div>
+
+              {/* Near Places Section */}
+              <div>
+                <label className="block text-sm font-medium mb-2">Nearby Places</label>
+                <div className="flex gap-2 mb-2">
+                  <select
+                    value={selectedNearPlace}
+                    onChange={(e) => setSelectedNearPlace(e.target.value)}
+                    className="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled={availableSubPlaces.length === 0}
+                  >
+                    <option value="">-- Select nearby place --</option>
+                    {availableSubPlaces
+                      .filter(sp => sp.name !== subPlaceName) // Exclude current sub-place name
+                      .map((place) => (
+                        <option key={place._id} value={place.name}>
+                          {place.name}
+                        </option>
+                      ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={handleAddNearPlace}
+                    disabled={!selectedNearPlace}
+                    className="bg-blue-100 text-blue-600 px-3 py-2 rounded-md hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center"
+                  >
+                    <Plus size={16} className="mr-1" /> Add
+                  </button>
+                </div>
+
+                {/* Selected Near Places */}
+                {nearPlaces.length > 0 && (
+                  <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
+                    <h4 className="text-sm font-medium mb-2">Selected Nearby Places:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {nearPlaces.map((place, index) => (
+                        <div
+                          key={index}
+                          className="bg-white px-3 py-1 rounded-full border border-gray-200 flex items-center"
+                        >
+                          <span>{place}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveNearPlace(place)}
+                            className="ml-2 text-gray-400 hover:text-red-500"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div>
                 <button
                   type="submit"
@@ -137,15 +228,15 @@ const SubPlaceManager = () => {
               <h3 className="text-lg font-medium mb-4">
                 Sub-places in {getSelectedDistrict()?.name}
               </h3>
-              
+
               {getSelectedDistrict()?.subPlaces.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {getSelectedDistrict()?.subPlaces.map((place) => (
-                    <div 
+                    <div
                       key={place._id}
                       className="bg-gray-50 p-3 rounded-md border border-gray-200 hover:bg-gray-100 transition-colors"
                     >
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center mb-2">
                         <span className="font-medium">{place.name}</span>
                         <button
                           onClick={() => handleDeleteSubPlace(selectedDistrictId, place._id)}
@@ -160,6 +251,23 @@ const SubPlaceManager = () => {
                           )}
                         </button>
                       </div>
+
+                      {/* Display near places */}
+                      {place.nearPlaces?.length > 0 && (
+                        <div className="mt-2 pt-2 border-t border-gray-200">
+                          <h4 className="text-xs font-medium text-gray-500 mb-1">Nearby Places:</h4>
+                          <div className="flex flex-wrap gap-1">
+                            {place.nearPlaces.map((nearPlace, index) => (
+                              <span
+                                key={index}
+                                className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded"
+                              >
+                                {nearPlace.name}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

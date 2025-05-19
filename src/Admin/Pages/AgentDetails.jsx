@@ -437,10 +437,11 @@ function AgentDetails() {
 
           <div className="w-32 h-32 rounded-full bg-gray-200 overflow-hidden mb-2">
             <img
-              src={vendor.profileImage ? `${BASE_URL}${vendor.profileImage}` : profile}
+              src={vendor.profileImage ? vendor.profileImage.replace(/\\/g, '/') : profile}
               alt={vendor.name}
               className="w-full h-full object-cover"
             />
+
           </div>
 
           <h2 className="text-xl font-semibold mt-2">{vendor.name}</h2>
@@ -647,10 +648,11 @@ function AgentDetails() {
             >
               <div className="relative">
                 <img
-                  src={property.photos && property.photos.length > 0 ? `${BASE_URL}${property.photos[0]}` : house1}
+                  src={property.photos && property.photos.length > 0 ? property.photos[0] : house1}
                   alt={property.property_type}
                   className="w-full h-40 object-cover"
                 />
+
                 <div className="absolute top-2 left-2 bg-[#EAF2FF] text-xs text-gray-600 font-semibold px-2 py-1 rounded">
                   Price: ₹{property.property_price.toLocaleString()}
                 </div>

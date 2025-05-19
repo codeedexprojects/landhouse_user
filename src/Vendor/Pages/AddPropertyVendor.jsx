@@ -8,29 +8,31 @@ import { addPropertyVendor, fetchVendorDistricts } from '../../services/allApi/v
 
 function AddPropertyVendor() {
 
- const navigate = useNavigate();
+  const navigate = useNavigate();
 
   // Consolidated formData without coordinates
   const [formData, setFormData] = useState({
-      property_type: '',
-      property_price: '',
-      price_per_cent: '', // New field
-      area: '',
-      carpet_area: '', // New field
-      whats_nearby: '',
-      buildIn: '',
-      cent: '',
-      maxrooms: '',
-      beds: '',
-      baths: '',
-      car_parking: '', 
-      car_access: 'no',
-      floor: '', // New field
-      road_frontage: '', // New field
-      description: '',
-      address: '',
-      zipcode: '',
-    });
+    property_type: '',
+    property_price: '',
+    price_per_cent: '', // New field
+    area: '',
+    carpet_area: '', // New field
+    whats_nearby: '',
+    buildIn: '',
+    cent: '',
+    maxrooms: '',
+    beds: '',
+    baths: '',
+    car_parking: '',
+    car_access: 'no',
+    floor: '', // New field
+    road_frontage: '', // New field
+    description: '',
+    address: '',
+    zipcode: '',
+    isFeatured: false,
+    isLatest: false
+  });
 
   // Separate state for coordinates
   const [coordinates, setCoordinates] = useState({
@@ -45,18 +47,18 @@ function AddPropertyVendor() {
   const [places, setPlaces] = useState([])
 
 
-  useEffect(()=>{
- const getPlaces = async ()=>{
-  try{
-    const data = await fetchVendorDistricts();
-    setPlaces(data)
-  }catch (err){
-  console.error("failed to load places", err);
+  useEffect(() => {
+    const getPlaces = async () => {
+      try {
+        const data = await fetchVendorDistricts();
+        setPlaces(data)
+      } catch (err) {
+        console.error("failed to load places", err);
 
-  }
-  
- }
- getPlaces()
+      }
+
+    }
+    getPlaces()
   }, [])
 
   // Handle file uploads
@@ -79,7 +81,7 @@ function AddPropertyVendor() {
             latitude: lat,
             longitude: lng
           });
-          
+
           toast.info("Location coordinates obtained successfully");
         },
         (error) => {
@@ -116,7 +118,7 @@ function AddPropertyVendor() {
     console.log("Form submission started");
 
     // Validate required fields
-    if (!formData.property_type || !formData.property_price  || !formData.address || !formData.zipcode) {
+    if (!formData.property_type || !formData.property_price || !formData.address || !formData.zipcode) {
       toast.error("Required fields are missing");
       return;
     }
@@ -140,11 +142,10 @@ function AddPropertyVendor() {
       formDataToSend.append(key, value);
     });
 
-    // IMPORTANT: Match exactly how Postman sends coordinates
     // Method 1: Try sending as a JSON string exactly as shown in your successful example
     formDataToSend.append('coordinates[latitude]', coordinates.latitude);
     formDataToSend.append('coordinates[longitude]', coordinates.longitude);
-    
+
     console.log("Coordinates being sent:", coordinates.latitude, coordinates.longitude);
 
     // Append files
@@ -222,7 +223,7 @@ function AddPropertyVendor() {
         ];
       case 'Agriculture land':
       case 'Commercial land':
-        case 'Other':
+      case 'Other':
         return [
           ...commonFields,
           // { name: 'price_per_cent', label: 'Price per Cent', placeholder: '₹ 100000', type: 'text' },
@@ -274,7 +275,7 @@ function AddPropertyVendor() {
   };
 
 
- return (
+  return (
     <div className="p-4 bg-blue-100 min-h-screen">
       {/* Breadcrumb */}
       <div className="bg-white p-3 rounded-md shadow-sm mb-4">
@@ -292,7 +293,7 @@ function AddPropertyVendor() {
         </div>
 
         <form onSubmit={handleSubmit} className="p-4">
-         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Property Type */}
             <div>
               <label className="block text-sm font-medium mb-2">Property Type</label>
@@ -369,6 +370,37 @@ function AddPropertyVendor() {
                 value={formData.zipcode}
                 onChange={handleChange}
               />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            {/* Featured Property Toggle */}
+            <div className="flex items-center">
+              <label className="block text-sm font-medium mr-4">Featured Property</label>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="isFeatured"
+                  checked={formData.isFeatured}
+                  onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+
+            {/* Latest Property Toggle */}
+            <div className="flex items-center">
+              <label className="block text-sm font-medium mr-4">Latest Property</label>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="isLatest"
+                  checked={formData.isLatest}
+                  onChange={(e) => setFormData({ ...formData, isLatest: e.target.checked })}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
             </div>
           </div>
 
@@ -500,7 +532,7 @@ function AddPropertyVendor() {
           {/* Submit Button */}
           <div className="mt-8 flex justify-end">
             <button
-            
+
               type="submit"
               className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >

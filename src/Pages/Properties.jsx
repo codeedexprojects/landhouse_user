@@ -65,6 +65,7 @@ const [priceInput, setPriceInput] = useState("");
   // share link function
 
   const shareOnFacebook = () => {
+<<<<<<< HEAD
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
       referralLink
     )}`;
@@ -83,6 +84,20 @@ const [priceInput, setPriceInput] = useState("");
       "Check out this property: " + referralLink
     )}`;
     window.open(whatsappUrl, "_blank");
+=======
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralLink)}`;
+    window.open(facebookUrl, '_blank');
+  };
+
+  const shareOnTwitter = () => {
+    const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(referralLink)}&text=Check out this property!`;
+    window.open(twitterUrl, '_blank');
+  };
+
+  const shareOnWhatsApp = () => {
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent("Check out this property: " + referralLink)}`;
+    window.open(whatsappUrl, '_blank');
+>>>>>>> 3c720406c8bc9be193e6771077f13993e164e4bb
   };
 
   const handlePriceClick = () => {
@@ -515,15 +530,15 @@ if (priceInput) {
             propertyTypeFilter ||
             placeFilter ||
             subPlaceFilter) && (
-            <div className="flex justify-center md:justify-start mt-4">
-              <button
-                onClick={clearAllFilters}
-                className="px-4 py-2 border bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
-              >
-                Clear All Filters
-              </button>
-            </div>
-          )}
+              <div className="flex justify-center md:justify-start mt-4">
+                <button
+                  onClick={clearAllFilters}
+                  className="px-4 py-2 border bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+                >
+                  Clear All Filters
+                </button>
+              </div>
+            )}
         </div>
 
         {/* Active filters display */}
@@ -534,59 +549,60 @@ if (priceInput) {
           propertyTypeFilter ||
           placeFilter ||
           subPlaceFilter) && (
-          <div className="mb-4">
-            <div className="flex flex-wrap gap-2">
-              {searchTerm && (
-                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-                  Search: {searchTerm}
-                  <button
-                    onClick={() => setSearchTerm("")}
-                    className="ml-1 text-blue-500 hover:text-blue-700"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
+            <div className="mb-4">
+              <div className="flex flex-wrap gap-2">
+                {searchTerm && (
+                  <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
+                    Search: {searchTerm}
+                    <button
+                      onClick={() => setSearchTerm("")}
+                      className="ml-1 text-blue-500 hover:text-blue-700"
+                    >
+                      ×
+                    </button>
+                  </span>
+                )}
 
-              {placeFilter && (
-                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-                  Location:{" "}
-                  {places.find((p) => p._id === placeFilter)?.name || ""}
-                  <button
-                    onClick={() => setPlaceFilter("")}
-                    className="ml-1 text-blue-500 hover:text-blue-700"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
+                {placeFilter && (
+                  <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
+                    Location:{" "}
+                    {places.find((p) => p._id === placeFilter)?.name || ""}
+                    <button
+                      onClick={() => setPlaceFilter("")}
+                      className="ml-1 text-blue-500 hover:text-blue-700"
+                    >
+                      ×
+                    </button>
+                  </span>
+                )}
 
-              {subPlaceFilter && (
-                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-                  Area:{" "}
-                  {availableSubPlaces.find((sp) => sp._id === subPlaceFilter)
-                    ?.name || ""}
-                  <button
-                    onClick={() => setSubPlaceFilter("")}
-                    className="ml-1 text-blue-500 hover:text-blue-700"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
+                {subPlaceFilter && (
+                  <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
+                    Area:{" "}
+                    {availableSubPlaces.find((sp) => sp._id === subPlaceFilter)
+                      ?.name || ""}
+                    <button
+                      onClick={() => setSubPlaceFilter("")}
+                      className="ml-1 text-blue-500 hover:text-blue-700"
+                    >
+                      ×
+                    </button>
+                  </span>
+                )}
 
-              {propertyTypeFilter && (
-                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-                  Type: {propertyTypeFilter}
-                  <button
-                    onClick={() => setPropertyTypeFilter("")}
-                    className="ml-1 text-blue-500 hover:text-blue-700"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
+                {propertyTypeFilter && (
+                  <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
+                    Type: {propertyTypeFilter}
+                    <button
+                      onClick={() => setPropertyTypeFilter("")}
+                      className="ml-1 text-blue-500 hover:text-blue-700"
+                    >
+                      ×
+                    </button>
+                  </span>
+                )}
 
+<<<<<<< HEAD
              {priceInput && (
   <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
     Price ≤ ₹{parseInt(priceInput).toLocaleString()}
@@ -610,22 +626,57 @@ if (priceInput) {
                   </button>
                 </span>
               )}
+=======
+                {priceRangeFilter && (
+                  <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
+                    Price:{" "}
+                    {priceRangeFilter === "under50"
+                      ? "Under ₹50L"
+                      : priceRangeFilter === "50to100"
+                        ? "₹50L - ₹1Cr"
+                        : priceRangeFilter === "100to200"
+                          ? "₹1Cr - ₹2Cr"
+                          : priceRangeFilter === "200to500"
+                            ? "₹2Cr - ₹5Cr"
+                            : "Over ₹5Cr"}
+                    <button
+                      onClick={() => setPriceRangeFilter("")}
+                      className="ml-1 text-blue-500 hover:text-blue-700"
+                    >
+                      ×
+                    </button>
+                  </span>
+                )}
 
-              {bathsFilter && (
-                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-                  {bathsFilter}{" "}
-                  {parseInt(bathsFilter) === 1 ? "Bathroom" : "Bathrooms"}
-                  <button
-                    onClick={() => setBathsFilter("")}
-                    className="ml-1 text-blue-500 hover:text-blue-700"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
+                {bedsFilter && (
+                  <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
+                    {bedsFilter}{" "}
+                    {parseInt(bedsFilter) === 1 ? "Bedroom" : "Bedrooms"}
+                    <button
+                      onClick={() => setBedsFilter("")}
+                      className="ml-1 text-blue-500 hover:text-blue-700"
+                    >
+                      ×
+                    </button>
+                  </span>
+                )}
+>>>>>>> 3c720406c8bc9be193e6771077f13993e164e4bb
+
+                {bathsFilter && (
+                  <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
+                    {bathsFilter}{" "}
+                    {parseInt(bathsFilter) === 1 ? "Bathroom" : "Bathrooms"}
+                    <button
+                      onClick={() => setBathsFilter("")}
+                      className="ml-1 text-blue-500 hover:text-blue-700"
+                    >
+                      ×
+                    </button>
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* Property count */}
         {filteredProperties.length > 0 && (
@@ -662,22 +713,19 @@ if (priceInput) {
               {/* Property Image */}
               <div className="relative">
                 <img
-                  src={`https://landouse-backend.onrender.com/${property.photos[0]?.replace(
-                    /\\/g,
-                    "/"
-                  )}`}
+                  src={property.photos[0] ? property.photos[0].replace(/\\/g, "/") : "/placeholder-property.jpg"}
                   alt={property.property_type}
                   className="w-full h-36 object-cover"
                 />
+
                 <div
                   className="absolute top-2 left-2 bg-[#EAF2FF] text-xs text-gray-600 font-semibold px-2 py-1 rounded cursor-pointer hover:bg-[#D5E3FF]"
                   onClick={handlePriceClick}
                 >
                   {localStorage.getItem("userId") &&
-                  localStorage.getItem("token")
-                    ? `Price: ₹${
-                        property.property_price?.toLocaleString() || "N/A"
-                      }`
+                    localStorage.getItem("token")
+                    ? `Price: ₹${property.property_price?.toLocaleString() || "N/A"
+                    }`
                     : "Login to view Price"}
                 </div>
                 <div className="absolute top-2 right-2 flex space-x-2">
@@ -751,9 +799,8 @@ if (priceInput) {
                 <div className="flex justify-end">
                   <button
                     onClick={() => handleViewClick(property._id)}
-                    className={`px-3 py-1 bg-[#5A85BFB2] text-white text-sm rounded hover:bg-indigo-700 transition-colors ${
-                      isLoading ? "opacity-75 cursor-not-allowed" : ""
-                    }`}
+                    className={`px-3 py-1 bg-[#5A85BFB2] text-white text-sm rounded hover:bg-indigo-700 transition-colors ${isLoading ? "opacity-75 cursor-not-allowed" : ""
+                      }`}
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -794,10 +841,14 @@ if (priceInput) {
       {showShareModal && (
         <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4">
           <div className="bg-white p-6 rounded-xl max-w-md w-full relative shadow-xl animate-fade-in">
+<<<<<<< HEAD
             <button
               onClick={() => setShowShareModal(false)}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
             >
+=======
+            <button onClick={() => setShowShareModal(false)} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors">
+>>>>>>> 3c720406c8bc9be193e6771077f13993e164e4bb
               <FaTimes className="text-lg" />
             </button>
 
@@ -805,12 +856,17 @@ if (priceInput) {
               <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
                 <FaShareAlt className="text-blue-600" />
               </div>
+<<<<<<< HEAD
               <h3 className="text-xl font-bold text-gray-900 mb-2">
                 Share Property
               </h3>
               <p className="text-gray-600 mb-4">
                 Share this property with friends and family
               </p>
+=======
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Share Property</h3>
+              <p className="text-gray-600 mb-4">Share this property with friends and family</p>
+>>>>>>> 3c720406c8bc9be193e6771077f13993e164e4bb
             </div>
 
             <div className="relative mb-6">
@@ -853,6 +909,7 @@ if (priceInput) {
               </button>
             </div>
 
+<<<<<<< HEAD
             {/* QR code section */}
             <div className="flex justify-center mb-4">
               <div className="p-4 border rounded-lg bg-gray-50">
@@ -860,6 +917,14 @@ if (priceInput) {
                 <p className="text-xs text-gray-500 text-center mt-2">
                   Scan to open this link
                 </p>
+=======
+
+            {/* QR code section */}
+            <div className="flex justify-center mb-4">
+              <div className="p-4 border rounded-lg bg-gray-50">
+                <QRCode value={referralLink || ''} size={128} />
+                <p className="text-xs text-gray-500 text-center mt-2">Scan to open this link</p>
+>>>>>>> 3c720406c8bc9be193e6771077f13993e164e4bb
               </div>
             </div>
 

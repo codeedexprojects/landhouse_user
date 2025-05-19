@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Mail, User, Phone, Lock } from 'lucide-react';
 import image1 from "../assets/Sign up.png";
 import { useLocation, useNavigate } from 'react-router-dom';
-import { registerUser } from '../services/allApi/userAllApi';
+import { sendRegistrationOTP, verifyRegistrationOTP, resendOTP } from '../services/allApi/userAllApi';
 import { Toast } from '../Components/Toast';
 
 export default function LandouseSignupForm() {
@@ -13,37 +13,30 @@ export default function LandouseSignupForm() {
     email: '',
     address: '',
     invitationCode: '',
+    otp: '',
     agreeToTerms: false,
   });
 
+  const [step, setStep] = useState(1); // 1 = form, 2 = OTP
+  const [loading, setLoading] = useState(false);
+  const [canResend, setCanResend] = useState(false);
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const [toast, setToast] = useState({ message: '', type: '' });
-  const referrerId = queryParams.get('referrerId');
   const referralCode = queryParams.get('referralCode');
   const productId = queryParams.get('productId');
-  const navigate=useNavigate()
+  const navigate = useNavigate();
+
   useEffect(() => {
-      const params = new URLSearchParams(location.search);
-      const productId = params.get('productId');
-  
-      const userId = localStorage.getItem('userId');
-      const token = localStorage.getItem('token');
-      const referralCode = localStorage.getItem('referralId');
-  
-      // Check if user is already registered/logged in
-      if (userId && token && referralCode) {
-        if (productId) {
-          // Redirect to product single page
-          navigate(`/single/${productId}`);
-        } else {
-          // If no productId, fallback to dashboard or home
-          navigate('/');
-        }
-      }
-  
-      // Else → stay on register page
-    }, [location, navigate]);
+    const params = new URLSearchParams(location.search);
+    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('token');
+    const referralCode = localStorage.getItem('referralId');
+
+    if (userId && token && referralCode) {
+      navigate(productId ? `/single/${productId}` : '/');
+    }
+  }, [location, navigate, productId]);
 
   useEffect(() => {
     if (referralCode) {
@@ -59,7 +52,7 @@ export default function LandouseSignupForm() {
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSendOTP = async (e) => {
     e.preventDefault();
 
     if (!formData.agreeToTerms) {
@@ -67,33 +60,53 @@ export default function LandouseSignupForm() {
       return;
     }
 
-    const payload = {
-      ...formData,
-      productId: productId || null,
-    };
+    setLoading(true);
+    try {
+      await sendRegistrationOTP(formData.phoneNumber);
+      setStep(2);
+      setToast({ message: 'OTP sent successfully!', type: 'success' });
+      setTimeout(() => setCanResend(true), 30000);
+    } catch (error) {
+      setToast({ message: error.message, type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendOTP = async () => {
+    setLoading(true);
+    try {
+      await resendOTP(formData.phoneNumber, 'registration');
+      setToast({ message: 'OTP resent successfully!', type: 'success' });
+      setCanResend(false);
+      setTimeout(() => setCanResend(true), 30000);
+    } catch (error) {
+      setToast({ message: error.message, type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCompleteRegistration = async (e) => {
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      const data = await registerUser(payload);
+      const data = await verifyRegistrationOTP(formData, formData.otp);
       localStorage.setItem('token', data.token);
       localStorage.setItem('userId', data.userId);
       localStorage.setItem('referralId', data.referralCode);
       setToast({ message: data.message, type: 'success' });
-      console.log('Registered user:', data.user);
 
       setTimeout(() => {
-        if (productId) {
-          navigate(`/single/${productId}`);
-        } else {
-          navigate('/');
-        }
-      }, 1500); // give the toast ~1.5s before navigating
-
+        navigate(productId ? `/single/${productId}` : '/');
+      }, 1500);
     } catch (error) {
-      setToast({ message: error.message || 'Registration failed.', type: 'error' });
-      console.error('Error:', error);
+      setToast({ message: error.message, type: 'error' });
+    } finally {
+      setLoading(false);
     }
   };
-  
 
   return (
     <div className="min-h-screen w-full bg-blue-50 overflow-auto">
@@ -117,112 +130,155 @@ export default function LandouseSignupForm() {
             <div className="mb-6">
               <p className="text-black mb-1">
                 Already A Member?
-                <a href="#" className="ml-2 text-white font-medium hover:underline">Log in</a>
+                <a href="/login" className="ml-2 text-white font-medium hover:underline">Log in</a>
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="w-full">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div className="relative">
-                  <input
-                    type="text"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    placeholder="First Name"
-                    className="w-full p-3 pl-4 pr-10 bg-black/20 backdrop-blur-sm border border-white/30 rounded text-white placeholder-white/70"
-                    required
-                  />
-                  <User className="absolute right-3 top-3 h-5 w-5 text-white/70" />
-                </div>
+            <form onSubmit={step === 1 ? handleSendOTP : handleCompleteRegistration} className="w-full">
+              {step === 1 ? (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        placeholder="First Name"
+                        className="w-full p-3 pl-4 pr-10 bg-black/20 backdrop-blur-sm border border-white/30 rounded text-white placeholder-white/70"
+                        required
+                      />
+                      <User className="absolute right-3 top-3 h-5 w-5 text-white/70" />
+                    </div>
 
-                <div className="relative">
-                  <input
-                    type="text"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    placeholder="Last Name"
-                    className="w-full p-3 pl-4 pr-10 bg-black/20 backdrop-blur-sm border border-white/30 rounded text-white placeholder-white/70"
-                    required
-                  />
-                  <User className="absolute right-3 top-3 h-5 w-5 text-white/70" />
-                </div>
-              </div>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        placeholder="Last Name"
+                        className="w-full p-3 pl-4 pr-10 bg-black/20 backdrop-blur-sm border border-white/30 rounded text-white placeholder-white/70"
+                        required
+                      />
+                      <User className="absolute right-3 top-3 h-5 w-5 text-white/70" />
+                    </div>
+                  </div>
 
-              <div className="mb-4 relative">
-                <input
-                  type="tel"
-                  name="phoneNumber"
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                  placeholder="Phone Number"
-                  className="w-full p-3 pl-4 pr-10 bg-black/20 backdrop-blur-sm border border-white/30 rounded text-white placeholder-white/70"
-                  required
-                />
-                <Phone className="absolute right-3 top-3 h-5 w-5 text-white/70" />
-              </div>
+                  <div className="mb-4 relative">
+                    <input
+                      type="tel"
+                      name="phoneNumber"
+                      value={formData.phoneNumber}
+                      onChange={handleChange}
+                      placeholder="Phone Number"
+                      className="w-full p-3 pl-4 pr-10 bg-black/20 backdrop-blur-sm border border-white/30 rounded text-white placeholder-white/70"
+                      required
+                    />
+                    <Phone className="absolute right-3 top-3 h-5 w-5 text-white/70" />
+                  </div>
 
-              <div className="mb-4 relative">
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="Email (Optional)"
-                  className="w-full p-3 pl-4 pr-10 bg-black/20 backdrop-blur-sm border border-white/30 rounded text-white placeholder-white/70"
-                />
-                <Mail className="absolute right-3 top-3 h-5 w-5 text-white/70" />
-              </div>
+                  <div className="mb-4 relative">
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="Email (Optional)"
+                      className="w-full p-3 pl-4 pr-10 bg-black/20 backdrop-blur-sm border border-white/30 rounded text-white placeholder-white/70"
+                    />
+                    <Mail className="absolute right-3 top-3 h-5 w-5 text-white/70" />
+                  </div>
 
-              <div className="mb-4 relative">
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  placeholder="Address (Optional)"
-                  className="w-full p-3 pl-4 pr-10 bg-black/20 backdrop-blur-sm border border-white/30 rounded text-white placeholder-white/70"
-                />
-                <Lock className="absolute right-3 top-3 h-5 w-5 text-white/70" />
-              </div>
+                  <div className="mb-4 relative">
+                    <input
+                      type="text"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleChange}
+                      placeholder="Address (Optional)"
+                      className="w-full p-3 pl-4 pr-10 bg-black/20 backdrop-blur-sm border border-white/30 rounded text-white placeholder-white/70"
+                    />
+                    <Lock className="absolute right-3 top-3 h-5 w-5 text-white/70" />
+                  </div>
 
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="relative">
-                  <input
-                    type="text"
-                    name="invitationCode"
-                    value={formData.invitationCode}
-                    onChange={handleChange}
-                    placeholder="Invitation Code (Optional)"
-                    className="w-full p-3 pl-4 pr-10 bg-black/20 backdrop-blur-sm border border-white/30 rounded text-white placeholder-white/70"
-                  />
-                </div>
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        name="invitationCode"
+                        value={formData.invitationCode}
+                        onChange={handleChange}
+                        placeholder="Invitation Code (Optional)"
+                        className="w-full p-3 pl-4 pr-10 bg-black/20 backdrop-blur-sm border border-white/30 rounded text-white placeholder-white/70"
+                      />
+                    </div>
 
-                <button
-                  type="submit"
-                  className="w-full bg-white text-blue-600 font-medium p-3 rounded hover:bg-blue-50 transition duration-200"
-                >
-                  Create Account
-                </button>
-              </div>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full bg-white text-blue-600 font-medium p-3 rounded hover:bg-blue-50 transition duration-200"
+                    >
+                      {loading ? 'Sending OTP...' : 'Send OTP'}
+                    </button>
+                  </div>
 
-              <div className="flex items-center mb-6">
-                <input
-                  type="checkbox"
-                  id="agreeToTerms"
-                  name="agreeToTerms"
-                  checked={formData.agreeToTerms}
-                  onChange={handleChange}
-                  className="mr-2 h-4 w-4"
-                  required
-                />
-                <label htmlFor="agreeToTerms" className="text-white text-sm">
-                  I agree with your <a href="#" className="underline">Terms & Conditions</a>
-                </label>
-              </div>
+                  <div className="flex items-center mb-6">
+                    <input
+                      type="checkbox"
+                      id="agreeToTerms"
+                      name="agreeToTerms"
+                      checked={formData.agreeToTerms}
+                      onChange={handleChange}
+                      className="mr-2 h-4 w-4"
+                      required
+                    />
+                    <label htmlFor="agreeToTerms" className="text-white text-sm">
+                      I agree with your <a href="#" className="underline">Terms & Conditions</a>
+                    </label>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="mb-4 relative">
+                    <input
+                      type="text"
+                      name="otp"
+                      value={formData.otp}
+                      onChange={handleChange}
+                      placeholder="Enter OTP"
+                      className="w-full p-3 pl-4 pr-10 bg-black/20 backdrop-blur-sm border border-white/30 rounded text-white placeholder-white/70"
+                      required
+                    />
+                    <p className="text-white text-sm mt-1">OTP sent to {formData.phoneNumber}</p>
+                  </div>
 
-              <div className="h-6"></div>
+                  <button
+                    type="button"
+                    onClick={handleResendOTP}
+                    disabled={!canResend || loading}
+                    className="text-white text-sm mb-4 hover:underline disabled:opacity-50"
+                  >
+                    Didn't receive OTP? Resend
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-white text-blue-600 font-medium p-3 rounded hover:bg-blue-50 transition duration-200 mb-4"
+                  >
+                    {loading ? 'Verifying...' : 'Verify OTP & Register'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    className="w-full text-white font-medium p-3 rounded hover:underline"
+                  >
+                    Back to Form
+                  </button>
+                </>
+              )}
             </form>
           </div>
         </div>

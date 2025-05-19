@@ -31,7 +31,8 @@ export default function AdminProfile() {
             number: data.admin.number,
             profileImage: null
           });
-          setPreviewImage(data.admin.profileImage ? `${BASE_URL}/${data.admin.profileImage}` : '/api/placeholder/130/130');
+         setPreviewImage(data.admin.profileImage ? data.admin.profileImage : '/api/placeholder/130/130');
+
         }
       } catch (error) {
         console.error('Error fetching admin profile:', error);
