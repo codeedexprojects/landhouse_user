@@ -158,7 +158,6 @@ function Home() {
     window.scrollTo(0, 0);
   }
 
-  //share link functions
 
   const shareOnFacebook = () => {
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralLink)}`;
@@ -175,6 +174,123 @@ function Home() {
     window.open(whatsappUrl, '_blank');
   };
 
+  const PropertyCard = ({
+    property,
+    handlePriceClick,
+    toggleWishlist,
+    loadingFavorites,
+    wishlist,
+    handleShare,
+    handleViewClick,
+    isLoading,
+    setShowLoginModal
+  }) => (
+    <div
+      className="border rounded-lg shadow-sm overflow-hidden w-full max-w-[360px] mx-auto relative"
+      style={{ backgroundColor: "#E7F1FF" }}
+      data-aos="fade-up"
+    >
+      {/* Property Image */}
+      <div className="relative">
+        <img
+          src={property.photos[0] ? property.photos[0].replace(/\\/g, "/") : "/placeholder-property.jpg"}
+          alt={property.property_type}
+          className="w-full h-36 object-cover"
+        />
+
+        <div
+          className="absolute top-2 left-2 bg-[#EAF2FF] text-xs text-gray-600 font-semibold px-2 py-1 rounded cursor-pointer hover:bg-[#D5E3FF]"
+          onClick={handlePriceClick}
+        >
+          {localStorage.getItem('userId') && localStorage.getItem('token') ? (
+            `Price: ₹${property.property_price?.toLocaleString() || 'N/A'}`
+          ) : (
+            'Login to view Price'
+          )}
+        </div>
+        <div className="absolute top-2 right-2 flex space-x-2">
+          {/* Favorite Button */}
+          <button
+            onClick={() => {
+              const isLoggedIn = localStorage.getItem('userId') && localStorage.getItem('token');
+              if (!isLoggedIn) {
+                setShowLoginModal(true);
+                return;
+              }
+              toggleWishlist(property._id);
+            }}
+            className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
+            disabled={loadingFavorites}
+          >
+            {loadingFavorites ? (
+              <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+            ) : (
+              <FaHeart
+                className={
+                  wishlist.includes(property._id)
+                    ? 'text-red-500 fill-current'
+                    : 'text-gray-500'
+                }
+                size={14}
+              />
+            )}
+          </button>
+
+          {/* Share Button */}
+          <button
+            onClick={() => {
+              const isLoggedIn = localStorage.getItem('userId') && localStorage.getItem('token');
+              if (!isLoggedIn) {
+                setShowLoginModal(true);
+                return;
+              }
+              handleShare(property._id);
+            }}
+            className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
+          >
+            <FaShareAlt className="text-gray-500" size={14} />
+          </button>
+        </div>
+      </div>
+
+      {/* Property Details */}
+      <div className="p-3 space-y-2">
+        <h2 className="text-sm font-semibold text-gray-700">{property.property_type} - {property.productCode || "No code provided"}</h2>
+        <div className="text-sm text-gray-500 flex flex-wrap gap-1">
+          {property.beds && <span>{property.beds} Beds</span>}
+          {property.beds && property.baths && <span>|</span>}
+          {property.baths && <span>{property.baths} Baths</span>}
+          {(property.beds || property.baths) && property.area && <span>|</span>}
+          {property.area && <span>{property.area} sqft</span>}
+        </div>
+
+        <p className="text-sm text-gray-400 flex items-center gap-1">
+          <MdLocationOn className="text-base text-gray-400" />
+          {property.address}
+        </p>
+        <div className="flex justify-end">
+          <button
+            onClick={() => handleViewClick(property._id)}
+            className={`px-3 py-1 bg-[#5A85BFB2] text-white text-sm rounded hover:bg-indigo-700 transition-colors ${isLoading ? 'opacity-75 cursor-not-allowed' : ''
+              }`}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <span className="inline-flex items-center">
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Loading...
+              </span>
+            ) : (
+              'View Details'
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div>
@@ -216,11 +332,7 @@ function Home() {
 
 
         {/* Properties Section Heading */}
-        <div
-          className="mb-8 ms-5"
-          data-aos="fade-down"
-          data-aos-duration="1000"
-        >
+        <div className="mb-8 ms-5" data-aos="fade-down" data-aos-duration="1000">
           <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 text-gray-800">
             Best Properties Available
           </h3>
@@ -229,117 +341,74 @@ function Home() {
           </p>
         </div>
 
-        {/* Property Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {properties.map((property) => (
-            <div
-              key={property._id}
-              className="border rounded-lg shadow-sm overflow-hidden w-full max-w-[360px] mx-auto relative"
-              style={{ backgroundColor: "#E7F1FF" }}
-              data-aos="fade-up"
-            >
-              {/* Property Image */}
-              <div className="relative">
-                <img
-                  src={property.photos[0] ? property.photos[0].replace(/\\/g, "/") : "/placeholder-property.jpg"}
-                  alt={property.property_type}
-                  className="w-full h-36 object-cover"
+        {/* Latest Properties Section */}
+        <div className="mb-12">
+          <div className="mb-6 ms-5">
+            <h3 className="text-xl sm:text-2xl font-bold mb-2 text-gray-800">
+              Latest Properties
+            </h3>
+            <p className="text-sm text-gray-600">
+              Check out our newest additions to the property listings.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {properties
+              .filter(property => property.isLatest)
+              .slice(0, 3)
+              .map((property) => (
+                <PropertyCard
+                  key={property._id}
+                  property={property}
+                  handlePriceClick={handlePriceClick}
+                  toggleWishlist={toggleWishlist}
+                  loadingFavorites={loadingFavorites}
+                  wishlist={wishlist}
+                  handleShare={handleShare}
+                  handleViewClick={handleViewClick}
+                  isLoading={isLoading}
+                  setShowLoginModal={setShowLoginModal}
                 />
+              ))}
+          </div>
+        </div>
 
-                <div
-                  className="absolute top-2 left-2 bg-[#EAF2FF] text-xs text-gray-600 font-semibold px-2 py-1 rounded cursor-pointer hover:bg-[#D5E3FF]"
-                  onClick={handlePriceClick}
-                >
-                  {localStorage.getItem('userId') && localStorage.getItem('token') ? (
-                    `Price: ₹${property.property_price?.toLocaleString() || 'N/A'}`
-                  ) : (
-                    'Login to view Price'
-                  )}
-                </div>
-                <div className="absolute top-2 right-2 flex space-x-2">
-                  {/* Favorite Button */}
-                  <button
-                    onClick={() => {
-                      const isLoggedIn = localStorage.getItem('userId') && localStorage.getItem('token');
-                      if (!isLoggedIn) {
-                        setShowLoginModal(true);
-                        return;
-                      }
-                      toggleWishlist(property._id);
-                    }}
-                    className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
-                    disabled={loadingFavorites}
-                  >
-                    {loadingFavorites ? (
-                      <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
-                    ) : (
-                      <FaHeart
-                        className={
-                          wishlist.includes(property._id)
-                            ? 'text-red-500 fill-current'
-                            : 'text-gray-500'
-                        }
-                        size={14}
-                      />
-                    )}
-                  </button>
+        {/* Featured Properties Section */}
+        <div className="mb-12">
+          <div className="mb-6 ms-5">
+            <h3 className="text-xl sm:text-2xl font-bold mb-2 text-gray-800">
+              Featured Properties
+            </h3>
+            <p className="text-sm text-gray-600">
+              Our hand-picked selection of premium properties.
+            </p>
+          </div>
 
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {properties
+              .filter(property => property.isFeatured)
+              .slice(0, 3)
+              .map((property) => (
+                <PropertyCard
+                  key={property._id}
+                  property={property}
+                  handlePriceClick={handlePriceClick}
+                  toggleWishlist={toggleWishlist}
+                  loadingFavorites={loadingFavorites}
+                  wishlist={wishlist}
+                  handleShare={handleShare}
+                  handleViewClick={handleViewClick}
+                  isLoading={isLoading}
+                  setShowLoginModal={setShowLoginModal}
+                />
+              ))}
+          </div>
+        </div>
 
-                  {/* Share Button */}
-                  <button
-                    onClick={() => {
-                      const isLoggedIn = localStorage.getItem('userId') && localStorage.getItem('token');
-                      if (!isLoggedIn) {
-                        setShowLoginModal(true);
-                        return;
-                      }
-                      handleShare(property._id);
-                    }}
-                    className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
-                  >
-                    <FaShareAlt className="text-gray-500" size={14} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Property Details */}
-              <div className="p-3 space-y-2">
-                <h2 className="text-sm font-semibold text-gray-700">{property.property_type} - {property.productCode || "No code provided"}</h2>
-                <div className="text-sm text-gray-500 flex flex-wrap gap-1">
-                  {property.beds && <span>{property.beds} Beds</span>}
-                  {property.beds && property.baths && <span>|</span>}
-                  {property.baths && <span>{property.baths} Baths</span>}
-                  {(property.beds || property.baths) && property.area && <span>|</span>}
-                  {property.area && <span>{property.area} sqft</span>}
-                </div>
-
-                <p className="text-sm text-gray-400 flex items-center gap-1">
-                  <MdLocationOn className="text-base text-gray-400" />
-                  {property.address}
-                </p>
-                <div className="flex justify-end">
-                  <button
-                    onClick={() => handleViewClick(property._id)}
-                    className={`px-3 py-1 bg-[#5A85BFB2] text-white text-sm rounded hover:bg-indigo-700 transition-colors ${isLoading ? 'opacity-75 cursor-not-allowed' : ''
-                      }`}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <span className="inline-flex items-center">
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Loading...
-                      </span>
-                    ) : (
-                      'View Details'
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="flex justify-center mt-8">
+          <button className="px-6 py-2 bg-blue-500 hover:bg-blue-600 cursor-pointer rounded-sm text-[white]" onClick={handleShow}>
+            SHOW MORE
+          </button>
         </div>
         {showShareModal && (
           <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4">
@@ -410,13 +479,6 @@ function Home() {
             </div>
           </div>
         )}
-
-
-        <div className="flex justify-center mt-8">
-          <button className="px-6 py-2 bg-blue-500 hover:bg-blue-600 cursor-pointer rounded-sm text-[white]" onClick={handleShow}>
-            SHOW MORE
-          </button>
-        </div>
         <div className="bg-blue-50 min-h-screen mt-5">
           {/* Top Section */}
           <div className="max-w-6xl mx-auto p-6">

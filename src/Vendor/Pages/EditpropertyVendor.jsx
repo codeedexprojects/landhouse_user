@@ -32,7 +32,9 @@ function EditpropertyVendor() {
       zipcode: property?.zipcode || "",
       coordinates: property?.coordinates || { latitude: "", longitude: "" },
       private_note: property?.private_note || { heading: "", title: "" },
-      photos: property?.photos || []
+      photos: property?.photos || [],
+       isFeatured: property?.isFeatured || false,
+    isLatest: property?.isLatest || false
     });
   
     
@@ -274,9 +276,40 @@ function EditpropertyVendor() {
                 name="zipCode"
                 placeholder="Add your pincode"
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.zipCode}
+                value={formData.zipcode}
                 onChange={handleChange}
               />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            {/* Featured Property Toggle */}
+            <div className="flex items-center">
+              <label className="block text-sm font-medium mr-4">Featured Property</label>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="isFeatured"
+                  checked={formData.isFeatured}
+                  onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+
+            {/* Latest Property Toggle */}
+            <div className="flex items-center">
+              <label className="block text-sm font-medium mr-4">Latest Property</label>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="isLatest"
+                  checked={formData.isLatest}
+                  onChange={(e) => setFormData({ ...formData, isLatest: e.target.checked })}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
             </div>
           </div>
 
