@@ -53,6 +53,10 @@ const Properties = () => {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [availableSubPlaces, setAvailableSubPlaces] = useState([]);
   const [priceInput, setPriceInput] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+const [maxPrice, setMaxPrice] = useState("");
+const [showPriceModal, setShowPriceModal] = useState(false);
+
 
 
   const handleCopy = () => {
@@ -408,6 +412,7 @@ setPriceInput("");
           className={`${showMobileFilters ? "block" : "hidden"} md:block mb-8`}
         >
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+            
             {/* Place filter */}
             <div className="w-full">
               <select
@@ -459,7 +464,7 @@ setPriceInput("");
             </div>
 
            {/* Price filter input */}
-<div className="w-full">
+{/* <div className="w-full">
   <input
     type="number"
     placeholder="Enter max price"
@@ -467,7 +472,14 @@ setPriceInput("");
     value={priceInput}
     onChange={(e) => setPriceInput(e.target.value)}
   />
-</div>
+</div> */}
+<button
+  onClick={() => setShowPriceModal(true)}
+  className="px-4 py-2 border bg-white-100 text-black-700 rounded-md"
+>
+  Open Price Filter
+</button>
+
 
 
             {/* Beds filter */}
@@ -787,6 +799,50 @@ setPriceInput("");
         </div>
       </div>
       {/* ... (rest of your modal and footer code remains the same) */}
+
+{showPriceModal && (
+  <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-lg">
+      <h2 className="text-lg font-semibold text-gray-800 mb-4">Filter by Price</h2>
+      <div className="flex flex-col gap-3">
+        <input
+          type="number"
+          placeholder="From"
+          value={minPrice}
+          onChange={(e) => setMinPrice(e.target.value)}
+          className="px-3 py-2 border rounded-md"
+        />
+        <input
+          type="number"
+          placeholder="To"
+          value={maxPrice}
+          onChange={(e) => setMaxPrice(e.target.value)}
+          className="px-3 py-2 border rounded-md"
+        />
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={() => setShowPriceModal(false)}
+            className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-100"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              filterProperties();
+              setShowPriceModal(false);
+            }}
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          >
+            Apply Filter
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+
+
       {showShareModal && (
         <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4">
           <div className="bg-white p-6 rounded-xl max-w-md w-full relative shadow-xl animate-fade-in">
