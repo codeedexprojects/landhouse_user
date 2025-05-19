@@ -27,8 +27,7 @@ import "react-toastify/dist/ReactToastify.css";
 import LoginRequiredModal from "../Components/LoginRequired";
 import { Toast } from "../Components/Toast";
 import { fetchVendorDistricts } from "../services/allApi/vendorAllAPi";
-import QRCode from 'react-qr-code';
-
+import QRCode from "react-qr-code";
 
 const Properties = () => {
   const [wishlist, setWishlist] = useState([]);
@@ -43,7 +42,7 @@ const Properties = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [priceRangeFilter, setPriceRangeFilter] = useState("");
+  // const [priceRangeFilter, setPriceRangeFilter] = useState("");
   const [bedsFilter, setBedsFilter] = useState("");
   const [bathsFilter, setBathsFilter] = useState("");
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
@@ -53,6 +52,8 @@ const Properties = () => {
   const [subPlaceFilter, setSubPlaceFilter] = useState("");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [availableSubPlaces, setAvailableSubPlaces] = useState([]);
+  const [priceInput, setPriceInput] = useState("");
+
 
   const handleCopy = () => {
     navigator.clipboard.writeText(referralLink);
@@ -61,18 +62,24 @@ const Properties = () => {
   // share link function
 
   const shareOnFacebook = () => {
-    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralLink)}`;
-    window.open(facebookUrl, '_blank');
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+      referralLink
+    )}`;
+    window.open(facebookUrl, "_blank");
   };
 
   const shareOnTwitter = () => {
-    const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(referralLink)}&text=Check out this property!`;
-    window.open(twitterUrl, '_blank');
+    const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
+      referralLink
+    )}&text=Check out this property!`;
+    window.open(twitterUrl, "_blank");
   };
 
   const shareOnWhatsApp = () => {
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent("Check out this property: " + referralLink)}`;
-    window.open(whatsappUrl, '_blank');
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
+      "Check out this property: " + referralLink
+    )}`;
+    window.open(whatsappUrl, "_blank");
   };
 
   const handlePriceClick = () => {
@@ -109,12 +116,12 @@ const Properties = () => {
   }, [
     properties,
     searchTerm,
-    priceRangeFilter,
     bedsFilter,
     bathsFilter,
     propertyTypeFilter,
     placeFilter,
     subPlaceFilter,
+      priceInput,
   ]);
 
   useEffect(() => {
@@ -229,43 +236,13 @@ const Properties = () => {
     }
 
     // Apply price range filter
-    if (priceRangeFilter) {
-      switch (priceRangeFilter) {
-        case "under50":
-          filtered = filtered.filter(
-            (property) => (property.property_price || 0) < 5000000
-          );
-          break;
-        case "50to100":
-          filtered = filtered.filter(
-            (property) =>
-              (property.property_price || 0) >= 5000000 &&
-              (property.property_price || 0) < 10000000
-          );
-          break;
-        case "100to200":
-          filtered = filtered.filter(
-            (property) =>
-              (property.property_price || 0) >= 10000000 &&
-              (property.property_price || 0) < 20000000
-          );
-          break;
-        case "200to500":
-          filtered = filtered.filter(
-            (property) =>
-              (property.property_price || 0) >= 20000000 &&
-              (property.property_price || 0) < 50000000
-          );
-          break;
-        case "over500":
-          filtered = filtered.filter(
-            (property) => (property.property_price || 0) >= 50000000
-          );
-          break;
-        default:
-          break;
-      }
-    }
+   if (priceInput) {
+  const maxPrice = parseInt(priceInput);
+  filtered = filtered.filter((property) => {
+    const price = property.property_price || 0;
+    return price <= maxPrice;
+  });
+}
 
     // Apply beds filter
     if (bedsFilter) {
@@ -286,9 +263,9 @@ const Properties = () => {
     setSearchTerm(e.target.value);
   };
 
-  const handlePriceRangeFilterChange = (e) => {
-    setPriceRangeFilter(e.target.value);
-  };
+  // const handlePriceRangeFilterChange = (e) => {
+  //   setPriceRangeFilter(e.target.value);
+  // };
 
   const handleBedsFilterChange = (e) => {
     setBedsFilter(e.target.value);
@@ -300,7 +277,7 @@ const Properties = () => {
 
   const clearAllFilters = () => {
     setSearchTerm("");
-    setPriceRangeFilter("");
+setPriceInput("");
     setBedsFilter("");
     setBathsFilter("");
     setPropertyTypeFilter("");
@@ -481,21 +458,17 @@ const Properties = () => {
               </select>
             </div>
 
-            {/* Price range filter */}
-            <div className="w-full">
-              <select
-                className="w-full px-3 py-2 border rounded-md"
-                value={priceRangeFilter}
-                onChange={handlePriceRangeFilterChange}
-              >
-                <option value="">Price Range</option>
-                <option value="under50">Under ₹50L</option>
-                <option value="50to100">₹50L - ₹1Cr</option>
-                <option value="100to200">₹1Cr - ₹2Cr</option>
-                <option value="200to500">₹2Cr - ₹5Cr</option>
-                <option value="over500">Over ₹5Cr</option>
-              </select>
-            </div>
+           {/* Price filter input */}
+<div className="w-full">
+  <input
+    type="number"
+    placeholder="Enter max price"
+    className="w-full px-3 py-2 border rounded-md"
+    value={priceInput}
+    onChange={(e) => setPriceInput(e.target.value)}
+  />
+</div>
+
 
             {/* Beds filter */}
             <div className="w-full">
@@ -531,133 +504,124 @@ const Properties = () => {
 
           {/* Clear filters button */}
           {(searchTerm ||
-            priceRangeFilter ||
+            priceInput  ||
             bedsFilter ||
             bathsFilter ||
             propertyTypeFilter ||
             placeFilter ||
             subPlaceFilter) && (
-              <div className="flex justify-center md:justify-start mt-4">
-                <button
-                  onClick={clearAllFilters}
-                  className="px-4 py-2 border bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
-                >
-                  Clear All Filters
-                </button>
-              </div>
-            )}
+            <div className="flex justify-center md:justify-start mt-4">
+              <button
+                onClick={clearAllFilters}
+                className="px-4 py-2 border bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+              >
+                Clear All Filters
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Active filters display */}
         {(searchTerm ||
-          priceRangeFilter ||
+          priceInput  ||
           bedsFilter ||
           bathsFilter ||
           propertyTypeFilter ||
           placeFilter ||
           subPlaceFilter) && (
-            <div className="mb-4">
-              <div className="flex flex-wrap gap-2">
-                {searchTerm && (
-                  <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-                    Search: {searchTerm}
-                    <button
-                      onClick={() => setSearchTerm("")}
-                      className="ml-1 text-blue-500 hover:text-blue-700"
-                    >
-                      ×
-                    </button>
-                  </span>
-                )}
+          <div className="mb-4">
+            <div className="flex flex-wrap gap-2">
+              {searchTerm && (
+                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
+                  Search: {searchTerm}
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    className="ml-1 text-blue-500 hover:text-blue-700"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
 
-                {placeFilter && (
-                  <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-                    Location:{" "}
-                    {places.find((p) => p._id === placeFilter)?.name || ""}
-                    <button
-                      onClick={() => setPlaceFilter("")}
-                      className="ml-1 text-blue-500 hover:text-blue-700"
-                    >
-                      ×
-                    </button>
-                  </span>
-                )}
+              {placeFilter && (
+                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
+                  Location:{" "}
+                  {places.find((p) => p._id === placeFilter)?.name || ""}
+                  <button
+                    onClick={() => setPlaceFilter("")}
+                    className="ml-1 text-blue-500 hover:text-blue-700"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
 
-                {subPlaceFilter && (
-                  <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-                    Area:{" "}
-                    {availableSubPlaces.find((sp) => sp._id === subPlaceFilter)
-                      ?.name || ""}
-                    <button
-                      onClick={() => setSubPlaceFilter("")}
-                      className="ml-1 text-blue-500 hover:text-blue-700"
-                    >
-                      ×
-                    </button>
-                  </span>
-                )}
+              {subPlaceFilter && (
+                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
+                  Area:{" "}
+                  {availableSubPlaces.find((sp) => sp._id === subPlaceFilter)
+                    ?.name || ""}
+                  <button
+                    onClick={() => setSubPlaceFilter("")}
+                    className="ml-1 text-blue-500 hover:text-blue-700"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
 
-                {propertyTypeFilter && (
-                  <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-                    Type: {propertyTypeFilter}
-                    <button
-                      onClick={() => setPropertyTypeFilter("")}
-                      className="ml-1 text-blue-500 hover:text-blue-700"
-                    >
-                      ×
-                    </button>
-                  </span>
-                )}
+              {propertyTypeFilter && (
+                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
+                  Type: {propertyTypeFilter}
+                  <button
+                    onClick={() => setPropertyTypeFilter("")}
+                    className="ml-1 text-blue-500 hover:text-blue-700"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
 
-                {priceRangeFilter && (
-                  <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-                    Price:{" "}
-                    {priceRangeFilter === "under50"
-                      ? "Under ₹50L"
-                      : priceRangeFilter === "50to100"
-                        ? "₹50L - ₹1Cr"
-                        : priceRangeFilter === "100to200"
-                          ? "₹1Cr - ₹2Cr"
-                          : priceRangeFilter === "200to500"
-                            ? "₹2Cr - ₹5Cr"
-                            : "Over ₹5Cr"}
-                    <button
-                      onClick={() => setPriceRangeFilter("")}
-                      className="ml-1 text-blue-500 hover:text-blue-700"
-                    >
-                      ×
-                    </button>
-                  </span>
-                )}
+             {priceInput && (
+  <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
+    Price ≤ ₹{parseInt(priceInput).toLocaleString()}
+    <button
+      onClick={() => setPriceInput("")}
+      className="ml-1 text-blue-500 hover:text-blue-700"
+    >
+      ×
+    </button>
+  </span>
+)}
 
-                {bedsFilter && (
-                  <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-                    {bedsFilter}{" "}
-                    {parseInt(bedsFilter) === 1 ? "Bedroom" : "Bedrooms"}
-                    <button
-                      onClick={() => setBedsFilter("")}
-                      className="ml-1 text-blue-500 hover:text-blue-700"
-                    >
-                      ×
-                    </button>
-                  </span>
-                )}
+              {bedsFilter && (
+                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
+                  {bedsFilter}{" "}
+                  {parseInt(bedsFilter) === 1 ? "Bedroom" : "Bedrooms"}
+                  <button
+                    onClick={() => setBedsFilter("")}
+                    className="ml-1 text-blue-500 hover:text-blue-700"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
 
-                {bathsFilter && (
-                  <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-                    {bathsFilter}{" "}
-                    {parseInt(bathsFilter) === 1 ? "Bathroom" : "Bathrooms"}
-                    <button
-                      onClick={() => setBathsFilter("")}
-                      className="ml-1 text-blue-500 hover:text-blue-700"
-                    >
-                      ×
-                    </button>
-                  </span>
-                )}
-              </div>
+              {bathsFilter && (
+                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
+                  {bathsFilter}{" "}
+                  {parseInt(bathsFilter) === 1 ? "Bathroom" : "Bathrooms"}
+                  <button
+                    onClick={() => setBathsFilter("")}
+                    className="ml-1 text-blue-500 hover:text-blue-700"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
             </div>
-          )}
+          </div>
+        )}
 
         {/* Property count */}
         {filteredProperties.length > 0 && (
@@ -694,19 +658,22 @@ const Properties = () => {
               {/* Property Image */}
               <div className="relative">
                 <img
-                  src={property.photos[0] ? property.photos[0].replace(/\\/g, "/") : "/placeholder-property.jpg"}
+                  src={`https://landouse-backend.onrender.com/${property.photos[0]?.replace(
+                    /\\/g,
+                    "/"
+                  )}`}
                   alt={property.property_type}
                   className="w-full h-36 object-cover"
                 />
-
                 <div
                   className="absolute top-2 left-2 bg-[#EAF2FF] text-xs text-gray-600 font-semibold px-2 py-1 rounded cursor-pointer hover:bg-[#D5E3FF]"
                   onClick={handlePriceClick}
                 >
                   {localStorage.getItem("userId") &&
-                    localStorage.getItem("token")
-                    ? `Price: ₹${property.property_price?.toLocaleString() || "N/A"
-                    }`
+                  localStorage.getItem("token")
+                    ? `Price: ₹${
+                        property.property_price?.toLocaleString() || "N/A"
+                      }`
                     : "Login to view Price"}
                 </div>
                 <div className="absolute top-2 right-2 flex space-x-2">
@@ -780,8 +747,9 @@ const Properties = () => {
                 <div className="flex justify-end">
                   <button
                     onClick={() => handleViewClick(property._id)}
-                    className={`px-3 py-1 bg-[#5A85BFB2] text-white text-sm rounded hover:bg-indigo-700 transition-colors ${isLoading ? "opacity-75 cursor-not-allowed" : ""
-                      }`}
+                    className={`px-3 py-1 bg-[#5A85BFB2] text-white text-sm rounded hover:bg-indigo-700 transition-colors ${
+                      isLoading ? "opacity-75 cursor-not-allowed" : ""
+                    }`}
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -822,7 +790,10 @@ const Properties = () => {
       {showShareModal && (
         <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4">
           <div className="bg-white p-6 rounded-xl max-w-md w-full relative shadow-xl animate-fade-in">
-            <button onClick={() => setShowShareModal(false)} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors">
+            <button
+              onClick={() => setShowShareModal(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
+            >
               <FaTimes className="text-lg" />
             </button>
 
@@ -830,8 +801,12 @@ const Properties = () => {
               <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
                 <FaShareAlt className="text-blue-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Share Property</h3>
-              <p className="text-gray-600 mb-4">Share this property with friends and family</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                Share Property
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Share this property with friends and family
+              </p>
             </div>
 
             <div className="relative mb-6">
@@ -874,12 +849,13 @@ const Properties = () => {
               </button>
             </div>
 
-
             {/* QR code section */}
             <div className="flex justify-center mb-4">
               <div className="p-4 border rounded-lg bg-gray-50">
-                <QRCode value={referralLink || ''} size={128} />
-                <p className="text-xs text-gray-500 text-center mt-2">Scan to open this link</p>
+                <QRCode value={referralLink || ""} size={128} />
+                <p className="text-xs text-gray-500 text-center mt-2">
+                  Scan to open this link
+                </p>
               </div>
             </div>
 
