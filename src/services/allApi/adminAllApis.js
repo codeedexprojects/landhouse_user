@@ -582,7 +582,7 @@ export const addSubPlace = async ({ districtId, subPlaceName, nearPlaces }) => {
       { 
         districtId, 
         subPlaceName, 
-        nearPlaces // This should be an array of strings
+        nearPlaces 
       },
       {
         headers: {

@@ -47,6 +47,7 @@ const SubPlaceManager = () => {
     }
   };
 
+
   const handleRemoveNearPlace = (placeToRemove) => {
     setNearPlaces(nearPlaces.filter(place => place !== placeToRemove));
   };

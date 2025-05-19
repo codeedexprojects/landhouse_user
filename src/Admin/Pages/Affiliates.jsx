@@ -1,7 +1,7 @@
 import { ArrowLeft, ArrowRight, Download, Eye } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAffiliates, updateAffiliate, getRecentAffliateUsers } from '../../services/allApi/adminAllApis';
+import { getAffiliates, updateAffiliate, getRecentAffliateUsers, } from '../../services/allApi/adminAllApis';
 import { toast } from 'react-hot-toast';
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -20,6 +20,9 @@ export default function Affiliates() {
   const [referredUsers, setReferredUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [selectedAffiliate, setSelectedAffiliate] = useState(null);
+  const [selectedAffiliateId, setSelectedAffiliateId] = useState(null);
+  const [editingUserId, setEditingUserId] = useState(null);
+  const [userEditAmount, setUserEditAmount] = useState('');
 
   const handleAddAffliates = () => {
     navigate('/admin/create-coupon');
@@ -43,10 +46,24 @@ export default function Affiliates() {
   const handleViewUsers = async (id, name) => {
     setLoadingUsers(true);
     setSelectedAffiliate(name);
+    setSelectedAffiliateId(id);
     try {
       const response = await getRecentAffliateUsers(id);
       if (response && response.referredUsers) {
-        setReferredUsers(response.referredUsers);
+        // Find the current affiliate to get userAmounts
+        const currentAffiliate = affiliatesData.find(a => a._id === id);
+
+        // Enhance users with their assigned amounts if available
+        const enhancedUsers = response.referredUsers.map(user => {
+          const userAmount = currentAffiliate?.userAmounts?.[user._id] || 0;
+
+          return {
+            ...user,
+            assignedAmount: userAmount
+          };
+        });
+
+        setReferredUsers(enhancedUsers);
         setShowModal(true);
       } else {
         toast.error('Failed to fetch referred users');
@@ -69,7 +86,7 @@ export default function Affiliates() {
 
   const handleEditClick = (id, currentAmount) => {
     setEditingId(id);
-    setEditAmount(currentAmount);
+    setEditAmount(currentAmount || '');
   };
 
   const handleAmountChange = (e) => {
@@ -125,6 +142,67 @@ export default function Affiliates() {
   const handleCancelClick = () => {
     setEditingId(null);
     setEditAmount('');
+  };
+
+  // New function to handle editing a specific user's amount
+  const handleEditUserAmount = (userId, currentAmount) => {
+    setEditingUserId(userId);
+    setUserEditAmount(currentAmount || '');
+  };
+
+  // New function to handle canceling edit of user amount
+  const handleCancelUserEdit = () => {
+    setEditingUserId(null);
+    setUserEditAmount('');
+  };
+
+  // New function to save a specific user's amount
+  const handleSaveUserAmount = async (userId) => {
+    if (!userEditAmount || isNaN(userEditAmount)) {
+      toast.error('Please enter a valid amount');
+      return;
+    }
+
+    try {
+      // Make API call to update specific user amount
+      const response = await updateAffiliate(selectedAffiliateId, {
+        userId,
+        amount: Number(userEditAmount)
+      });
+
+      if (response) {
+        // Update referred users list with new amount
+        setReferredUsers(prev =>
+          prev.map(user =>
+            user._id === userId ? { ...user, assignedAmount: Number(userEditAmount) } : user
+          )
+        );
+
+        // Update the main affiliates data with new total
+        if (response.details && response.affiliate) {
+          setAffiliatesData(prev =>
+            prev.map(item =>
+              item._id === selectedAffiliateId ? {
+                ...item,
+                amount: response.details.totalAffiliatePayout,
+                userAmounts: {
+                  ...item.userAmounts,
+                  [userId]: Number(userEditAmount)
+                }
+              } : item
+            )
+          );
+        }
+
+        toast.success('User amount updated successfully');
+      }
+    } catch (error) {
+      toast.error('Failed to update user amount');
+      console.error('Update error:', error);
+    } finally {
+      setEditingUserId(null);
+      setUserEditAmount('');
+    }
   };
 
   const downloadAsPDF = () => {
@@ -208,8 +286,7 @@ export default function Affiliates() {
           <div className="font-medium">User count</div>
           <div className="font-medium">View Users</div>
           <div className="font-medium">Status</div>
-          
-          <div className="font-medium">Amount</div>
+          <div className="font-medium">Total Amount</div>
         </div>
 
         {/* Table Rows */}
@@ -233,58 +310,20 @@ export default function Affiliates() {
               <div>
                 <button
                   onClick={() => handleApprovalToggle(row._id, row.isApproved)}
-                  className={`px-3 py-1 rounded-md text-sm font-medium ${
-                    row.isApproved 
-                      ? 'bg-green-100 text-green-800 hover:bg-green-200' 
+                  className={`px-3 py-1 rounded-md text-sm font-medium ${row.isApproved
+                      ? 'bg-green-100 text-green-800 hover:bg-green-200'
                       : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
-                  }`}
+                    }`}
                 >
                   {row.isApproved ? 'Approved' : 'Pending'}
                 </button>
               </div>
-              
               <div>
-                {editingId === row._id ? (
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      value={editAmount}
-                      onChange={handleAmountChange}
-                      className="w-24 p-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300"
-                    />
-                    <button
-                      onClick={() => handleSaveClick(row._id)}
-                      className="p-1 text-green-600 hover:text-green-800"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={handleCancelClick}
-                      className="p-1 text-red-600 hover:text-red-800"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                      </svg>
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <span className="bg-green-100 text-green-800 px-4 py-2 rounded-md">
-                      ₹{row.amount || 0}
-                    </span>
-                    <button
-                      onClick={() => handleEditClick(row._id, row.amount)}
-                      className="p-1 text-blue-600 hover:text-blue-800"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                      </svg>
-                    </button>
-                  </div>
-                )}
+                <span className="bg-green-100 text-green-800 px-4 py-2 rounded-md">
+                  ₹{row.amount || 0}
+                </span>
               </div>
+
             </div>
           ))
         ) : (
@@ -319,8 +358,8 @@ export default function Affiliates() {
                   key={pageNumber}
                   onClick={() => paginate(pageNumber)}
                   className={`w-8 h-8 rounded-md ${currentPage === pageNumber
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-white text-gray-500'
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-white text-gray-500'
                     } flex items-center justify-center text-sm shadow-sm`}
                 >
                   {pageNumber}
@@ -333,8 +372,8 @@ export default function Affiliates() {
                 <button
                   onClick={() => paginate(totalPages)}
                   className={`w-8 h-8 rounded-md ${currentPage === totalPages
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-white text-gray-500'
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-white text-gray-500'
                     } flex items-center justify-center text-sm shadow-sm`}
                 >
                   {totalPages}
@@ -362,7 +401,7 @@ export default function Affiliates() {
       {/* Modal for viewing users */}
       {showModal && (
         <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium">
                 Users referred by {selectedAffiliate}
@@ -376,7 +415,7 @@ export default function Affiliates() {
                 </svg>
               </button>
             </div>
-            
+
             {loadingUsers ? (
               <div className="flex justify-center items-center h-40">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -391,6 +430,7 @@ export default function Affiliates() {
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Referral ID</th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined On</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -411,6 +451,48 @@ export default function Affiliates() {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {formatDate(user.createdAt)}
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          {editingUserId === user._id ? (
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="number"
+                                value={userEditAmount}
+                                onChange={(e) => setUserEditAmount(e.target.value)}
+                                className="w-20 p-1 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300"
+                              />
+                              <button
+                                onClick={() => handleSaveUserAmount(user._id)}
+                                className="p-1 text-green-600 hover:text-green-800"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                              </button>
+                              <button
+                                onClick={handleCancelUserEdit}
+                                className="p-1 text-red-600 hover:text-red-800"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                </svg>
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <span className="bg-green-100 text-green-800 px-3 py-1 rounded-md">
+                                ₹{user.assignedAmount || 0}
+                              </span>
+                              <button
+                                onClick={() => handleEditUserAmount(user._id, user.assignedAmount)}
+                                className="p-1 text-blue-600 hover:text-blue-800"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                </svg>
+                              </button>
+                            </div>
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -421,7 +503,7 @@ export default function Affiliates() {
                 No users found for this affiliate.
               </div>
             )}
-            
+
             <div className="mt-4 flex justify-end">
               <button
                 onClick={() => setShowModal(false)}

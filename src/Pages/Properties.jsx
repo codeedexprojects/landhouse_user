@@ -49,8 +49,10 @@ const Properties = () => {
   const [places, setPlaces] = useState([]);
   const [placeFilter, setPlaceFilter] = useState("");
   const [subPlaceFilter, setSubPlaceFilter] = useState("");
+  const [nearbyPlaceFilter, setNearbyPlaceFilter] = useState("");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [availableSubPlaces, setAvailableSubPlaces] = useState([]);
+  const [availableNearbyPlaces, setAvailableNearbyPlaces] = useState([]);
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [showPriceModal, setShowPriceModal] = useState(false);
@@ -59,7 +61,6 @@ const Properties = () => {
     navigator.clipboard.writeText(referralLink);
     setToastMessage("Link copied to clipboard!");
   };
-  // share link function
 
   const shareOnFacebook = () => {
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
@@ -121,6 +122,7 @@ const Properties = () => {
     propertyTypeFilter,
     placeFilter,
     subPlaceFilter,
+    nearbyPlaceFilter,
     minPrice,
     maxPrice,
   ]);
@@ -139,6 +141,23 @@ const Properties = () => {
       setSubPlaceFilter("");
     }
   }, [placeFilter, places]);
+
+  useEffect(() => {
+    if (subPlaceFilter) {
+      const selectedSubPlace = availableSubPlaces.find(
+        (subPlace) => subPlace._id === subPlaceFilter
+      );
+      if (selectedSubPlace) {
+        setAvailableNearbyPlaces(selectedSubPlace.nearPlaces || []);
+      } else {
+        setAvailableNearbyPlaces([]);
+      }
+      setNearbyPlaceFilter("");
+    } else {
+      setAvailableNearbyPlaces([]);
+      setNearbyPlaceFilter("");
+    }
+  }, [subPlaceFilter, availableSubPlaces]);
 
   const fetchPlaces = async () => {
     try {
@@ -189,86 +208,117 @@ const Properties = () => {
     setSubPlaceFilter(e.target.value);
   };
 
-  const filterProperties = () => {
-    let filtered = [...properties];
+  const handleNearbyPlaceFilterChange = (e) => {
+    setNearbyPlaceFilter(e.target.value);
+  };
 
-    // Apply search filter
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
+ const filterProperties = () => {
+  let filtered = [...properties];
+
+  // Apply search filter
+  if (searchTerm) {
+    const term = searchTerm.toLowerCase();
+    filtered = filtered.filter(
+      (property) =>
+        property.address?.toLowerCase().includes(term) ||
+        property.property_type?.toLowerCase().includes(term) ||
+        property.city?.toLowerCase().includes(term) ||
+        property.pincode?.toString().includes(term) ||
+        property.productCode?.toString().toLowerCase().includes(term)
+    );
+  }
+
+  // Apply property type filter
+  if (propertyTypeFilter) {
+    filtered = filtered.filter(
+      (property) => property.property_type === propertyTypeFilter
+    );
+  }
+
+  // Store selected places for later use in nearby filter
+  let selectedPlaceName = "";
+  let selectedSubPlaceName = "";
+  let selectedNearbyPlaceName = "";
+
+  // Apply place filters
+  if (placeFilter) {
+    const selectedPlace = places.find((place) => place._id === placeFilter);
+    if (selectedPlace) {
+      selectedPlaceName = selectedPlace.name;
       filtered = filtered.filter(
         (property) =>
-          property.address?.toLowerCase().includes(term) ||
-          property.property_type?.toLowerCase().includes(term) ||
-          property.city?.toLowerCase().includes(term) ||
-          property.pincode?.toString().includes(term) ||
-          property.productCode?.toString().toLowerCase().includes(term)
+          property.address?.includes(selectedPlace.name) ||
+          property.city?.includes(selectedPlace.name)
       );
     }
+  }
 
-    // Apply property type filter
-    if (propertyTypeFilter) {
-      filtered = filtered.filter(
-        (property) => property.property_type === propertyTypeFilter
+  // Apply subplace filter
+  if (subPlaceFilter) {
+    const selectedSubPlace = availableSubPlaces.find(
+      (subPlace) => subPlace._id === subPlaceFilter
+    );
+    if (selectedSubPlace) {
+      selectedSubPlaceName = selectedSubPlace.name;
+      filtered = filtered.filter((property) =>
+        property.address?.includes(selectedSubPlace.name)
       );
     }
+  }
 
-    // Apply place filters
-    if (placeFilter) {
-      const selectedPlace = places.find((place) => place._id === placeFilter);
-      if (selectedPlace) {
-        filtered = filtered.filter(
-          (property) =>
-            property.address?.includes(selectedPlace.name) ||
-            property.city?.includes(selectedPlace.name)
-        );
-      }
-    }
-
-    // Apply subplace filter
-    if (subPlaceFilter) {
-      const selectedSubPlace = availableSubPlaces.find(
-        (subPlace) => subPlace._id === subPlaceFilter
+  // Apply nearby place filter - MODIFIED LOGIC
+  if (nearbyPlaceFilter) {
+    const selectedNearbyPlace = availableNearbyPlaces.find(
+      (nearPlace) => nearPlace._id === nearbyPlaceFilter
+    );
+    if (selectedNearbyPlace) {
+      selectedNearbyPlaceName = selectedNearbyPlace.name;
+      
+      // Create a copy of the original properties (not the already filtered ones)
+      // to find properties that match the nearby place
+      const nearbyProperties = properties.filter((property) =>
+        property.address?.includes(selectedNearbyPlace.name)
       );
-      if (selectedSubPlace) {
-        filtered = filtered.filter((property) =>
-          property.address?.includes(selectedSubPlace.name)
-        );
-      }
+      
+      // Combine both filtered properties and nearby properties
+      filtered = [...filtered, ...nearbyProperties];
+      
+      // Remove duplicates if a property matches both criteria
+      filtered = filtered.filter((property, index, self) =>
+        index === self.findIndex((p) => p._id === property._id)
+      );
     }
+  }
 
-    // Apply price range filter
-    if (minPrice !== "" || maxPrice !== "") {
-      const min = minPrice !== "" ? parseInt(minPrice, 10) : 0;
-      const max = maxPrice !== "" ? parseInt(maxPrice, 10) : Infinity;
+  // Apply price range filter
+  if (minPrice !== "" || maxPrice !== "") {
+    const min = minPrice !== "" ? parseInt(minPrice, 10) : 0;
+    const max = maxPrice !== "" ? parseInt(maxPrice, 10) : Infinity;
 
-      filtered = filtered.filter((property) => {
-        const price = property.property_price || 0;
-        return price >= min && price <= max;
-      });
-    }
+    filtered = filtered.filter((property) => {
+      const price = property.property_price || 0;
+      return price >= min && price <= max;
+    });
+  }
 
-    // Apply beds filter
-    if (bedsFilter) {
-      const bedsCount = parseInt(bedsFilter);
-      filtered = filtered.filter((property) => property.beds === bedsCount);
-    }
+  // Apply beds filter
+  if (bedsFilter) {
+    const bedsCount = parseInt(bedsFilter);
+    filtered = filtered.filter((property) => property.beds === bedsCount);
+  }
 
-    // Apply baths filter
-    if (bathsFilter) {
-      const bathsCount = parseInt(bathsFilter);
-      filtered = filtered.filter((property) => property.baths === bathsCount);
-    }
+  // Apply baths filter
+  if (bathsFilter) {
+    const bathsCount = parseInt(bathsFilter);
+    filtered = filtered.filter((property) => property.baths === bathsCount);
+  }
 
-    setFilteredProperties(filtered);
-  };
+  setFilteredProperties(filtered);
+};
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
-
-  // const handlePriceRangeFilterChange = (e) => {
-  //   setPriceRangeFilter(e.target.value);
-  // };
 
   const handleBedsFilterChange = (e) => {
     setBedsFilter(e.target.value);
@@ -287,6 +337,7 @@ const Properties = () => {
     setPropertyTypeFilter("");
     setPlaceFilter("");
     setSubPlaceFilter("");
+    setNearbyPlaceFilter("");
     setShowMobileFilters(false);
   };
 
@@ -445,6 +496,23 @@ const Properties = () => {
               </select>
             </div>
 
+            {/* Nearby Places filter */}
+            <div className="w-full">
+              <select
+                className="w-full px-3 py-2 border rounded-md"
+                value={nearbyPlaceFilter}
+                onChange={handleNearbyPlaceFilterChange}
+                disabled={!subPlaceFilter || availableNearbyPlaces.length === 0}
+              >
+                <option value="">Select Nearby Area</option>
+                {availableNearbyPlaces.map((nearPlace) => (
+                  <option key={nearPlace._id} value={nearPlace._id}>
+                    {nearPlace.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Property type filter */}
             <div className="w-full">
               <select
@@ -463,7 +531,6 @@ const Properties = () => {
             </div>
 
             {/* Price filter input */}
-
             <button
               onClick={() => setShowPriceModal(true)}
               className="px-4 py-2 border bg-white-100 text-black-700 rounded-md"
@@ -511,7 +578,8 @@ const Properties = () => {
             bathsFilter ||
             propertyTypeFilter ||
             placeFilter ||
-            subPlaceFilter) && (
+            subPlaceFilter ||
+            nearbyPlaceFilter) && (
             <div className="flex justify-center md:justify-start mt-4">
               <button
                 onClick={clearAllFilters}
@@ -531,7 +599,8 @@ const Properties = () => {
           bathsFilter ||
           propertyTypeFilter ||
           placeFilter ||
-          subPlaceFilter) && (
+          subPlaceFilter ||
+          nearbyPlaceFilter) && (
           <div className="mb-4">
             <div className="flex flex-wrap gap-2">
               {searchTerm && (
@@ -566,6 +635,20 @@ const Properties = () => {
                     ?.name || ""}
                   <button
                     onClick={() => setSubPlaceFilter("")}
+                    className="ml-1 text-blue-500 hover:text-blue-700"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {nearbyPlaceFilter && (
+                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
+                  Nearby:{" "}
+                  {availableNearbyPlaces.find((np) => np._id === nearbyPlaceFilter)
+                    ?.name || ""}
+                  <button
+                    onClick={() => setNearbyPlaceFilter("")}
                     className="ml-1 text-blue-500 hover:text-blue-700"
                   >
                     ×
