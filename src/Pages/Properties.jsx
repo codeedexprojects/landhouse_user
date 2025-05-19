@@ -746,13 +746,11 @@ const Properties = () => {
               {/* Property Image */}
               <div className="relative">
                 <img
-                  src={`https://landouse-backend.onrender.com/${property.photos[0]?.replace(
-                    /\\/g,
-                    "/"
-                  )}`}
-                  alt={property.property_type}
-                  className="w-full h-36 object-cover"
-                />
+  src={property.photos[0]?.replace(/\\/g, "/")}
+  alt={property.property_type}
+  className="w-full h-36 object-cover"
+/>
+
                 <div
                   className="absolute top-2 left-2 bg-[#EAF2FF] text-xs text-gray-600 font-semibold px-2 py-1 rounded cursor-pointer hover:bg-[#D5E3FF]"
                   onClick={handlePriceClick}
