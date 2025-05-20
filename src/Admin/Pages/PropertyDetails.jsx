@@ -16,6 +16,11 @@ import {
   adminSoldOutAPI,
 } from "../../services/allApi/adminAllApis";
 import { Edit } from "lucide-react";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 function PropertyDetails() {
   const location = useLocation();
@@ -138,12 +143,28 @@ function PropertyDetails() {
       {/* Property Card */}
       <div className="rounded-lg overflow-hidden shadow-md bg-white">
         <div className="w-full">
-          <img
-            src={property.photos && property.photos[0]}
-            alt="Property"
-            className="w-full h-64 object-cover"
-          />
-
+          <Swiper
+            modules={[Navigation, Pagination]}
+            navigation
+            pagination={{ clickable: true }}
+            spaceBetween={20}
+            slidesPerView={1}
+            className="w-full h-64"  // Changed from h-96 to h-64 to match your original height
+          >
+            {property.photos?.map((photo, index) => (
+              <SwiperSlide key={index}>
+                <img
+                  src={photo}
+                  alt={`Property ${index + 1}`}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/placeholder-property.jpg";
+                  }}
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </div>
 
         <div className="p-6">

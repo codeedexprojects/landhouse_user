@@ -10,6 +10,11 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Edit } from "lucide-react";
 import { deletePropertyvendorAPI, vendorSoldOutAPI } from "../../services/allApi/vendorAllAPi";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 function PropertyDetailsVendor() {
   const location = useLocation();
@@ -101,13 +106,29 @@ function PropertyDetailsVendor() {
       {/* Property Card */}
       <div className="rounded-lg overflow-hidden shadow-md bg-white">
         <div className="w-full">
-          <img
-  src={property.photos && property.photos[0] ? property.photos[0].replace(/\\/g, "/") : "/placeholder-property.jpg"}
-  alt="Property"
-  className="w-full h-64 object-cover"
-/>
-
-        </div>
+                  <Swiper
+                    modules={[Navigation, Pagination]}
+                    navigation
+                    pagination={{ clickable: true }}
+                    spaceBetween={20}
+                    slidesPerView={1}
+                    className="w-full h-64"  // Changed from h-96 to h-64 to match your original height
+                  >
+                    {property.photos?.map((photo, index) => (
+                      <SwiperSlide key={index}>
+                        <img
+                          src={photo}
+                          alt={`Property ${index + 1}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "/placeholder-property.jpg";
+                          }}
+                        />
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                </div>
 
         <div className="p-6">
           <div className="flex justify-between items-start mb-4">
@@ -119,8 +140,8 @@ function PropertyDetailsVendor() {
               <button
                 onClick={() => setShowSoldOutModal(true)}
                 className={`px-4 py-1 rounded-md text-sm ${property?.soldOut
-                    ? "bg-yellow-500 text-white"
-                    : "bg-green-500 text-white"
+                  ? "bg-yellow-500 text-white"
+                  : "bg-green-500 text-white"
                   }`}
               >
                 {property?.soldOut ? "Mark as Available" : "Mark as Sold Out"}
@@ -147,10 +168,10 @@ function PropertyDetailsVendor() {
             <IoLocation className="text-blue-900" size={20} />
             <p>{property?.address}</p>
           </div>
-           <div className="flex items-center gap-2 mb-2 text-gray-700">
-                      <IoBarcode  className="text-blue-900" size={20} />
-                      <p> <b>Product Code :</b> {property?.productCode}</p>
-                    </div>
+          <div className="flex items-center gap-2 mb-2 text-gray-700">
+            <IoBarcode className="text-blue-900" size={20} />
+            <p> <b>Product Code :</b> {property?.productCode}</p>
+          </div>
           <div className="flex justify-end">
             <div className="w-fit">
               <a

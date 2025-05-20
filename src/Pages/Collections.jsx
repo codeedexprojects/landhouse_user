@@ -32,7 +32,7 @@ function Collections() {
           image: fav.propertyId.photos[0]
             ? fav.propertyId.photos[0].replace(/\\/g, "/")
             : 'default-image-path.jpg',
-          title: `${fav.propertyId.property_type || 'Property'} - ${fav.propertyId.maxrooms || 'N/A'} Rooms`,
+          title: `${fav.propertyId.property_type || 'Property'} `,
 
           beds: fav.propertyId.beds,
           baths: fav.propertyId.baths,

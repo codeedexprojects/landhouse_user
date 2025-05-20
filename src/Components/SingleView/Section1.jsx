@@ -6,16 +6,12 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import {
-  FaBed,
-  FaBath,
-  FaRulerCombined,
-  FaHeart,
-  FaShareAlt,
   FaTimes,
   FaFacebook,
   FaTwitter,
   FaWhatsapp,
   FaPhone,
+  FaExpand,
 } from "react-icons/fa";
 import {
   addToCompare,
@@ -25,7 +21,6 @@ import {
   deleteFavourite,
 } from "../../services/allApi/userAllApi";
 import { Toast } from "../Toast";
-import { FaBuilding } from "react-icons/fa";
 import QRCode from "react-qr-code";
 
 export default function SingleProperty() {
@@ -41,8 +36,10 @@ export default function SingleProperty() {
   const [referralLink, setReferralLink] = useState("");
   const [loadingFavorites, setLoadingFavorites] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const BASE_URL = "https://landouse-backend.onrender.com";
   const [showAll, setShowAll] = useState(false);
+  // New state for full image view
+  const [showFullImage, setShowFullImage] = useState(false);
+  const [fullImageSrc, setFullImageSrc] = useState("");
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -92,17 +89,14 @@ export default function SingleProperty() {
     try {
       setCompareLoading(true);
       const userId = localStorage.getItem("userId");
-
       if (!userId) {
         navigate("/login");
         return;
       }
-
       const reqBody = {
         userId: userId,
         propertyId: propertyId,
       };
-
       await addToCompare(reqBody);
       showToast("Property added to compare list!", "success");
       navigate("/compare");
@@ -112,8 +106,6 @@ export default function SingleProperty() {
         error.response?.data?.message ||
         error.message ||
         "Failed to add to compare";
-
-      // Special handling for the comparison limit message
       if (errorMessage.includes("Only two properties can be compared")) {
         showToast("Only two properties can be compared.", "error");
       } else {
@@ -133,9 +125,7 @@ export default function SingleProperty() {
         showToast("Please login to add favorites", "error");
         return;
       }
-
       const isFavorite = wishlist.includes(propertyId);
-
       if (isFavorite) {
         // REMOVE from wishlist
         await deleteFavourite(propertyId, { userId });
@@ -174,6 +164,20 @@ export default function SingleProperty() {
     setShowShareModal(true);
   };
 
+  // Function to open full image view
+  const openFullImage = (imgSrc) => {
+    setFullImageSrc(imgSrc);
+    setShowFullImage(true);
+    // Prevent body scrolling when modal is open
+    document.body.style.overflow = 'hidden';
+  };
+
+  // Function to close full image view
+  const closeFullImage = () => {
+    setShowFullImage(false);
+    // Restore body scrolling
+    document.body.style.overflow = 'auto';
+  };
 
   //share link functions
 
@@ -191,8 +195,6 @@ export default function SingleProperty() {
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent("Check out this property: " + referralLink)}`;
     window.open(whatsappUrl, '_blank');
   };
-
-
 
   const handleContactAgent = () => {
     if (!property || !property.created_by || !property.created_by.number) {
@@ -244,23 +246,35 @@ export default function SingleProperty() {
         >
           {property.photos.map((photo, index) => (
             <SwiperSlide key={index}>
-              <img
-                src={photo}
-                alt={`Property ${index + 1}`}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = "/placeholder-property.jpg";
-                }}
-              />
-
+              <div className="relative w-full h-full">
+                <img
+                  src={photo}
+                  alt={`Property ${index + 1}`}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/placeholder-property.jpg";
+                  }}
+                />
+                {/* Full image view button */}
+                <button
+                  className="cursor-pointer absolute bottom-4 right-4 p-2 bg-white bg-opacity-90 rounded-full shadow-md hover:bg-opacity-100 transition z-10"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openFullImage(photo);
+                  }}
+                  title="View full image"
+                >
+                  <FaExpand className="h-5 w-5 text-gray-700" />
+                </button>
+              </div>
             </SwiperSlide>
           ))}
         </Swiper>
 
         <div className="absolute top-4 right-4 flex space-x-2 z-10">
           <button
-            className="p-2 bg-white bg-opacity-90 rounded-full shadow-md hover:bg-opacity-100 transition"
+            className=" cursor-pointer p-2 bg-white bg-opacity-90 rounded-full shadow-md hover:bg-opacity-100 transition"
             onClick={() => {
               const isLoggedIn =
                 localStorage.getItem("userId") && localStorage.getItem("token");
@@ -288,7 +302,7 @@ export default function SingleProperty() {
           </button>
 
           <button
-            className="p-2 bg-white bg-opacity-90 rounded-full shadow-md hover:bg-opacity-100 transition"
+            className="cursor-pointer p-2 bg-white bg-opacity-90 rounded-full shadow-md hover:bg-opacity-100 transition"
             onClick={handleShare}
           >
             <svg
@@ -308,6 +322,34 @@ export default function SingleProperty() {
           </button>
         </div>
       </div>
+
+      {/* Full Image Modal */}
+      {showFullImage && (
+        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
+          <div className="relative w-full h-full flex items-center justify-center">
+            {/* Close button */}
+            <button
+              onClick={closeFullImage}
+              className="cursor-pointer absolute top-4 right-4 text-white hover:text-gray-300 z-20"
+            >
+              <FaTimes className="h-8 w-8" />
+            </button>
+            
+            {/* Full-sized image with responsive size while maintaining aspect ratio */}
+            <div className="max-w-full max-h-full overflow-auto">
+              <img
+                src={fullImageSrc}
+                alt="Full size property view"
+                className="max-w-full max-h-screen object-contain"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/placeholder-property.jpg";
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Share Modal */}
       {showShareModal && (
@@ -389,7 +431,6 @@ export default function SingleProperty() {
             </div>
 
             {/* QRCode */}
-
             <div className="flex justify-center mb-4">
               <div className="p-4 border rounded-lg bg-gray-50">
                 <QRCode value={referralLink} size={128} />

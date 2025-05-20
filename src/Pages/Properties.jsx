@@ -1,33 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { MdLocationOn } from "react-icons/md";
-import {
-  FaFacebook,
-  FaHeart,
-  FaShareAlt,
-  FaTimes,
-  FaTwitter,
-  FaWhatsapp,
-  FaSearch,
-  FaFilter,
-} from "react-icons/fa";
-import Header from "../Components/Header";
-import Footer from "../Components/Footer";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import {
-  getProperties,
-  addToFavorites,
-  getFavorites,
-  deleteFavourite,
-  fetchDistricts,
-} from "../services/allApi/userAllApi";
+import Header from "../Components/Header";
+import Footer from "../Components/Footer";
+import { getProperties, addToFavorites, getFavorites, deleteFavourite, fetchDistricts } from "../services/allApi/userAllApi";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import PropertyFilters from "../Components/Properties/PropertyFilters";
+import PropertyList from "../Components/Properties/PropertyList";
+import PriceFilterModal from "../Components/Properties/PriceFilterModal";
+import ShareModal from "../Components/Home/Section7";
 import LoginRequiredModal from "../Components/LoginRequired";
-import { Toast } from "../Components/Toast";
-import { fetchVendorDistricts } from "../services/allApi/vendorAllAPi";
-import QRCode from "react-qr-code";
+import Loader from "../Components/Loader";
 
 const Properties = () => {
   const [wishlist, setWishlist] = useState([]);
@@ -36,15 +21,12 @@ const Properties = () => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [referralLink, setReferralLink] = useState("");
   const [loadingFavorites, setLoadingFavorites] = useState(false);
-  const location = useLocation();
   const navigate = useNavigate();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [bedsFilter, setBedsFilter] = useState("");
   const [bathsFilter, setBathsFilter] = useState("");
-  const [toast, setToast] = useState({ show: false, message: "", type: "" });
   const [propertyTypeFilter, setPropertyTypeFilter] = useState("");
   const [places, setPlaces] = useState([]);
   const [placeFilter, setPlaceFilter] = useState("");
@@ -56,54 +38,7 @@ const Properties = () => {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [showPriceModal, setShowPriceModal] = useState(false);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(referralLink);
-    setToastMessage("Link copied to clipboard!");
-  };
-
-  const shareOnFacebook = () => {
-    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-      referralLink
-    )}`;
-    window.open(facebookUrl, "_blank");
-  };
-
-  const shareOnTwitter = () => {
-    const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-      referralLink
-    )}&text=Check out this property!`;
-    window.open(twitterUrl, "_blank");
-  };
-
-  const shareOnWhatsApp = () => {
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
-      "Check out this property: " + referralLink
-    )}`;
-    window.open(whatsappUrl, "_blank");
-  };
-
-  const handlePriceClick = () => {
-    const isLoggedIn =
-      localStorage.getItem("userId") && localStorage.getItem("token");
-    if (!isLoggedIn) {
-      setShowLoginModal(true);
-    }
-  };
-
-  const closeModal = () => setShowLoginModal(false);
-
-  const goToLogin = () => {
-    closeModal();
-    navigate("/login");
-  };
-
-  const showToast = (message, type) => {
-    setToast({ show: true, message, type });
-    setTimeout(() => {
-      setToast((prev) => ({ ...prev, show: false }));
-    }, 3000);
-  };
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     AOS.init({ duration: 800, once: true });
@@ -184,9 +119,7 @@ const Properties = () => {
       if (userId) {
         setLoadingFavorites(true);
         const response = await getFavorites(userId);
-        const favoriteIds = response.favourites.map(
-          (fav) => fav.propertyId._id
-        );
+        const favoriteIds = response.favourites.map((fav) => fav.propertyId._id);
         setWishlist(favoriteIds);
         setLoadingFavorites(false);
       }
@@ -196,154 +129,103 @@ const Properties = () => {
     }
   };
 
-  const handlePropertyTypeFilterChange = (e) => {
-    setPropertyTypeFilter(e.target.value);
-  };
+  const filterProperties = () => {
+    let filtered = [...properties];
 
-  const handlePlaceFilterChange = (e) => {
-    setPlaceFilter(e.target.value);
-  };
-
-  const handleSubPlaceFilterChange = (e) => {
-    setSubPlaceFilter(e.target.value);
-  };
-
-  const handleNearbyPlaceFilterChange = (e) => {
-    setNearbyPlaceFilter(e.target.value);
-  };
-
- const filterProperties = () => {
-  let filtered = [...properties];
-
-  // Apply search filter
-  if (searchTerm) {
-    const term = searchTerm.toLowerCase();
-    filtered = filtered.filter(
-      (property) =>
-        property.address?.toLowerCase().includes(term) ||
-        property.property_type?.toLowerCase().includes(term) ||
-        property.city?.toLowerCase().includes(term) ||
-        property.pincode?.toString().includes(term) ||
-        property.productCode?.toString().toLowerCase().includes(term)
-    );
-  }
-
-  // Apply property type filter
-  if (propertyTypeFilter) {
-    filtered = filtered.filter(
-      (property) => property.property_type === propertyTypeFilter
-    );
-  }
-
-  // Store selected places for later use in nearby filter
-  let selectedPlaceName = "";
-  let selectedSubPlaceName = "";
-  let selectedNearbyPlaceName = "";
-
-  // Apply place filters
-  if (placeFilter) {
-    const selectedPlace = places.find((place) => place._id === placeFilter);
-    if (selectedPlace) {
-      selectedPlaceName = selectedPlace.name;
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
       filtered = filtered.filter(
         (property) =>
-          property.address?.includes(selectedPlace.name) ||
-          property.city?.includes(selectedPlace.name)
+          property.address?.toLowerCase().includes(term) ||
+          property.property_type?.toLowerCase().includes(term) ||
+          property.city?.toLowerCase().includes(term) ||
+          property.pincode?.toString().includes(term) ||
+          property.productCode?.toString().toLowerCase().includes(term)
       );
     }
-  }
 
-  // Apply subplace filter
-  if (subPlaceFilter) {
-    const selectedSubPlace = availableSubPlaces.find(
-      (subPlace) => subPlace._id === subPlaceFilter
-    );
-    if (selectedSubPlace) {
-      selectedSubPlaceName = selectedSubPlace.name;
-      filtered = filtered.filter((property) =>
-        property.address?.includes(selectedSubPlace.name)
+    if (propertyTypeFilter) {
+      filtered = filtered.filter(
+        (property) => property.property_type === propertyTypeFilter
       );
     }
-  }
 
-  // Apply nearby place filter - MODIFIED LOGIC
-  if (nearbyPlaceFilter) {
-    const selectedNearbyPlace = availableNearbyPlaces.find(
-      (nearPlace) => nearPlace._id === nearbyPlaceFilter
-    );
-    if (selectedNearbyPlace) {
-      selectedNearbyPlaceName = selectedNearbyPlace.name;
-      
-      // Create a copy of the original properties (not the already filtered ones)
-      // to find properties that match the nearby place
-      const nearbyProperties = properties.filter((property) =>
-        property.address?.includes(selectedNearbyPlace.name)
-      );
-      
-      // Combine both filtered properties and nearby properties
-      filtered = [...filtered, ...nearbyProperties];
-      
-      // Remove duplicates if a property matches both criteria
-      filtered = filtered.filter((property, index, self) =>
-        index === self.findIndex((p) => p._id === property._id)
-      );
+    if (placeFilter) {
+      const selectedPlace = places.find((place) => place._id === placeFilter);
+      if (selectedPlace) {
+        filtered = filtered.filter(
+          (property) =>
+            property.address?.includes(selectedPlace.name) ||
+            property.city?.includes(selectedPlace.name)
+        );
+      }
     }
-  }
 
-  // Apply price range filter
-  if (minPrice !== "" || maxPrice !== "") {
-    const min = minPrice !== "" ? parseInt(minPrice, 10) : 0;
-    const max = maxPrice !== "" ? parseInt(maxPrice, 10) : Infinity;
+    if (subPlaceFilter) {
+      const selectedSubPlace = availableSubPlaces.find(
+        (subPlace) => subPlace._id === subPlaceFilter
+      );
+      if (selectedSubPlace) {
+        filtered = filtered.filter((property) =>
+          property.address?.includes(selectedSubPlace.name)
+        );
+      }
+    }
 
-    filtered = filtered.filter((property) => {
-      const price = property.property_price || 0;
-      return price >= min && price <= max;
-    });
-  }
+    if (nearbyPlaceFilter) {
+      const selectedNearbyPlace = availableNearbyPlaces.find(
+        (nearPlace) => nearPlace._id === nearbyPlaceFilter
+      );
+      if (selectedNearbyPlace) {
+        const nearbyProperties = properties.filter((property) =>
+          property.address?.includes(selectedNearbyPlace.name)
+        );
+        filtered = [...filtered, ...nearbyProperties];
+        filtered = filtered.filter((property, index, self) =>
+          index === self.findIndex((p) => p._id === property._id)
+        );
+      }
+    }
 
-  // Apply beds filter
-  if (bedsFilter) {
-    const bedsCount = parseInt(bedsFilter);
-    filtered = filtered.filter((property) => property.beds === bedsCount);
-  }
+    if (minPrice !== "" || maxPrice !== "") {
+      const min = minPrice !== "" ? parseInt(minPrice, 10) : 0;
+      const max = maxPrice !== "" ? parseInt(maxPrice, 10) : Infinity;
 
-  // Apply baths filter
-  if (bathsFilter) {
-    const bathsCount = parseInt(bathsFilter);
-    filtered = filtered.filter((property) => property.baths === bathsCount);
-  }
+      filtered = filtered.filter((property) => {
+        const price = property.property_price || 0;
+        return price >= min && price <= max;
+      });
+    }
 
-  setFilteredProperties(filtered);
-};
+    if (bedsFilter) {
+      const bedsCount = parseInt(bedsFilter);
+      filtered = filtered.filter((property) => property.beds === bedsCount);
+    }
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
+    if (bathsFilter) {
+      const bathsCount = parseInt(bathsFilter);
+      filtered = filtered.filter((property) => property.baths === bathsCount);
+    }
+
+    setFilteredProperties(filtered);
   };
 
-  const handleBedsFilterChange = (e) => {
-    setBedsFilter(e.target.value);
+  const handlePriceClick = () => {
+    const isLoggedIn = localStorage.getItem("userId") && localStorage.getItem("token");
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+    }
   };
 
-  const handleBathsFilterChange = (e) => {
-    setBathsFilter(e.target.value);
-  };
+  const closeModal = () => setShowLoginModal(false);
 
-  const clearAllFilters = () => {
-    setSearchTerm("");
-    setBedsFilter("");
-    setBathsFilter("");
-    setMinPrice("");
-    setMaxPrice("");
-    setPropertyTypeFilter("");
-    setPlaceFilter("");
-    setSubPlaceFilter("");
-    setNearbyPlaceFilter("");
-    setShowMobileFilters(false);
+  const goToLogin = () => {
+    closeModal();
+    navigate("/login");
   };
 
   const handleViewClick = async (propertyId) => {
-    const isLoggedIn =
-      localStorage.getItem("userId") && localStorage.getItem("token");
+    const isLoggedIn = localStorage.getItem("userId") && localStorage.getItem("token");
 
     if (!isLoggedIn) {
       setShowLoginModal(true);
@@ -365,29 +247,24 @@ const Properties = () => {
       const token = localStorage.getItem("token");
 
       if (!userId || !token) {
-        showToast("Please login to add favorites", "error");
+        toast.error("Please login to add favorites");
         return;
       }
 
       const isFavorite = wishlist.includes(propertyId);
 
       if (isFavorite) {
-        // REMOVE from wishlist
         await deleteFavourite(propertyId, { userId });
         setWishlist((prev) => prev.filter((id) => id !== propertyId));
-        showToast("Removed from favorites", "success");
+        toast.success("Removed from favorites");
       } else {
-        // ADD to wishlist
         await addToFavorites(userId, propertyId);
         setWishlist((prev) => [...prev, propertyId]);
-        showToast("Added to favorites", "success");
+        toast.success("Added to favorites");
       }
     } catch (error) {
       console.error("Favorite error:", error);
-      showToast(
-        error.response?.data?.message || "Failed to update favorites",
-        "error"
-      );
+      toast.error(error.response?.data?.message || "Failed to update favorites");
     }
   };
 
@@ -409,607 +286,153 @@ const Properties = () => {
     setShowShareModal(true);
   };
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(referralLink);
+    toast.success("Link copied to clipboard!");
+  };
+
+  const shareOnFacebook = () => {
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralLink)}`;
+    window.open(facebookUrl, "_blank");
+  };
+
+  const shareOnTwitter = () => {
+    const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(referralLink)}&text=Check out this property!`;
+    window.open(twitterUrl, "_blank");
+  };
+
+  const shareOnWhatsApp = () => {
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent("Check out this property: " + referralLink)}`;
+    window.open(whatsappUrl, "_blank");
+  };
+
+  const clearAllFilters = () => {
+    setSearchTerm("");
+    setBedsFilter("");
+    setBathsFilter("");
+    setMinPrice("");
+    setMaxPrice("");
+    setPropertyTypeFilter("");
+    setPlaceFilter("");
+    setSubPlaceFilter("");
+    setNearbyPlaceFilter("");
+    setShowMobileFilters(false);
+  };
+
   const toggleMobileFilters = () => {
     setShowMobileFilters(!showMobileFilters);
   };
 
-  const formatPlace = (place, subPlace) => {
-    if (subPlace) {
-      return `${subPlace.name}, ${place.name}`;
-    }
-    return place.name;
-  };
+  const activeFiltersCount = [
+    searchTerm,
+    minPrice,
+    maxPrice,
+    bedsFilter,
+    bathsFilter,
+    propertyTypeFilter,
+    placeFilter,
+    subPlaceFilter,
+    nearbyPlaceFilter
+  ].filter(Boolean).length;
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 1500) // 1.5 seconds
+
+    return () => clearTimeout(timer)
+  }, [])
 
   return (
     <div>
-      <Header />
-      <ToastContainer position="bottom-right" autoClose={3000} />
-      <div className="px-4 py-8 md:px-12 lg:px-24 bg-white overflow-x-hidden">
-        <h1
-          className="text-3xl md:text-4xl font-semibold mb-6 leading-tight"
-          style={{ color: "#03004D" }}
-        >
-          Login to unlock <br />
-          <span className="text-600">property prices !</span>
-        </h1>
-
-        {/* Full-width search with icon */}
-        <div className="relative w-full mb-4">
-          <input
-            type="text"
-            placeholder="Search City, Pincode, Address, Property Type, Product Code"
-            value={searchTerm}
-            onChange={handleSearchChange}
-            className="w-full px-4 py-3 pl-10 border rounded-md"
-          />
-          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <FaSearch className="text-gray-400" />
-          </div>
+      {loading ? (
+        <div className="flex items-center justify-center h-screen">
+          <Loader />
         </div>
+      ) : (
+        <>
+          <Header />
+          <ToastContainer position="bottom-right" autoClose={3000} />
+          <div className="px-4 py-8 md:px-12 lg:px-24 bg-white overflow-x-hidden">
+            <h1 className="text-3xl md:text-4xl font-semibold mb-6 leading-tight" style={{ color: "#03004D" }}>
+              Login to unlock <br />
+              <span className="text-600">property prices !</span>
+            </h1>
 
-        {/* Mobile filter toggle button */}
-        <div className="block md:hidden mb-4">
-          <button
-            onClick={toggleMobileFilters}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 border rounded-md text-gray-700 hover:bg-gray-200 transition-colors"
-          >
-            <FaFilter />
-            {showMobileFilters ? "Hide Filters" : "Show Filters"}
-          </button>
-        </div>
+            <PropertyFilters
+              searchTerm={searchTerm}
+              onSearchChange={(e) => setSearchTerm(e.target.value)}
+              placeFilter={placeFilter}
+              places={places}
+              onPlaceFilterChange={(e) => setPlaceFilter(e.target.value)}
+              subPlaceFilter={subPlaceFilter}
+              availableSubPlaces={availableSubPlaces}
+              onSubPlaceFilterChange={(e) => setSubPlaceFilter(e.target.value)}
+              nearbyPlaceFilter={nearbyPlaceFilter}
+              availableNearbyPlaces={availableNearbyPlaces}
+              onNearbyPlaceFilterChange={(e) => setNearbyPlaceFilter(e.target.value)}
+              propertyTypeFilter={propertyTypeFilter}
+              onPropertyTypeFilterChange={(e) => setPropertyTypeFilter(e.target.value)}
+              bedsFilter={bedsFilter}
+              onBedsFilterChange={(e) => setBedsFilter(e.target.value)}
+              bathsFilter={bathsFilter}
+              onBathsFilterChange={(e) => setBathsFilter(e.target.value)}
+              minPrice={minPrice}
+              maxPrice={maxPrice}
+              onShowPriceModal={() => setShowPriceModal(true)}
+              onClearAllFilters={clearAllFilters}
+              showMobileFilters={showMobileFilters}
+              onToggleMobileFilters={toggleMobileFilters}
+              activeFiltersCount={activeFiltersCount}
+            />
 
-        {/* Filters section (responsive) */}
-        <div
-          className={`${showMobileFilters ? "block" : "hidden"} md:block mb-8`}
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-            {/* Place filter */}
-            <div className="w-full">
-              <select
-                className="w-full px-3 py-2 border rounded-md"
-                value={placeFilter}
-                onChange={handlePlaceFilterChange}
-              >
-                <option value="">Select Location</option>
-                {places.map((place) => (
-                  <option key={place._id} value={place._id}>
-                    {place.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Sub-place filter */}
-            <div className="w-full">
-              <select
-                className="w-full px-3 py-2 border rounded-md"
-                value={subPlaceFilter}
-                onChange={handleSubPlaceFilterChange}
-                disabled={!placeFilter || availableSubPlaces.length === 0}
-              >
-                <option value="">Select Area</option>
-                {availableSubPlaces.map((subPlace) => (
-                  <option key={subPlace._id} value={subPlace._id}>
-                    {subPlace.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Nearby Places filter */}
-            <div className="w-full">
-              <select
-                className="w-full px-3 py-2 border rounded-md"
-                value={nearbyPlaceFilter}
-                onChange={handleNearbyPlaceFilterChange}
-                disabled={!subPlaceFilter || availableNearbyPlaces.length === 0}
-              >
-                <option value="">Select Nearby Area</option>
-                {availableNearbyPlaces.map((nearPlace) => (
-                  <option key={nearPlace._id} value={nearPlace._id}>
-                    {nearPlace.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Property type filter */}
-            <div className="w-full">
-              <select
-                className="w-full px-3 py-2 border rounded-md"
-                value={propertyTypeFilter}
-                onChange={handlePropertyTypeFilterChange}
-              >
-                <option value="">Select Property Type</option>
-                <option value="Home/Villa">Home/Villa</option>
-                <option value="Flat">Flat</option>
-                <option value="Residential land">Residential land</option>
-                <option value="Agriculture land">Agriculture land</option>
-                <option value="Commercial land">Commercial land</option>
-                <option value="Shop/Office">Shop/Office</option>
-              </select>
-            </div>
-
-            {/* Price filter input */}
-            <button
-              onClick={() => setShowPriceModal(true)}
-              className="px-4 py-2 border bg-white-100 text-black-700 rounded-md"
-            >
-              Open Price Filter
-            </button>
-
-            {/* Beds filter */}
-            <div className="w-full">
-              <select
-                className="w-full px-3 py-2 border rounded-md"
-                value={bedsFilter}
-                onChange={handleBedsFilterChange}
-              >
-                <option value="">All Bedrooms</option>
-                <option value="1">1 Bedroom</option>
-                <option value="2">2 Bedrooms</option>
-                <option value="3">3 Bedrooms</option>
-                <option value="4">4 Bedrooms</option>
-                <option value="5">5+ Bedrooms</option>
-              </select>
-            </div>
-
-            {/* Baths filter */}
-            <div className="w-full">
-              <select
-                className="w-full px-3 py-2 border rounded-md"
-                value={bathsFilter}
-                onChange={handleBathsFilterChange}
-              >
-                <option value="">All Bathrooms</option>
-                <option value="1">1 Bathroom</option>
-                <option value="2">2 Bathrooms</option>
-                <option value="3">3 Bathrooms</option>
-                <option value="4">4+ Bathrooms</option>
-              </select>
-            </div>
+            <PropertyList
+              properties={filteredProperties}
+              onPriceClick={handlePriceClick}
+              onToggleWishlist={toggleWishlist}
+              loadingFavorites={loadingFavorites}
+              wishlist={wishlist}
+              onShare={handleShare}
+              onViewClick={handleViewClick}
+              isLoading={isLoading}
+              onLoginRequired={() => setShowLoginModal(true)}
+            />
           </div>
 
-          {/* Clear filters button */}
-          {(searchTerm ||
-            minPrice ||
-            maxPrice ||
-            bedsFilter ||
-            bathsFilter ||
-            propertyTypeFilter ||
-            placeFilter ||
-            subPlaceFilter ||
-            nearbyPlaceFilter) && (
-            <div className="flex justify-center md:justify-start mt-4">
-              <button
-                onClick={clearAllFilters}
-                className="px-4 py-2 border bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
-              >
-                Clear All Filters
-              </button>
-            </div>
+          {showPriceModal && (
+            <PriceFilterModal
+              minPrice={minPrice}
+              maxPrice={maxPrice}
+              onMinPriceChange={(e) => setMinPrice(e.target.value)}
+              onMaxPriceChange={(e) => setMaxPrice(e.target.value)}
+              onApply={() => {
+                filterProperties();
+                setShowPriceModal(false);
+              }}
+              onCancel={() => setShowPriceModal(false)}
+            />
           )}
-        </div>
 
-        {/* Active filters display */}
-        {(searchTerm ||
-          minPrice ||
-          maxPrice ||
-          bedsFilter ||
-          bathsFilter ||
-          propertyTypeFilter ||
-          placeFilter ||
-          subPlaceFilter ||
-          nearbyPlaceFilter) && (
-          <div className="mb-4">
-            <div className="flex flex-wrap gap-2">
-              {searchTerm && (
-                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-                  Search: {searchTerm}
-                  <button
-                    onClick={() => setSearchTerm("")}
-                    className="ml-1 text-blue-500 hover:text-blue-700"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
+          {showShareModal && (
+            <ShareModal
+              referralLink={referralLink}
+              onClose={() => setShowShareModal(false)}
+              onCopy={handleCopy}
+              onFacebookShare={shareOnFacebook}
+              onTwitterShare={shareOnTwitter}
+              onWhatsAppShare={shareOnWhatsApp}
+            />
+          )}
 
-              {placeFilter && (
-                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-                  Location:{" "}
-                  {places.find((p) => p._id === placeFilter)?.name || ""}
-                  <button
-                    onClick={() => setPlaceFilter("")}
-                    className="ml-1 text-blue-500 hover:text-blue-700"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
+          <LoginRequiredModal
+            show={showLoginModal}
+            onClose={closeModal}
+            onLogin={goToLogin}
+          />
 
-              {subPlaceFilter && (
-                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-                  Area:{" "}
-                  {availableSubPlaces.find((sp) => sp._id === subPlaceFilter)
-                    ?.name || ""}
-                  <button
-                    onClick={() => setSubPlaceFilter("")}
-                    className="ml-1 text-blue-500 hover:text-blue-700"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
-
-              {nearbyPlaceFilter && (
-                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-                  Nearby:{" "}
-                  {availableNearbyPlaces.find((np) => np._id === nearbyPlaceFilter)
-                    ?.name || ""}
-                  <button
-                    onClick={() => setNearbyPlaceFilter("")}
-                    className="ml-1 text-blue-500 hover:text-blue-700"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
-
-              {propertyTypeFilter && (
-                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-                  Type: {propertyTypeFilter}
-                  <button
-                    onClick={() => setPropertyTypeFilter("")}
-                    className="ml-1 text-blue-500 hover:text-blue-700"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
-              {(minPrice || maxPrice) && (
-                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-                  Price: ₹{minPrice || 0} – ₹{maxPrice || "∞"}
-                  <button
-                    onClick={() => {
-                      setMinPrice("");
-                      setMaxPrice("");
-                    }}
-                    className="ml-1 text-blue-500 hover:text-blue-700"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
-
-              {bedsFilter && (
-                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-                  {bedsFilter}{" "}
-                  {parseInt(bedsFilter) === 1 ? "Bedroom" : "Bedrooms"}
-                  <button
-                    onClick={() => setBedsFilter("")}
-                    className="ml-1 text-blue-500 hover:text-blue-700"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
-
-              {bathsFilter && (
-                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-                  {bathsFilter}{" "}
-                  {parseInt(bathsFilter) === 1 ? "Bathroom" : "Bathrooms"}
-                  <button
-                    onClick={() => setBathsFilter("")}
-                    className="ml-1 text-blue-500 hover:text-blue-700"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Property count */}
-        {filteredProperties.length > 0 && (
-          <p className="mb-4 text-sm text-gray-600">
-            Showing {filteredProperties.length}{" "}
-            {filteredProperties.length === 1 ? "property" : "properties"}
-          </p>
-        )}
-
-        {/* No results message */}
-        {filteredProperties.length === 0 && (
-          <div className="text-center py-8">
-            <p className="text-lg text-gray-600">
-              No properties found matching your search criteria.
-            </p>
-            <button
-              onClick={clearAllFilters}
-              className="mt-2 text-blue-600 hover:underline"
-            >
-              Clear all filters
-            </button>
-          </div>
-        )}
-
-        {/* Property listings */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProperties.map((property) => (
-            <div
-              key={property._id}
-              className="border rounded-lg shadow-sm overflow-hidden w-full max-w-[360px] mx-auto relative"
-              style={{ backgroundColor: "#E7F1FF" }}
-              data-aos="fade-up"
-            >
-              {/* Property Image */}
-              <div className="relative">
-                <img
-  src={property.photos[0]?.replace(/\\/g, "/")}
-  alt={property.property_type}
-  className="w-full h-36 object-cover"
-/>
-
-                <div
-                  className="absolute top-2 left-2 bg-[#EAF2FF] text-xs text-gray-600 font-semibold px-2 py-1 rounded cursor-pointer hover:bg-[#D5E3FF]"
-                  onClick={handlePriceClick}
-                >
-                  {localStorage.getItem("userId") &&
-                  localStorage.getItem("token")
-                    ? `Price: ₹${
-                        property.property_price?.toLocaleString() || "N/A"
-                      }`
-                    : "Login to view Price"}
-                </div>
-                <div className="absolute top-2 right-2 flex space-x-2">
-                  {/* Favorite Button */}
-                  <button
-                    onClick={() => {
-                      const isLoggedIn =
-                        localStorage.getItem("userId") &&
-                        localStorage.getItem("token");
-                      if (!isLoggedIn) {
-                        setShowLoginModal(true);
-                        return;
-                      }
-                      toggleWishlist(property._id);
-                    }}
-                    className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
-                    disabled={loadingFavorites}
-                  >
-                    {loadingFavorites ? (
-                      <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
-                    ) : (
-                      <FaHeart
-                        className={
-                          wishlist.includes(property._id)
-                            ? "text-red-500 fill-current"
-                            : "text-gray-500"
-                        }
-                        size={14}
-                      />
-                    )}
-                  </button>
-
-                  {/* Share Button */}
-                  <button
-                    onClick={() => {
-                      const isLoggedIn =
-                        localStorage.getItem("userId") &&
-                        localStorage.getItem("token");
-                      if (!isLoggedIn) {
-                        setShowLoginModal(true);
-                        return;
-                      }
-                      handleShare(property._id);
-                    }}
-                    className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
-                  >
-                    <FaShareAlt className="text-gray-500" size={14} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Property Details */}
-              <div className="p-3 space-y-2">
-                <h2 className="text-sm font-semibold text-gray-700">
-                  {property.property_type} -{" "}
-                  {property.productCode || "No code provided"}
-                </h2>
-                <div className="text-sm text-gray-500 flex flex-wrap gap-1">
-                  {property.beds && <span>{property.beds} Beds</span>}
-                  {property.beds && property.baths && <span>|</span>}
-                  {property.baths && <span>{property.baths} Baths</span>}
-                  {(property.beds || property.baths) && property.area && (
-                    <span>|</span>
-                  )}
-                  {property.area && <span>{property.area} sqft</span>}
-                </div>
-                <p className="text-sm text-gray-400 flex items-center gap-1">
-                  <MdLocationOn className="text-base text-gray-400" />
-                  {property.address}
-                </p>
-                <div className="flex justify-end">
-                  <button
-                    onClick={() => handleViewClick(property._id)}
-                    className={`px-3 py-1 bg-[#5A85BFB2] text-white text-sm rounded hover:bg-indigo-700 transition-colors ${
-                      isLoading ? "opacity-75 cursor-not-allowed" : ""
-                    }`}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <span className="inline-flex items-center">
-                        <svg
-                          className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                        Loading...
-                      </span>
-                    ) : (
-                      "View Details"
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {showPriceModal && (
-        <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-lg">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">
-              Filter by Price
-            </h2>
-            <div className="flex flex-col gap-3">
-              <input
-                type="number"
-                placeholder="From"
-                value={minPrice}
-                onChange={(e) => setMinPrice(e.target.value)}
-                className="px-3 py-2 border rounded-md"
-              />
-              <input
-                type="number"
-                placeholder="To"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
-                className="px-3 py-2 border rounded-md"
-              />
-              <div className="flex justify-end gap-2">
-                <button
-                  onClick={() => setShowPriceModal(false)}
-                  className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-100"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => {
-                    filterProperties();
-                    setShowPriceModal(false);
-                  }}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                >
-                  Apply Filter
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+          <Footer />
+        </>
       )}
-
-      {showShareModal && (
-        <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4">
-          <div className="bg-white p-6 rounded-xl max-w-md w-full relative shadow-xl animate-fade-in">
-            <button
-              onClick={() => setShowShareModal(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
-            >
-              <FaTimes className="text-lg" />
-            </button>
-
-            <div className="text-center mb-6">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
-                <FaShareAlt className="text-blue-600" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Share Property
-              </h3>
-              <p className="text-gray-600 mb-4">
-                Share this property with friends and family
-              </p>
-            </div>
-
-            <div className="relative mb-6">
-              <input
-                type="text"
-                value={referralLink}
-                readOnly
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                onClick={(e) => e.target.select()}
-              />
-              <button
-                onClick={handleCopy}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1 bg-blue-100 text-blue-600 text-xs rounded hover:bg-blue-200 transition-colors"
-              >
-                Copy
-              </button>
-            </div>
-
-            {/* Social icons */}
-            <div className="flex justify-center space-x-4 mb-6">
-              <button
-                onClick={shareOnFacebook}
-                className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
-              >
-                <FaFacebook className="text-blue-600" />
-              </button>
-
-              <button
-                onClick={shareOnTwitter}
-                className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
-              >
-                <FaTwitter className="text-blue-400" />
-              </button>
-
-              <button
-                onClick={shareOnWhatsApp}
-                className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
-              >
-                <FaWhatsapp className="text-green-500" />
-              </button>
-            </div>
-
-            {/* QR code section */}
-            <div className="flex justify-center mb-4">
-              <div className="p-4 border rounded-lg bg-gray-50">
-                <QRCode value={referralLink || ""} size={128} />
-                <p className="text-xs text-gray-500 text-center mt-2">
-                  Scan to open this link
-                </p>
-              </div>
-            </div>
-
-            <div className="flex justify-center">
-              <button
-                onClick={() => setShowShareModal(false)}
-                className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {toastMessage && (
-        <Toast message={toastMessage} onClose={() => setToastMessage("")} />
-      )}
-      <LoginRequiredModal
-        show={showLoginModal}
-        onClose={closeModal}
-        onLogin={goToLogin}
-      />
-
-      <Footer />
     </div>
   );
 };

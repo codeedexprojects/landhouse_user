@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Route, Routes, Navigate } from 'react-router-dom'
 import Home from './Pages/Home'
-import Properties from './Pages/Properties'
 import Collections from './Pages/Collections'
 import SingleView from './Pages/SingleView'
 import AboutUs from './Pages/AboutUs'
@@ -25,6 +24,7 @@ import MainAffiliateDashboard from './Affiliate/Pages/Dashboard'
 import AffiliateLogin from './Affiliate/Pages/Login'
 import VerifyAffiliateNumber from './Affiliate/Pages/VerifyOTP'
 import AffiliateRegister from './Affiliate/Pages/Register'
+import Properties from './Pages/Properties'
 
 function App() {
   // ✅ define PrivateRoute inside App component
