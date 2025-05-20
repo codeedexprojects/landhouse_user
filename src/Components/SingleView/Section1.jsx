@@ -202,9 +202,17 @@ export default function SingleProperty() {
       return;
     }
 
-    // Use tel: protocol to initiate a call
-    window.location.href = `tel:${property.created_by.number}`;
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      // Mobile: initiate call
+      window.location.href = `tel:${property.created_by.number}`;
+    } else {
+      // Desktop: show number in a toast or modal
+      showToast(`Call this number: ${property.created_by.number}`, "info");
+    }
   };
+
 
   const copyToClipboard = () => {
     navigator.clipboard
@@ -271,6 +279,9 @@ export default function SingleProperty() {
             </SwiperSlide>
           ))}
         </Swiper>
+        {!/Mobi|Android/i.test(navigator.userAgent) && (
+          <p className="mt-2 text-gray-600">Call this number: <strong>{property?.created_by?.number}</strong></p>
+        )}
 
         <div className="absolute top-4 right-4 flex space-x-2 z-10">
           <button
@@ -334,7 +345,7 @@ export default function SingleProperty() {
             >
               <FaTimes className="h-8 w-8" />
             </button>
-            
+
             {/* Full-sized image with responsive size while maintaining aspect ratio */}
             <div className="max-w-full max-h-full overflow-auto">
               <img
