@@ -1,4 +1,13 @@
 import React from 'react';
+import person1 from '../../assets/person1.jpg'
+import person2 from '../../assets/person2.jpg'
+import person3 from '../../assets/person3.jpg'
+import person4 from '../../assets/person4.jpg'
+import home1 from '../../assets/smallhome1.jpg'
+import home2 from '../../assets/smallhome2.jpg'
+import home3 from '../../assets/smallhome3.jpg'
+import home4 from '../../assets/smallhome4.jpg'
+
 
 const AboutSection = () => {
   return (
@@ -27,22 +36,22 @@ const AboutSection = () => {
           </div>
           <div className="md:w-1/2 grid grid-cols-2 gap-4" data-aos="fade-left" data-aos-duration="1000">
             <div className="rounded-lg overflow-hidden">
-              <img src="/src/assets/smallhome1.jpg" alt="House with porch" className="w-full h-full object-cover" />
+              <img src={home1} alt="House with porch" className="w-full h-full object-cover" />
             </div>
             <div className="rounded-lg overflow-hidden">
-              <img src="/src/assets/smallhome2.jpg" alt="White house with porch" className="w-full h-full object-cover" />
+              <img src={home2} alt="White house with porch" className="w-full h-full object-cover" />
             </div>
             <div className="rounded-lg overflow-hidden">
-              <img src="/src/assets/smallhome3.jpg" alt="Red roof house" className="w-full h-full object-cover" />
+              <img src={home3} alt="Red roof house" className="w-full h-full object-cover" />
             </div>
             <div className="relative">
-              <img src="/src/assets/smallhome4.jpg" alt="Modern architecture" className="w-full h-3/4 object-cover" />
+              <img src={home4} alt="Modern architecture" className="w-full h-3/4 object-cover" />
               <div className="flex justify-center mt-2">
                 <div className="flex -space-x-4">
-                  <img src="/src/assets/person1.jpg" alt="Team member" className="w-10 h-10 rounded-full border-2 border-white" />
-                  <img src="/src/assets/person2.jpg" alt="Team member" className="w-10 h-10 rounded-full border-2 border-white" />
-                  <img src="/src/assets/person3.jpg" alt="Team member" className="w-10 h-10 rounded-full border-2 border-white" />
-                  <img src="/src/assets/person4.jpg" alt="Team member" className="w-10 h-10 rounded-full border-2 border-white" />
+                  <img src={person1} alt="Team member" className="w-10 h-10 rounded-full border-2 border-white" />
+                  <img src={person2} alt="Team member" className="w-10 h-10 rounded-full border-2 border-white" />
+                  <img src={person3} alt="Team member" className="w-10 h-10 rounded-full border-2 border-white" />
+                  <img src={person4} alt="Team member" className="w-10 h-10 rounded-full border-2 border-white" />
                 </div>
               </div>
             </div>
