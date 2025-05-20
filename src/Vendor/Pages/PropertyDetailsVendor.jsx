@@ -9,7 +9,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Edit } from "lucide-react";
-import { deletePropertyvendorAPI, vendorSoldOutAPI } from "../../services/allApi/vendorAllAPi";
+import { deletePropertyvendorAPI, getLatestEnquireisProperty, vendorSoldOutAPI } from "../../services/allApi/vendorAllAPi";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
@@ -20,7 +20,27 @@ function PropertyDetailsVendor() {
   const location = useLocation();
   const navigate = useNavigate();
   const property = location.state?.property;
+   const [latestEnquiry, setLatestEnquiry] = useState(null);
+  
+    useEffect(() => {
+      const fetchLatestEnquiry = async () => {
+        try {
+          const data = await getLatestEnquireisProperty(property._id);
+          if (data?.enquiries?.length) {
+            const sortedEnquiries = data.enquiries.sort(
+              (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+            );
+            setLatestEnquiry(sortedEnquiries[0]);
+          }
+        } catch (error) {
+          console.error("Error fetching enquiries:", error);
+        }
+      };
+  
+      fetchLatestEnquiry();
+    }, [property]);
   console.log(property);
+
 
   useEffect(() => {
     if (!property) {
@@ -337,37 +357,44 @@ function PropertyDetailsVendor() {
 
       {/* Latest Enquiry */}
       <div className="rounded-lg overflow-hidden shadow-md bg-white p-6">
-        <h2 className="text-2xl font-bold text-[#0B0B45] mb-6">
-          Latest Enquiry
-        </h2>
-        <div className="grid grid-cols-6 font-semibold text-gray-600 py-2 border-b">
-          <h6>Sl No</h6>
-          <h6>Name</h6>
-          <h6>Phone</h6>
-          <h6>Email</h6>
-          <h6>Message</h6>
-          <h6>Action</h6>
-        </div>
-        <div className="grid grid-cols-6 items-center text-gray-700 py-4 border-b">
-          <p>01</p>
-          <div className="flex items-center gap-3">
-            <img
-              src="https://via.placeholder.com/40"
-              alt="profile"
-              className="w-10 h-10 rounded-full object-cover"
-            />
-            <span className="font-semibold">Praveen TP</span>
-          </div>
-          <p>+91 98745 65476</p>
-          <p>praveentp@gmail.com</p>
-          <p className="text-blue-500 cursor-pointer">View message</p>
-          <div className="text-xl text-blue-500 cursor-pointer">
-            <MdOutlinePhoneInTalk />
-          </div>
-        </div>
-      </div>
+              <h2 className="text-2xl font-bold text-[#0B0B45] mb-6">Latest Enquiry</h2>
+              <div className="grid grid-cols-6 font-semibold text-gray-600 py-2 border-b">
+                <h6>Sl No</h6>
+                <h6>Name</h6>
+                <h6>Phone</h6>
+                <h6>Email</h6>
+                <h6>Message</h6>
+                <h6>Action</h6>
+              </div>
+      
+              {latestEnquiry ? (
+                <div className="grid grid-cols-6 items-center text-gray-700 py-4 border-b">
+                  <p>01</p>
+                  <div className="flex items-center gap-3">
+                    <img
+                      src="https://via.placeholder.com/40"
+                      alt="profile"
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                    <span className="font-semibold">
+                      {latestEnquiry.userId
+                        ? `${latestEnquiry.userId.firstName} ${latestEnquiry.userId.lastName}`
+                        : latestEnquiry.name}
+                    </span>
+                  </div>
+                  <p>{latestEnquiry.phoneNumber || latestEnquiry.userId?.phoneNumber}</p>
+                  <p>{latestEnquiry.email || latestEnquiry.userId?.email}</p>
+                  <p className="text-blue-500 cursor-pointer">{latestEnquiry.message}</p>
+                  <div className="text-xl text-blue-500 cursor-pointer">
+                    <MdOutlinePhoneInTalk />
+                  </div>
+                </div>
+              ) : (
+                <p className="text-gray-500 py-4">No enquiries found.</p>
+              )}
+            </div>
       {showConfirmModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4">
           <div className="bg-white p-6 rounded-lg shadow-md w-[90%] max-w-sm text-center">
             <h2 className="text-lg font-bold mb-4 text-blue-900">
               Are you sure?
@@ -394,7 +421,7 @@ function PropertyDetailsVendor() {
       )}
 
       {showSoldOutModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4">
           <div className="bg-white p-6 rounded-lg shadow-md w-[90%] max-w-sm text-center">
             <h2 className="text-lg font-bold mb-4 text-blue-900">
               {property?.soldOut ? "Mark as Available" : "Mark as Sold Out"}

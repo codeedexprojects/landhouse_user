@@ -335,6 +335,16 @@ export const deleteVendorPlace = async (districtId,subPlaceId) => {
   }
 };
 
-
-
-
+export const getLatestEnquireisProperty = async (id) => {
+  try {
+    const token = localStorage.getItem('vendorToken'); 
+    const response = await axios.get(`${BASE_URL}/vendor/enquiry/property/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};

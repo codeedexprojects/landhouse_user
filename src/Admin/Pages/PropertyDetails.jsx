@@ -437,7 +437,7 @@ function PropertyDetails() {
 
       {/* confirmationmodal */}
       {showConfirmModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4">
           <div className="bg-white p-6 rounded-lg shadow-md w-[90%] max-w-sm text-center">
             <h2 className="text-lg font-bold mb-4 text-blue-900">
               Are you sure?
@@ -464,7 +464,7 @@ function PropertyDetails() {
       )}
 
       {showAdminSoldOutModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4">
           <div className="bg-white p-6 rounded-lg shadow-md w-[90%] max-w-sm text-center">
             <h2 className="text-lg font-bold mb-4 text-blue-900">
               {property?.soldOut ? "Mark as Available" : "Mark as Sold Out"}
