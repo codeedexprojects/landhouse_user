@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import image1 from "../../assets/roundimage.png"
 
 const DreamProperty = () => {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ const DreamProperty = () => {
             <div className="absolute inset-0 rounded-full border-2 border-blue-200 -m-4"></div>
             <div className="absolute inset-0 rounded-full border-2 border-blue-200 -m-6"></div>
             <img
-              src="/src/assets/roundimage.png"
+              src={image1}
               alt="Modern dream home"
               className="w-64 h-64 rounded-full object-cover"
             />
