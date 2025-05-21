@@ -31,7 +31,7 @@ export default function AdminLoginPage() {
     setLoading(true);
     try {
       const data = await AdminLogin(loginData.email, loginData.password);
-      localStorage.setItem('admintoken', data.token);
+      localStorage.setItem('adminToken', data.token);
       localStorage.setItem('adminId', data.admin.id);
       setSuccess('Successfully logged in!');
       navigate('/admin/dashboard');

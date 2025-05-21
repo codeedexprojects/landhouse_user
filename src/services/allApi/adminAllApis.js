@@ -38,7 +38,7 @@ export const addProperty = async (formData) => {
 // get all properties
 export const getAllProperties = async () => {
   try {
-    const token = localStorage.getItem('admintoken'); 
+    const token = localStorage.getItem('adminToken'); 
     const response = await axios.get(`${BASE_URL}/admin/property/get`, {
       headers: {
         Authorization: `Bearer ${token}`
