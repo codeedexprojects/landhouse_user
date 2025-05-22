@@ -9,10 +9,12 @@ const Footer = () => {
         <div>
           <h3 className="font-semibold text-lg mb-4">Quick Link</h3>
           <ul className="space-y-2">
-            <li><a href="#" className="hover:underline">Home</a></li>
-            <li><a href="#" className="hover:underline">Properties</a></li>
-            <li><a href="#" className="hover:underline">About us</a></li>
-            <li><a href="#" className="hover:underline">Contact</a></li>
+            <li><a href="/" className="hover:underline">Home</a></li>
+            <li><a href="/properties" className="hover:underline">Properties</a></li>
+            <li><a href="/about" className="hover:underline">About us</a></li>
+            <li><a href="/contact" className="hover:underline">Contact</a></li>
+            <li><a href="/affiliate/login" className="hover:underline">Become a Affiliate</a></li>
+            <li><a href="/vendor/register" className="hover:underline">Become a Agent</a></li>
           </ul>
         </div>
 
@@ -21,13 +23,15 @@ const Footer = () => {
           <h3 className="font-semibold text-lg mb-4">Contact Us</h3>
           <ul className="space-y-3">
             <li className="flex items-center gap-2">
-              <FaMapMarkerAlt className="text-blue-500" /> <span>Address</span>
+              <FaMapMarkerAlt className="text-blue-500" /> <span>First floor, Varnam building, Malayinkeezhu,
+                Trivandrum 695571</span>
             </li>
             <li className="flex items-center gap-2">
-              <FaPhoneAlt className="text-blue-500" /> <span>+91 1231231234</span>
+              <FaPhoneAlt className="text-blue-500" /> <span>+91 6282779594</span>
             </li>
             <li className="flex items-center gap-2">
-              <FaEnvelope className="text-blue-500" /> <span>info@landouse.com</span>
+              <FaEnvelope className="text-blue-500" /> <span>landouserealtor@gmail.com
+              </span>
             </li>
           </ul>
         </div>

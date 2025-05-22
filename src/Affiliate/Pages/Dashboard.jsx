@@ -12,7 +12,7 @@ function PrivateRoute({ children }) {
     return <Navigate to="/affiliate/login" />;
   }
 
-  return children; // If affiliateId exists, render the route content
+  return children; 
 }
 
 function MainAffiliateDashboard() {

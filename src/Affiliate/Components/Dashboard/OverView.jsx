@@ -3,6 +3,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Building2, Banknote, FileText, Copy } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { getGraphData, getProfile, getRecentUser } from '../../../services/allApi/affiliateAllApi';
+import ReferralSection from './Referral';
 
 export default function AffiliateDashboard() {
   const [activeTimeframe, setActiveTimeframe] = useState('monthly');
@@ -156,7 +157,7 @@ export default function AffiliateDashboard() {
         </div>
 
         {/* Referral ID Card */}
-        <div className="bg-white p-6 rounded-lg shadow-sm flex justify-between items-start">
+        {/* <div className="bg-white p-6 rounded-lg shadow-sm flex justify-between items-start">
           <div>
             <h2 className="text-4xl font-bold">{profileData?.referralId || 'N/A'}</h2>
             <p className="text-gray-600 mt-1">Referral ID</p>
@@ -171,7 +172,10 @@ export default function AffiliateDashboard() {
           <div className="bg-blue-400 p-4 rounded-full">
             <FileText size={24} color="white" />
           </div>
-        </div>
+        </div> */}
+      </div>
+      <div className="lg:col-span-1 mb-6">
+        <ReferralSection profileData={profileData} />
       </div>
 
       {/* Chart Section */}

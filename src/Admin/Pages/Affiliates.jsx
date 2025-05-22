@@ -1,7 +1,7 @@
-import { ArrowLeft, ArrowRight, Download, Eye } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Download, Eye, Search } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAffiliates, updateAffiliate, getRecentAffliateUsers, } from '../../services/allApi/adminAllApis';
+import { getAffiliates, updateAffiliate, getRecentAffliateUsers } from '../../services/allApi/adminAllApis';
 import { toast } from 'react-hot-toast';
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -23,6 +23,8 @@ export default function Affiliates() {
   const [selectedAffiliateId, setSelectedAffiliateId] = useState(null);
   const [editingUserId, setEditingUserId] = useState(null);
   const [userEditAmount, setUserEditAmount] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [modalSearchTerm, setModalSearchTerm] = useState('');
 
   const handleAddAffliates = () => {
     navigate('/admin/create-coupon');
@@ -47,22 +49,15 @@ export default function Affiliates() {
     setLoadingUsers(true);
     setSelectedAffiliate(name);
     setSelectedAffiliateId(id);
+    setModalSearchTerm(''); // Reset search when opening modal
     try {
       const response = await getRecentAffliateUsers(id);
       if (response && response.referredUsers) {
-        // Find the current affiliate to get userAmounts
         const currentAffiliate = affiliatesData.find(a => a._id === id);
-
-        // Enhance users with their assigned amounts if available
-        const enhancedUsers = response.referredUsers.map(user => {
-          const userAmount = currentAffiliate?.userAmounts?.[user._id] || 0;
-
-          return {
-            ...user,
-            assignedAmount: userAmount
-          };
-        });
-
+        const enhancedUsers = response.referredUsers.map(user => ({
+          ...user,
+          assignedAmount: currentAffiliate?.userAmounts?.[user._id] || 0
+        }));
         setReferredUsers(enhancedUsers);
         setShowModal(true);
       } else {
@@ -76,11 +71,31 @@ export default function Affiliates() {
     }
   };
 
+  // Filter affiliates based on search term
+  const filteredAffiliates = affiliatesData.filter(affiliate => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      affiliate.name?.toLowerCase().includes(searchLower) ||
+      affiliate.number?.includes(searchTerm) ||
+      affiliate.referralId?.toLowerCase().includes(searchLower)
+    );
+  });
+
+  // Filter referred users based on modal search term
+  const filteredReferredUsers = referredUsers.filter(user => {
+    const searchLower = modalSearchTerm.toLowerCase();
+    return (
+      `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchLower) ||
+      user.email?.toLowerCase().includes(searchLower) ||
+      user.phoneNumber?.includes(modalSearchTerm)
+    );
+  });
+
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = affiliatesData.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(affiliatesData.length / itemsPerPage);
+  const currentItems = filteredAffiliates.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredAffiliates.length / itemsPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -144,19 +159,16 @@ export default function Affiliates() {
     setEditAmount('');
   };
 
-  // New function to handle editing a specific user's amount
   const handleEditUserAmount = (userId, currentAmount) => {
     setEditingUserId(userId);
     setUserEditAmount(currentAmount || '');
   };
 
-  // New function to handle canceling edit of user amount
   const handleCancelUserEdit = () => {
     setEditingUserId(null);
     setUserEditAmount('');
   };
 
-  // New function to save a specific user's amount
   const handleSaveUserAmount = async (userId) => {
     if (!userEditAmount || isNaN(userEditAmount)) {
       toast.error('Please enter a valid amount');
@@ -164,21 +176,18 @@ export default function Affiliates() {
     }
 
     try {
-      // Make API call to update specific user amount
       const response = await updateAffiliate(selectedAffiliateId, {
         userId,
         amount: Number(userEditAmount)
       });
 
       if (response) {
-        // Update referred users list with new amount
         setReferredUsers(prev =>
           prev.map(user =>
             user._id === userId ? { ...user, assignedAmount: Number(userEditAmount) } : user
           )
         );
 
-        // Update the main affiliates data with new total
         if (response.details && response.affiliate) {
           setAffiliatesData(prev =>
             prev.map(item =>
@@ -277,6 +286,26 @@ export default function Affiliates() {
           <h2 className="text-lg font-medium">Affiliates</h2>
         </div>
 
+        {/* Search Row */}
+        <div className="grid grid-cols-8 gap-2 p-4 border-b bg-gray-50">
+          <div className="col-span-3"> {/* ← Adjust span here */}
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search number..."
+                className="w-full pl-8 pr-2 py-2 border rounded-md text-sm"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+              />
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+            </div>
+          </div>
+        </div>
+
+
         {/* Table Header */}
         <div className="grid grid-cols-8 gap-2 p-4 border-b">
           <div className="font-medium">SI No</div>
@@ -311,8 +340,8 @@ export default function Affiliates() {
                 <button
                   onClick={() => handleApprovalToggle(row._id, row.isApproved)}
                   className={`px-3 py-1 rounded-md text-sm font-medium ${row.isApproved
-                      ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                      : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                    ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                    : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
                     }`}
                 >
                   {row.isApproved ? 'Approved' : 'Pending'}
@@ -323,11 +352,12 @@ export default function Affiliates() {
                   ₹{row.amount || 0}
                 </span>
               </div>
-
             </div>
           ))
         ) : (
-          <div className="p-4 text-center text-gray-500">No affiliates found</div>
+          <div className="p-4 text-center text-gray-500">
+            {searchTerm ? 'No matching affiliates found' : 'No affiliates found'}
+          </div>
         )}
       </div>
 
@@ -416,11 +446,25 @@ export default function Affiliates() {
               </button>
             </div>
 
+            {/* Search input for modal */}
+            <div className="mb-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search by name, email, or phone..."
+                  className="w-full pl-8 pr-2 py-2 border rounded-md"
+                  value={modalSearchTerm}
+                  onChange={(e) => setModalSearchTerm(e.target.value)}
+                />
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+              </div>
+            </div>
+
             {loadingUsers ? (
               <div className="flex justify-center items-center h-40">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
               </div>
-            ) : referredUsers.length > 0 ? (
+            ) : filteredReferredUsers.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
@@ -434,7 +478,7 @@ export default function Affiliates() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {referredUsers.map((user) => (
+                    {filteredReferredUsers.map((user) => (
                       <tr key={user._id}>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {user.firstName} {user.lastName}
@@ -500,7 +544,7 @@ export default function Affiliates() {
               </div>
             ) : (
               <div className="py-10 text-center text-gray-500">
-                No users found for this affiliate.
+                {modalSearchTerm ? 'No matching users found' : 'No users found for this affiliate'}
               </div>
             )}
 

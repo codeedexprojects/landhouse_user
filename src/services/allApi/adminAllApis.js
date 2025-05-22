@@ -17,7 +17,7 @@ export const AdminLogin = async (email, password) => {
 // add property
 export const addProperty = async (formData) => {
   try {
-    const token = localStorage.getItem('admintoken');
+    const token = localStorage.getItem('adminToken');
     const response = await axios.post(
       `${BASE_URL}/admin/property/add`,
       formData,
@@ -59,7 +59,7 @@ export const getAllProperties = async () => {
 // delete property
 export const deletePropertyAPI = async (id) => {
   try {
-    const token = localStorage.getItem('admintoken'); 
+    const token = localStorage.getItem('adminToken'); 
     const response = await axios.delete(`${BASE_URL}/admin/property/delete/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -75,7 +75,7 @@ export const deletePropertyAPI = async (id) => {
 export const EditPropertyAPI = async (id, updateData) => {
   
   try {
-    const token = localStorage.getItem('admintoken');
+    const token = localStorage.getItem('adminToken');
     const response = await axios.patch(`${BASE_URL}/admin/property/update/${id}`, updateData, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -91,7 +91,7 @@ export const EditPropertyAPI = async (id, updateData) => {
 // get home loan enquiries
 export const getLoanEnquiries = async () => {
   try {
-    const token = localStorage.getItem('admintoken'); 
+    const token = localStorage.getItem('adminToken'); 
     const response = await axios.get(`${BASE_URL}/admin/homeloan/all`, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -106,7 +106,7 @@ export const getLoanEnquiries = async () => {
 // get user list
 export const getUserList = async () => {
   try {
-    const token = localStorage.getItem('admintoken'); 
+    const token = localStorage.getItem('adminToken'); 
     const response = await axios.get(`${BASE_URL}/admin/user/view`, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -122,7 +122,7 @@ export const getUserList = async () => {
 //get user details
 export const getUserDetails = async (id) => {
   try {
-    const token = localStorage.getItem('admintoken');
+    const token = localStorage.getItem('adminToken');
     const response = await axios.get(`${BASE_URL}/admin/use/view/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -137,7 +137,7 @@ export const getUserDetails = async (id) => {
 
 export const addVendor = async (reqBody) => {
   try {
-    const token = localStorage.getItem('admintoken'); 
+    const token = localStorage.getItem('adminToken'); 
     const response = await axios.post(`${BASE_URL}/admin/vendor/register`, reqBody, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -151,7 +151,7 @@ export const addVendor = async (reqBody) => {
 
 export const getVendors = async () => {
   try {
-    const token = localStorage.getItem('admintoken'); 
+    const token = localStorage.getItem('adminToken'); 
     const response = await axios.get(`${BASE_URL}/admin/vendor/get`, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -165,7 +165,7 @@ export const getVendors = async () => {
 
 export const getReferrals = async () => {
   try {
-    const token = localStorage.getItem('admintoken'); 
+    const token = localStorage.getItem('adminToken'); 
     const response = await axios.get(`${BASE_URL}/admin/user/referrals`, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -179,7 +179,7 @@ export const getReferrals = async () => {
 
 export const approveVendor = async (vendorId) => {
   try {
-    const token = localStorage.getItem('admintoken');
+    const token = localStorage.getItem('adminToken');
     const response = await axios.post(
       `${BASE_URL}/admin/vendor/approve/${vendorId}`,
       {},
@@ -198,7 +198,7 @@ export const approveVendor = async (vendorId) => {
 
 export const rejectVendor = async (vendorId) => {
   try {
-    const token = localStorage.getItem('admintoken');
+    const token = localStorage.getItem('adminToken');
     const response = await axios.delete(
       `${BASE_URL}/${vendorId}`,
       {
@@ -216,7 +216,7 @@ export const rejectVendor = async (vendorId) => {
 
 export const getEnquireis = async () => {
   try {
-    const token = localStorage.getItem('admintoken'); 
+    const token = localStorage.getItem('adminToken'); 
     const response = await axios.get(`${BASE_URL}/admin/enquiry/get`, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -230,7 +230,7 @@ export const getEnquireis = async () => {
 
 export const getSingleVendor = async (vendorId) => {
   try {
-    const token = localStorage.getItem('admintoken');
+    const token = localStorage.getItem('adminToken');
     const response = await axios.get(
       `${BASE_URL}/admin/vendor/get/${vendorId}`,
       {},
@@ -249,7 +249,7 @@ export const getSingleVendor = async (vendorId) => {
 
 export const vendorPageCounts = async (vendorId) => {
   try {
-    const token = localStorage.getItem('admintoken');
+    const token = localStorage.getItem('adminToken');
     const response = await axios.get(
       `${BASE_URL}/admin/vendor/${vendorId}/property-count`,
       {},
@@ -268,7 +268,7 @@ export const vendorPageCounts = async (vendorId) => {
 
 export const vendorProperties = async (vendorId) => {
   try {
-    const token = localStorage.getItem('admintoken');
+    const token = localStorage.getItem('adminToken');
     const response = await axios.get(
       `${BASE_URL}/admin/vendor/${vendorId}/properties`,
       {},
@@ -287,7 +287,7 @@ export const vendorProperties = async (vendorId) => {
 
 export const overviewCounts = async () => {
   try {
-    const token = localStorage.getItem('admintoken');
+    const token = localStorage.getItem('adminToken');
     const response = await axios.get(
       `${BASE_URL}/admin/overview/get`,
       {},
@@ -306,7 +306,7 @@ export const overviewCounts = async () => {
 
 export const getAdminProfile = async (id) => {
   try {
-    const token = localStorage.getItem('admintoken'); 
+    const token = localStorage.getItem('adminToken'); 
     const response = await axios.get(`${BASE_URL}/admin/auth/profile/view/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -320,7 +320,7 @@ export const getAdminProfile = async (id) => {
 
 export const updateProfile = async (id, updateData) => {
   try {
-    const token = localStorage.getItem('admintoken');
+    const token = localStorage.getItem('adminToken');
     const response = await axios.patch(`${BASE_URL}/admin/auth/profile/${id}`, updateData, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -335,7 +335,7 @@ export const updateProfile = async (id, updateData) => {
 
 export const getOverviewGraph = async (id) => {
   try {
-    const token = localStorage.getItem('admintoken'); 
+    const token = localStorage.getItem('adminToken'); 
     const response = await axios.get(`${BASE_URL}/admin/overview/enquiry-stats`, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -349,7 +349,7 @@ export const getOverviewGraph = async (id) => {
 
 export const addAffiliate = async (reqBody) => {
   try {
-    const token = localStorage.getItem('admintoken');
+    const token = localStorage.getItem('adminToken');
     const response = await axios.post(
       `${BASE_URL}/admin/affiliate/add`,reqBody,
       {},
@@ -368,7 +368,7 @@ export const addAffiliate = async (reqBody) => {
 
 export const getAffiliates = async () => {
   try {
-    const token = localStorage.getItem('admintoken'); 
+    const token = localStorage.getItem('adminToken'); 
     const response = await axios.get(`${BASE_URL}/admin/affiliate/get`, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -382,7 +382,7 @@ export const getAffiliates = async () => {
 
 export const updateAffiliate = async (id, updateData) => {
   try {
-    const token = localStorage.getItem('admintoken');
+    const token = localStorage.getItem('adminToken');
     const response = await axios.patch(`${BASE_URL}/admin/affiliate/update/${id}`, updateData, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -397,7 +397,7 @@ export const updateAffiliate = async (id, updateData) => {
 
 export const deleteVendor = async (id) => {
   try {
-    const token = localStorage.getItem('admintoken'); 
+    const token = localStorage.getItem('adminToken'); 
     const response = await axios.delete(`${BASE_URL}/admin/vendor/delete/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -525,7 +525,7 @@ export const getEnquiryCounts = async () => {
 
 export const markAsReadEnquiry = async (id) => {
   try {
-    const token = localStorage.getItem("admintoken"); 
+    const token = localStorage.getItem("adminToken"); 
 
     const response = await axios.patch(
       `${BASE_URL}/admin/enquiry/${id}/mark-read`,
@@ -637,6 +637,27 @@ export const contactUsAPI = async () => {
     return response.data;
   } catch (error) {
     console.error("Error fetching contact data:", error);
+    throw error;
+  }
+};
+
+export const homeLoanMarkAs = async (id, isRead) => {
+  try {
+    const token = localStorage.getItem("adminToken"); 
+
+    const response = await axios.patch(
+      `${BASE_URL}/admin/homeloan/mark-read/${id}`,
+      { isRead },  
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating sold out status:", error);
     throw error;
   }
 };
