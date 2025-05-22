@@ -21,6 +21,7 @@ import Affiliates from './Affiliates';
 import EditProperty from './EditProperty';
 import SubPlaceManager from './AddPlace';
 import Contact from './Contact';
+import PropertyApprovalPage from './PendingRequest';
 
 function MainDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -77,6 +78,7 @@ function MainDashboard() {
               <Route path="/edit-property" element={<EditProperty />} />
               <Route path="/add-places" element={<SubPlaceManager />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/pending" element={<PropertyApprovalPage />} />
 
 
               <Route path="*" element={<Navigate to="/admin/dashboard" />} />

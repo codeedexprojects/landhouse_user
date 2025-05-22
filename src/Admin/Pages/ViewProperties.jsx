@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Search, ChevronDown, Filter, Download, ArrowRight, ArrowLeft } from "lucide-react";
+import { Search, ChevronDown, Filter, Download, ArrowRight, ArrowLeft, Bell } from "lucide-react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import { getAllProperties } from "../../services/allApi/adminAllApis";
+import { getAllProperties, getPendingProperties } from "../../services/allApi/adminAllApis";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { MdLocationOn } from "react-icons/md";
@@ -29,6 +29,18 @@ export default function PropertyListingPage() {
   const [propertiesPerPage] = useState(12);
   const [totalPages, setTotalPages] = useState(0);
   const navigate = useNavigate()
+   const [pendingCount, setPendingCount] = useState(0);
+    useEffect(() => {
+    (async () => {
+      try {
+        const data = await getPendingProperties();
+        setPendingCount(data?.properties?.length || 0);
+      } catch (err) {
+        console.error('Error getting pending properties:', err);
+      }
+    })();
+  }, []);
+  const handleViewPending = () => navigate('/admin/pending');
 
   // Calculate pagination
   const indexOfLastProperty = currentPage * propertiesPerPage;
@@ -243,16 +255,39 @@ export default function PropertyListingPage() {
   return (
     <div className="p-4 bg-blue-100 min-h-screen">
       {/* Breadcrumb */}
-      <div className="bg-white p-3 rounded-md shadow-sm mb-4 flex justify-between items-center">
-        <div className="flex items-center text-sm text-gray-500">
-          <span>property</span>
-          <span className="mx-2">/</span>
-          <span className="text-blue-500">property list</span>
-        </div>
-        <button onClick={handleAddProperty} className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors text-sm">
+     <div className="bg-white p-3 rounded-md shadow-sm mb-4 flex justify-between items-center">
+      {/* breadcrumb */}
+      <div className="flex items-center text-sm text-gray-500">
+        <span>property</span>
+        <span className="mx-2">/</span>
+        <span className="text-blue-500">property list</span>
+      </div>
+
+      {/* right-side actions */}
+      <div className="flex items-center gap-3">
+        {/* pending-requests icon button */}
+        <button
+          onClick={handleViewPending}
+          className="relative rounded-full p-2 hover:bg-gray-100 transition-colors"
+          title="View pending requests"
+        >
+          <Bell className="h-5 w-5 text-blue-500" />
+          {pendingCount > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-semibold text-white">
+              {pendingCount}
+            </span>
+          )}
+        </button>
+
+        {/* existing Add Property button */}
+        <button
+          onClick={handleAddProperty}
+          className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors text-sm"
+        >
           Add Property
         </button>
       </div>
+    </div>
 
 
       {/* Search and Filter Bar */}
@@ -375,7 +410,7 @@ export default function PropertyListingPage() {
               className="border rounded-lg shadow-sm overflow-hidden w-full max-w-[360px] mx-auto relative"
               style={{ backgroundColor: "#E7F1FF" }}
             >
-              {/* Property Image with Sold Out Badge */}
+              {/* Property Image with Status Badges */}
               <div className="relative">
                 <img
                   src={
@@ -391,16 +426,24 @@ export default function PropertyListingPage() {
                   }}
                 />
 
-                {property.soldOut && (
-                  <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
-                    Sold Out
-                  </div>
-                )}
+                {/* Status Badges */}
+                <div className="absolute top-2 right-2 space-y-1">
+                  {property.soldOut && (
+                    <div className="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
+                      Sold Out
+                    </div>
+                  )}
+                  {property.isApproved === false && (
+                    <div className="bg-yellow-500 text-white text-xs font-semibold px-2 py-1 rounded">
+                      Not Approved
+                    </div>
+                  )}
+                </div>
+
                 <div className="absolute top-2 left-2 bg-[#EAF2FF] text-xs text-gray-600 font-semibold px-2 py-1 rounded cursor-pointer hover:bg-[#D5E3FF]">
                   Price: ₹{property.property_price?.toLocaleString() || 'N/A'}
                 </div>
               </div>
-
 
               {/* Property Details */}
               <div className="p-3 space-y-2">
@@ -414,10 +457,6 @@ export default function PropertyListingPage() {
                   {property.area && (property.beds || property.baths) && <span>|</span>}
                   {property.area && <span>{property.area} sqft</span>}
                 </div>
-                {/* <p className="text-sm text-black-400 flex items-center gap-1">
-                  <IoBarcode className="text-base text-gray-400" />
-                  Code : {property.productCode || "No code provided"}
-                </p> */}
                 <p className="text-sm text-gray-400 flex items-center gap-1">
                   <MdLocationOn className="text-base text-gray-400" />
                   {property.address || "No address provided"}

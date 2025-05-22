@@ -661,3 +661,39 @@ export const homeLoanMarkAs = async (id, isRead) => {
     throw error;
   }
 };
+
+export const approveProperty = async (id, isApproved) => {
+  try {
+    const token = localStorage.getItem("adminToken"); 
+
+    const response = await axios.patch(
+      `${BASE_URL}/admin/property/approve/${id}`,
+      { isApproved },  
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating sold out status:", error);
+    throw error;
+  }
+};
+
+export const getPendingProperties = async () => {
+  try {
+    const token = localStorage.getItem('adminToken');
+    const response = await axios.get(`${BASE_URL}/admin/property/get/pending`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching contact data:", error);
+    throw error;
+  }
+};
