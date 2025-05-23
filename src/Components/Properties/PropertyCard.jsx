@@ -14,17 +14,20 @@ const PropertyCard = ({
   onLoginRequired
 }) => {
   return (
-    <div
-      className="border rounded-lg shadow-sm overflow-hidden w-full max-w-[360px] mx-auto relative"
-      style={{ backgroundColor: "#E7F1FF" }}
-      data-aos="fade-up"
-    >
+   <div
+  className="border rounded-lg shadow-sm overflow-hidden w-full max-w-[500px] mx-auto relative"
+  style={{ backgroundColor: "#E7F1FF" }}
+  data-aos="fade-up"
+>
       <div className="relative">
-        <img
-          src={property.photos[0]?.replace(/\\/g, "/")}
-          alt={property.property_type}
-          className="w-full h-36 object-cover"
-        />
+       <img
+  src={property.photos[0]?.replace(/\\/g, "/")}
+  className="w-full h-64 sm:h-72 md:h-80 object-cover rounded-t-md"
+  onError={(e) => {
+    e.target.onerror = null;
+    e.target.src = "https://via.placeholder.com/400x300?text=No+Image";
+  }}
+/>
         <div
           className="absolute top-2 left-2 bg-[#EAF2FF] text-xs text-gray-600 font-semibold px-2 py-1 rounded cursor-pointer hover:bg-[#D5E3FF]"
           onClick={onPriceClick}
