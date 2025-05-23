@@ -1,6 +1,6 @@
-import React from 'react';
-import { MdLocationOn } from 'react-icons/md';
-import { FaHeart, FaShareAlt } from 'react-icons/fa';
+import React from "react";
+import { MdLocationOn } from "react-icons/md";
+import { FaHeart, FaShareAlt } from "react-icons/fa";
 
 const PropertyCard = ({
   property,
@@ -11,23 +11,23 @@ const PropertyCard = ({
   onShare,
   onViewClick,
   isLoading,
-  onLoginRequired
+  onLoginRequired,
 }) => {
   return (
-   <div
-  className="border rounded-lg shadow-sm overflow-hidden w-full max-w-[500px] mx-auto relative"
-  style={{ backgroundColor: "#E7F1FF" }}
-  data-aos="fade-up"
->
+    <div
+      className="border rounded-lg shadow-sm overflow-hidden w-full max-w-[500px] mx-auto relative"
+      style={{ backgroundColor: "#E7F1FF" }}
+      data-aos="fade-up"
+    >
       <div className="relative">
-       <img
-  src={property.photos[0]?.replace(/\\/g, "/")}
-  className="w-full h-64 sm:h-72 md:h-80 object-cover rounded-t-md"
-  onError={(e) => {
-    e.target.onerror = null;
-    e.target.src = "https://via.placeholder.com/400x300?text=No+Image";
-  }}
-/>
+        <img
+          src={property.photos[0]?.replace(/\\/g, "/")}
+          className="w-full h-48 sm:h-56 md:h-64 object-cover rounded-t-md"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = "https://via.placeholder.com/400x300?text=No+Image";
+          }}
+        />
         <div
           className="absolute top-2 left-2 bg-[#EAF2FF] text-xs text-gray-600 font-semibold px-2 py-1 rounded cursor-pointer hover:bg-[#D5E3FF]"
           onClick={onPriceClick}
@@ -39,7 +39,8 @@ const PropertyCard = ({
         <div className="absolute top-2 right-2 flex space-x-2">
           <button
             onClick={() => {
-              const isLoggedIn = localStorage.getItem("userId") && localStorage.getItem("token");
+              const isLoggedIn =
+                localStorage.getItem("userId") && localStorage.getItem("token");
               if (!isLoggedIn) {
                 onLoginRequired();
                 return;
@@ -52,12 +53,18 @@ const PropertyCard = ({
             {loadingFavorites ? (
               <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
             ) : (
-              <FaHeart className={isFavorite ? "text-red-500 fill-current" : "text-gray-500"} size={14} />
+              <FaHeart
+                className={
+                  isFavorite ? "text-red-500 fill-current" : "text-gray-500"
+                }
+                size={14}
+              />
             )}
           </button>
           <button
             onClick={() => {
-              const isLoggedIn = localStorage.getItem("userId") && localStorage.getItem("token");
+              const isLoggedIn =
+                localStorage.getItem("userId") && localStorage.getItem("token");
               if (!isLoggedIn) {
                 onLoginRequired();
                 return;
@@ -70,9 +77,10 @@ const PropertyCard = ({
           </button>
         </div>
       </div>
-      <div className="p-3 space-y-2">
+      <div className="p-2 space-y-1">
         <h2 className="text-sm font-semibold text-gray-700">
-          {property.property_type} - {property.productCode || "No code provided"}
+          {property.property_type} -{" "}
+          {property.productCode || "No code provided"}
         </h2>
         <div className="text-sm text-gray-500 flex flex-wrap gap-1">
           {property.beds && <span>{property.beds} Beds</span>}
