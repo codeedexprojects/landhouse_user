@@ -10,38 +10,38 @@ export default function AccessGranted() {
     <div className="min-h-screen w-full flex">
       {/* Left Side - Blue Background */}
       <div
-              className="relative hidden md:flex md:w-1/2 bg-cover bg-center flex-col items-center justify-between text-white p-8"
-              style={{
-                  backgroundImage: `url(${image})`
-                
-              }}
-            >
-              {/* Top welcome text */}
-              <div className="z-10 text-center w-full mt-8">
-                <h2 className="italic text-2xl mb-8">Welcome To!</h2>
-      
-                {/* Logo circle */}
-               <div className="bg-white rounded-full w-32 h-32 mx-auto flex items-center justify-center mb-4">
+        className="relative hidden md:flex md:w-1/2 bg-cover bg-center flex-col items-center justify-between text-white p-8"
+        style={{
+          backgroundImage: `url(${image})`
+
+        }}
+      >
+        {/* Top welcome text */}
+        <div className="z-10 text-center w-full mt-8">
+          <h2 className="italic text-2xl mb-8">Welcome To!</h2>
+
+          {/* Logo circle */}
+          <div className="bg-white rounded-full w-32 h-32 mx-auto flex items-center justify-center mb-4">
             <img
               src={image2}
               alt="Logo"
               className="w-16 h-16 object-contain"
             />
           </div>
-      
-                {/* Brand name */}
-                <h1 className="text-3xl font-bold tracking-wider mt-2">LANDOUSE</h1>
-              </div>
-      
-              {/* Bottom description text */}
-              <div className="z-10 text-center mb-8 px-4">
-                <p className="text-sm">
-                  Your trusted partner in finding the perfect home, land, or investment property.
-                  Explore a wide range of listings, connect with verified agents, and make
-                  confident real estate decisions — all in one place.
-                </p>
-              </div>
-            </div>
+
+          {/* Brand name */}
+          <h1 className="text-3xl font-bold tracking-wider mt-2">LANDOUSE</h1>
+        </div>
+
+        {/* Bottom description text */}
+        <div className="z-10 text-center mb-8 px-4">
+          <p className="text-sm">
+            Your trusted partner in finding the perfect home, land, or investment property.
+            Explore a wide range of listings, connect with verified agents, and make
+            confident real estate decisions — all in one place.
+          </p>
+        </div>
+      </div>
 
       {/* Right Side - Access Granted Content */}
       <div className="w-full md:w-1/2 bg-white flex flex-col justify-center items-center p-8">

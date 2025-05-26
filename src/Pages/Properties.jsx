@@ -354,10 +354,13 @@ const Properties = () => {
           <Header />
           <ToastContainer position="bottom-right" autoClose={3000} />
           <div className="px-4 py-8 md:px-12 lg:px-24 bg-white overflow-x-hidden">
-            <h1 className="text-3xl md:text-4xl font-semibold mb-6 leading-tight" style={{ color: "#03004D" }}>
-              Login to unlock <br />
-              <span className="text-600">property prices !</span>
-            </h1>
+            {!localStorage.getItem("userId") || !localStorage.getItem("token") ? (
+              <h1 className="text-3xl md:text-4xl font-semibold mb-6 leading-tight" style={{ color: "#03004D" }}>
+                Login to unlock <br />
+                <span className="text-600">property prices !</span>
+              </h1>
+            ) : null}
+
 
             <PropertyFilters
               searchTerm={searchTerm}

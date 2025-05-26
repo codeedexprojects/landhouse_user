@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MapPin, Upload, Plus } from "lucide-react";
+import { MapPin, Upload, Plus, X } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { EditPropertyAPI } from "../../services/allApi/adminAllApis";
 import { toast, ToastContainer } from "react-toastify";
@@ -37,6 +37,8 @@ const EditProperty = () => {
   });
 
   const [files, setFiles] = useState([]);
+  const [existingPhotos, setExistingPhotos] = useState(property?.photos || []);
+  const [photosToRemove, setPhotosToRemove] = useState([]);
 
   // Define which fields to show for each property type
   const getFieldsForPropertyType = (type) => {
@@ -131,6 +133,21 @@ const EditProperty = () => {
     }
   };
 
+  const removeNewFile = (index) => {
+    const newFiles = [...files];
+    newFiles.splice(index, 1);
+    setFiles(newFiles);
+  };
+
+  const removeExistingPhoto = (photoUrl, index) => {
+    // Add to photos to remove list
+    setPhotosToRemove([...photosToRemove, photoUrl]);
+    // Remove from existing photos display
+    const updatedPhotos = existingPhotos.filter((_, i) => i !== index);
+    setExistingPhotos(updatedPhotos);
+    toast.info("Photo marked for removal");
+  };
+
   const handleUseCurrentLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -192,7 +209,19 @@ const EditProperty = () => {
         }
       });
 
-      // Append files
+      // Append existing photos that are not marked for removal
+      existingPhotos.forEach((photoUrl) => {
+        if (!photosToRemove.includes(photoUrl)) {
+          formDataToSend.append('existing_photos', photoUrl);
+        }
+      });
+
+      // Append photos to remove
+      photosToRemove.forEach((photoUrl) => {
+        formDataToSend.append('photos_to_remove', photoUrl);
+      });
+
+      // Append new files
       files.forEach((file) => {
         formDataToSend.append('photos', file);
       });
@@ -299,6 +328,7 @@ const EditProperty = () => {
               />
             </div>
           </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             {/* Featured Property Toggle */}
             <div className="flex items-center">
@@ -399,30 +429,44 @@ const EditProperty = () => {
             </div>
           </div>
 
-          {/* Photos */}
-          {property?.photos && property.photos[0] && (
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2 mt-5">
-                Current Photo
+          {/* Current Photos Section */}
+          {existingPhotos.length > 0 && (
+            <div className="mt-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Current Photos
               </label>
-              <img
-                src={property.photos[0]}
-                alt="Current Property"
-                className="w-64 h-40 object-cover rounded border"
-              />
-
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {existingPhotos.map((photo, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={photo}
+                      alt={`Property ${index + 1}`}
+                      className="w-full h-32 object-cover rounded border"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeExistingPhoto(photo, index)}
+                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
+          {/* New Photos Upload Section */}
           <div className="mt-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Photos
+              {existingPhotos.length > 0 ? "Add New Photos" : "Photos"}
             </label>
             <div className="grid md:grid-cols-3 gap-4">
               <div className="border-2 border-dashed border-gray-300 rounded-md p-6 flex items-center justify-center bg-gray-50 col-span-2">
                 <input
                   type="file"
                   multiple
+                  accept="image/*"
                   onChange={handleFileChange}
                   className="hidden"
                   id="file-upload"
@@ -442,19 +486,15 @@ const EditProperty = () => {
                 {files.map((file, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-3 border border-gray-200 rounded-md text-gray-400 text-sm hover:bg-gray-50"
+                    className="flex items-center justify-between p-3 border border-gray-200 rounded-md text-gray-700 text-sm hover:bg-gray-50"
                   >
-                    <span>{file.name}</span>
+                    <span className="truncate">{file.name}</span>
                     <button
                       type="button"
-                      onClick={() => {
-                        const newFiles = [...files];
-                        newFiles.splice(index, 1);
-                        setFiles(newFiles);
-                      }}
-                      className="text-red-500 hover:text-red-700"
+                      onClick={() => removeNewFile(index)}
+                      className="text-red-500 hover:text-red-700 ml-2"
                     >
-                      ×
+                      <X size={16} />
                     </button>
                   </div>
                 ))}
