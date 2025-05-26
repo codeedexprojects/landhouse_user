@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import image from "../../assets/LoginHalf.png";
 import { sendLoginOTP, sendRegisterOTP, verifyLoginOTP, verifyRegisterOTP } from '../../services/allApi/affiliateAllApi';
+import logo from "../../assets/logo.png"
 
 export default function AffiliateAuth() {
   const [mode, setMode] = useState('login'); // 'login' or 'register'
@@ -32,7 +33,7 @@ export default function AffiliateAuth() {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
+
     try {
       if (mode === 'register' && step === 'form') {
         const response = await sendRegisterOTP({
@@ -42,22 +43,22 @@ export default function AffiliateAuth() {
         });
         console.log('Register OTP sent:', response);
         setStep('otp');
-      } 
+      }
       else if (mode === 'register' && step === 'otp') {
         const response = await verifyRegisterOTP({
           number: formData.number,
           otp: formData.otp.join('')
         });
-        
+
         console.log('Register OTP verification response:', response);
-        
+
         // Check various possible success indicators
         if (response && (response.success || response.status === 'success' || response.token)) {
           // Save auth token if present
           if (response.token) {
             localStorage.setItem('authToken', response.token);
           }
-          
+
           // Use timeout to ensure UI updates before navigation
           setTimeout(() => {
             navigate('/affiliate/dashboard');
@@ -76,33 +77,33 @@ export default function AffiliateAuth() {
           number: formData.number,
           otp: formData.otp.join('')
         });
-        
+
         console.log('Login OTP verification response:', response);
-        
+
         // Enhanced success check with multiple conditions
         if (response && (
-            response.success === true || 
-            response.status === 'success' || 
-            response.token ||
-            (response.data && response.data.token)
-          )) {
-              // Extract token and affiliate safely
-              const token = response.token || (response.data && response.data.token);
-              const affiliate = response.affiliate || (response.data && response.data.affiliate);
-          
-              if (token) {
-                localStorage.setItem('affiliateToken', token);
-              }
-              if (affiliate && affiliate.id) {
-                localStorage.setItem('affiliateId', affiliate.id);
-              }
-          
-              setTimeout(() => {
-                console.log('Navigating to dashboard...');
-                navigate('/affiliate/dashboard', { replace: true });
-              }, 100);
+          response.success === true ||
+          response.status === 'success' ||
+          response.token ||
+          (response.data && response.data.token)
+        )) {
+          // Extract token and affiliate safely
+          const token = response.token || (response.data && response.data.token);
+          const affiliate = response.affiliate || (response.data && response.data.affiliate);
+
+          if (token) {
+            localStorage.setItem('affiliateToken', token);
           }
-          else {
+          if (affiliate && affiliate.id) {
+            localStorage.setItem('affiliateId', affiliate.id);
+          }
+
+          setTimeout(() => {
+            console.log('Navigating to dashboard...');
+            navigate('/affiliate/dashboard', { replace: true });
+          }, 100);
+        }
+        else {
           setError(response?.message || 'Login verification failed');
         }
       }
@@ -125,12 +126,13 @@ export default function AffiliateAuth() {
         <div className="z-10 text-center w-full mt-8">
           <h2 className="italic text-2xl mb-8">Welcome To!</h2>
           <div className="bg-white rounded-full w-32 h-32 mx-auto flex items-center justify-center mb-4">
-            <div className="text-blue-500">
-              <svg className="w-16 h-16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 3L4 9v12h16V9l-8-6zm0 1.618l6 4.5V20h-2v-6H8v6H6V9.118l6-4.5z" />
-              </svg>
-            </div>
+            <img
+              src={logo}
+              alt="Logo"
+              className="w-26 h-26 object-contain"
+            />
           </div>
+
           <h1 className="text-3xl font-bold tracking-wider mt-2">LANDOUSE</h1>
         </div>
 
@@ -212,7 +214,7 @@ export default function AffiliateAuth() {
             ) : (
               <>
                 <p className="text-gray-600 mb-6">
-                  We have sent you an SMS on <span className="font-semibold">+91 {formData.number.slice(-4).padStart(formData.number.length-4, '*')}</span> 
+                  We have sent you an SMS on <span className="font-semibold">+91 {formData.number.slice(-4).padStart(formData.number.length - 4, '*')}</span>
                   with a 6-digit verification code.
                 </p>
 
@@ -235,9 +237,8 @@ export default function AffiliateAuth() {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full p-4 bg-blue-400 text-white font-medium rounded-md hover:bg-blue-500 transition-colors ${
-                loading ? 'opacity-70 cursor-not-allowed' : ''
-              }`}
+              className={`w-full p-4 bg-blue-400 text-white font-medium rounded-md hover:bg-blue-500 transition-colors ${loading ? 'opacity-70 cursor-not-allowed' : ''
+                }`}
             >
               {loading ? (
                 <span className="flex items-center justify-center">
@@ -256,8 +257,8 @@ export default function AffiliateAuth() {
               {mode === 'login' ? (
                 <>
                   Don't have an account?{' '}
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => {
                       setMode('register');
                       setStep('form');
@@ -271,8 +272,8 @@ export default function AffiliateAuth() {
               ) : (
                 <>
                   Already have an account?{' '}
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => {
                       setMode('login');
                       setStep('form');
@@ -289,8 +290,8 @@ export default function AffiliateAuth() {
             {step === 'otp' && (
               <p className="text-center mt-2 text-sm text-gray-600">
                 Didn't receive the code?{' '}
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={async () => {
                     try {
                       setLoading(true);

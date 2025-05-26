@@ -1,5 +1,5 @@
 import React from "react";
-import { FaFacebookF, FaInstagram, FaWhatsapp, FaMapMarkerAlt, FaPhoneAlt, FaEnvelope } from "react-icons/fa";
+import { FaFacebookF, FaInstagram, FaWhatsapp, FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaYoutube } from "react-icons/fa";
 
 const Footer = () => {
   return (
@@ -62,10 +62,12 @@ const Footer = () => {
       <div className="text-center py-4 text-sm px-8 md:px-16">
         <p>© Landouse - All rights reserved</p>
         <div className="flex justify-center space-x-4 mt-2 text-xl">
-          <a href="#"><FaFacebookF /></a>
-          <a href="#"><FaInstagram /></a>
-          <a href="#"><FaWhatsapp /></a>
+          <a href="https://www.facebook.com/share/1AgW5Ch8Qb/" target="_blank" rel="noopener noreferrer"><FaFacebookF /></a>
+          <a href="https://www.instagram.com/landousedotcom?utm_source=qr&igsh=MWI3cXNpYXRoZXo1eA==" target="_blank" rel="noopener noreferrer"><FaInstagram /></a>
+          <a href="https://wa.me/916282779594" target="_blank" rel="noopener noreferrer"><FaWhatsapp /></a>
+          <a href="https://youtube.com/@landousedotcom?si=t0UAkPhTlCXk-cMu" target="_blank" rel="noopener noreferrer"><FaYoutube /></a>
         </div>
+
       </div>
     </footer>
   );

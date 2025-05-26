@@ -2,6 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom'; // <-- for navigation
 import image from "../../assets/LoginHalf.png";
 import image1 from "../../assets/waiting.jpg";
+import image2 from "../../assets/logo.png"
+
 
 export default function WaitingApproval() {
   const navigate = useNavigate(); // initialize navigate function
@@ -26,11 +28,11 @@ export default function WaitingApproval() {
 
           {/* Logo */}
           <div className="bg-white rounded-full w-32 h-32 mx-auto flex items-center justify-center mb-4">
-            <div className="text-blue-500">
-              <svg className="w-16 h-16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 3L4 9v12h16V9l-8-6zm0 1.618l6 4.5V20h-2v-6H8v6H6V9.118l6-4.5z" />
-              </svg>
-            </div>
+            <img
+              src={image2}
+              alt="Logo"
+              className="w-16 h-16 object-contain"
+            />
           </div>
 
           <h1 className="text-3xl font-bold tracking-wider mt-2">LANDOUSE</h1>
