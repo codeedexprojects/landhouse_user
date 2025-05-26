@@ -28,6 +28,9 @@ function PropertyDetails() {
   const property = location.state?.property;
 
   const [latestEnquiry, setLatestEnquiry] = useState(null);
+    // Lightbox state
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   useEffect(() => {
     const fetchLatestEnquiry = async () => {
@@ -149,10 +152,17 @@ function PropertyDetails() {
             pagination={{ clickable: true }}
             spaceBetween={20}
             slidesPerView={1}
-            className="w-full h-64"  // Changed from h-96 to h-64 to match your original height
+            className="w-full h-64"
           >
             {property.photos?.map((photo, index) => (
-              <SwiperSlide key={index}>
+              <SwiperSlide 
+                key={index}
+                onClick={() => {
+                  setSelectedImageIndex(index);
+                  setLightboxOpen(true);
+                }}
+                className="cursor-zoom-in"
+              >
                 <img
                   src={photo}
                   alt={`Property ${index + 1}`}
@@ -166,6 +176,55 @@ function PropertyDetails() {
             ))}
           </Swiper>
         </div>
+        {lightboxOpen && (
+        <div 
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          onClick={() => setLightboxOpen(false)}
+        >
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setLightboxOpen(false);
+            }}
+            className="absolute top-4 right-4 text-white text-3xl"
+          >
+            &times;
+          </button>
+
+          <div className="relative w-full max-w-4xl">
+            <img
+              src={property.photos[selectedImageIndex]}
+              alt={`Full view - Property ${selectedImageIndex + 1}`}
+              className="w-full h-auto max-h-[80vh] object-contain"
+            />
+
+            {/* Navigation arrows */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedImageIndex((prev) => 
+                  (prev - 1 + property.photos.length) % property.photos.length
+                );
+              }}
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/30 text-white p-2 rounded-full"
+            >
+              &larr;
+            </button>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedImageIndex((prev) => 
+                  (prev + 1) % property.photos.length
+                );
+              }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/30 text-white p-2 rounded-full"
+            >
+              &rarr;
+            </button>
+          </div>
+        </div>
+      )}
 
         <div className="p-6">
           <div className="flex justify-between items-start mb-4">
