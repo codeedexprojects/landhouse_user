@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { addProperty, fetchDistricts } from '../../services/allApi/adminAllApis';
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Select from 'react-select';
 
 
 const AddProperty = () => {
@@ -44,6 +45,13 @@ const AddProperty = () => {
   const [noteTitle, setNoteTitle] = useState('');
   const [places, setPlaces] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const addressOptions = places.flatMap(district =>
+    district.subPlaces.map(sub => ({
+      value: `${sub.name}, ${district.name}`,
+      label: `${sub.name}, ${district.name}`,
+    }))
+  );
 
   useEffect(() => {
     const getPlaces = async () => {
@@ -345,7 +353,7 @@ const AddProperty = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             {/* Address */}
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium mb-2">Address</label>
               <select
                 name="address"  // <-- Important
@@ -365,7 +373,20 @@ const AddProperty = () => {
                   })
                 )}
               </select>
+            </div> */}
+            <div>
+              <label className="block text-sm font-medium mb-2">Address</label>
+              <Select
+                name="address"
+                className="w-full"
+                options={addressOptions}
+                value={addressOptions.find(option => option.value === formData.address) || null}
+                onChange={selected => handleChange({ target: { name: 'address', value: selected?.value || '' } })}
+                isSearchable
+                placeholder="Select Address"
+              />
             </div>
+
 
 
             {/* Zip code */}

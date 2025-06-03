@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { addPropertyVendor, fetchVendorDistricts } from '../../services/allApi/vendorAllAPi';
+import Select from 'react-select';
 
 
 function AddPropertyVendor() {
@@ -47,7 +48,12 @@ function AddPropertyVendor() {
   const [places, setPlaces] = useState([])
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-
+const addressOptions = places.flatMap(district =>
+    district.subPlaces.map(sub => ({
+      value: `${sub.name}, ${district.name}`,
+      label: `${sub.name}, ${district.name}`,
+    }))
+  );
 
   useEffect(() => {
     const getPlaces = async () => {
@@ -345,24 +351,15 @@ function AddPropertyVendor() {
             {/* Address */}
             <div>
               <label className="block text-sm font-medium mb-2">Address</label>
-              <select
-                name="address"  // <-- Important
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.address || ''}
-                onChange={handleChange}
-              >
-                <option value="">Select Address</option>
-                {places.map(district =>
-                  district.subPlaces.map(sub => {
-                    const fullName = `${sub.name}, ${district.name}`;
-                    return (
-                      <option key={sub._id} value={fullName}>
-                        {fullName}
-                      </option>
-                    );
-                  })
-                )}
-              </select>
+              <Select
+                name="address"
+                className="w-full"
+                options={addressOptions}
+                value={addressOptions.find(option => option.value === formData.address) || null}
+                onChange={selected => handleChange({ target: { name: 'address', value: selected?.value || '' } })}
+                isSearchable
+                placeholder="Select Address"
+              />
             </div>
 
             {/* Zip code */}
