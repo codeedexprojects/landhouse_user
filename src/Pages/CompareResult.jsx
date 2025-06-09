@@ -93,7 +93,7 @@ const CompareProperties = () => {
             <div></div> {/* Left spacer for title column */}
             <div className="flex justify-center">
               <img
-                src={`${BASE_URL}/${property1.photos[0]}`} // Use your BASE_URL
+                src={property1.photos[0] ? property1.photos[0].replace(/\\/g, '/') : "/path/to/default/image.jpg"}
                 alt="Property 1"
                 className="h-48 w-full max-w-[300px] object-cover rounded-md"
                 onError={(e) => {

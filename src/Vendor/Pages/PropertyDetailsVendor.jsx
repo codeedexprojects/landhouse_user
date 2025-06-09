@@ -20,25 +20,28 @@ function PropertyDetailsVendor() {
   const location = useLocation();
   const navigate = useNavigate();
   const property = location.state?.property;
-   const [latestEnquiry, setLatestEnquiry] = useState(null);
-  
-    useEffect(() => {
-      const fetchLatestEnquiry = async () => {
-        try {
-          const data = await getLatestEnquireisProperty(property._id);
-          if (data?.enquiries?.length) {
-            const sortedEnquiries = data.enquiries.sort(
-              (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-            );
-            setLatestEnquiry(sortedEnquiries[0]);
-          }
-        } catch (error) {
-          console.error("Error fetching enquiries:", error);
+  const [latestEnquiry, setLatestEnquiry] = useState(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+
+  useEffect(() => {
+    const fetchLatestEnquiry = async () => {
+      try {
+        const data = await getLatestEnquireisProperty(property._id);
+        if (data?.enquiries?.length) {
+          const sortedEnquiries = data.enquiries.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
+          setLatestEnquiry(sortedEnquiries[0]);
         }
-      };
-  
-      fetchLatestEnquiry();
-    }, [property]);
+      } catch (error) {
+        console.error("Error fetching enquiries:", error);
+      }
+    };
+
+    fetchLatestEnquiry();
+  }, [property]);
   console.log(property);
 
 
@@ -126,29 +129,85 @@ function PropertyDetailsVendor() {
       {/* Property Card */}
       <div className="rounded-lg overflow-hidden shadow-md bg-white">
         <div className="w-full">
-                  <Swiper
-                    modules={[Navigation, Pagination]}
-                    navigation
-                    pagination={{ clickable: true }}
-                    spaceBetween={20}
-                    slidesPerView={1}
-                    className="w-full h-64"  // Changed from h-96 to h-64 to match your original height
-                  >
-                    {property.photos?.map((photo, index) => (
-                      <SwiperSlide key={index}>
-                        <img
-                          src={photo}
-                          alt={`Property ${index + 1}`}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = "/placeholder-property.jpg";
-                          }}
-                        />
-                      </SwiperSlide>
-                    ))}
-                  </Swiper>
-                </div>
+          <Swiper
+            modules={[Navigation, Pagination]}
+            navigation
+            pagination={{ clickable: true }}
+            spaceBetween={20}
+            slidesPerView={1}
+            className="w-full h-64"  // Changed from h-96 to h-64 to match your original height
+          >
+            {property.photos?.map((photo, index) => (
+              <SwiperSlide
+                key={index}
+                onClick={() => {
+                  setSelectedImageIndex(index);
+                  setLightboxOpen(true);
+                }}
+                className="cursor-zoom-in"
+              >
+                <img
+                  src={photo}
+                  alt={`Property ${index + 1}`}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/placeholder-property.jpg";
+                  }}
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+        {lightboxOpen && (
+          <div
+            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+            onClick={() => setLightboxOpen(false)}
+          >
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxOpen(false);
+              }}
+              className="absolute top-4 right-4 text-white text-3xl"
+            >
+              &times;
+            </button>
+
+            <div className="relative w-full max-w-4xl">
+              <img
+                src={property.photos[selectedImageIndex]}
+                alt={`Full view - Property ${selectedImageIndex + 1}`}
+                className="w-full h-auto max-h-[80vh] object-contain"
+              />
+
+              {/* Navigation arrows */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedImageIndex((prev) =>
+                    (prev - 1 + property.photos.length) % property.photos.length
+                  );
+                }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/30 text-white p-2 rounded-full"
+              >
+                &larr;
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedImageIndex((prev) =>
+                    (prev + 1) % property.photos.length
+                  );
+                }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/30 text-white p-2 rounded-full"
+              >
+                &rarr;
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="p-6">
           <div className="flex justify-between items-start mb-4">
@@ -357,42 +416,42 @@ function PropertyDetailsVendor() {
 
       {/* Latest Enquiry */}
       <div className="rounded-lg overflow-hidden shadow-md bg-white p-6">
-              <h2 className="text-2xl font-bold text-[#0B0B45] mb-6">Latest Enquiry</h2>
-              <div className="grid grid-cols-6 font-semibold text-gray-600 py-2 border-b">
-                <h6>Sl No</h6>
-                <h6>Name</h6>
-                <h6>Phone</h6>
-                <h6>Email</h6>
-                <h6>Message</h6>
-                <h6>Action</h6>
-              </div>
-      
-              {latestEnquiry ? (
-                <div className="grid grid-cols-6 items-center text-gray-700 py-4 border-b">
-                  <p>01</p>
-                  <div className="flex items-center gap-3">
-                    <img
-                      src="https://via.placeholder.com/40"
-                      alt="profile"
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                    <span className="font-semibold">
-                      {latestEnquiry.userId
-                        ? `${latestEnquiry.userId.firstName} ${latestEnquiry.userId.lastName}`
-                        : latestEnquiry.name}
-                    </span>
-                  </div>
-                  <p>{latestEnquiry.phoneNumber || latestEnquiry.userId?.phoneNumber}</p>
-                  <p>{latestEnquiry.email || latestEnquiry.userId?.email}</p>
-                  <p className="text-blue-500 cursor-pointer">{latestEnquiry.message}</p>
-                  <div className="text-xl text-blue-500 cursor-pointer">
-                    <MdOutlinePhoneInTalk />
-                  </div>
-                </div>
-              ) : (
-                <p className="text-gray-500 py-4">No enquiries found.</p>
-              )}
+        <h2 className="text-2xl font-bold text-[#0B0B45] mb-6">Latest Enquiry</h2>
+        <div className="grid grid-cols-6 font-semibold text-gray-600 py-2 border-b">
+          <h6>Sl No</h6>
+          <h6>Name</h6>
+          <h6>Phone</h6>
+          <h6>Email</h6>
+          <h6>Message</h6>
+          <h6>Action</h6>
+        </div>
+
+        {latestEnquiry ? (
+          <div className="grid grid-cols-6 items-center text-gray-700 py-4 border-b">
+            <p>01</p>
+            <div className="flex items-center gap-3">
+              <img
+                src="https://via.placeholder.com/40"
+                alt="profile"
+                className="w-10 h-10 rounded-full object-cover"
+              />
+              <span className="font-semibold">
+                {latestEnquiry.userId
+                  ? `${latestEnquiry.userId.firstName} ${latestEnquiry.userId.lastName}`
+                  : latestEnquiry.name}
+              </span>
             </div>
+            <p>{latestEnquiry.phoneNumber || latestEnquiry.userId?.phoneNumber}</p>
+            <p>{latestEnquiry.email || latestEnquiry.userId?.email}</p>
+            <p className="text-blue-500 cursor-pointer">{latestEnquiry.message}</p>
+            <div className="text-xl text-blue-500 cursor-pointer">
+              <MdOutlinePhoneInTalk />
+            </div>
+          </div>
+        ) : (
+          <p className="text-gray-500 py-4">No enquiries found.</p>
+        )}
+      </div>
       {showConfirmModal && (
         <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4">
           <div className="bg-white p-6 rounded-lg shadow-md w-[90%] max-w-sm text-center">

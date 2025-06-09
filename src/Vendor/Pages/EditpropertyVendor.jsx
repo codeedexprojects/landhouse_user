@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MapPin, Upload, Plus } from "lucide-react";
+import { MapPin, Upload, Plus, X } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
