@@ -15,16 +15,16 @@ const PropertyCard = ({
 }) => {
   return (
     <div
-  className="border rounded-lg shadow-sm overflow-hidden w-full max-w-[360px] mx-auto relative transform transition duration-300 hover:scale-[1.02] hover:shadow-lg"
-  style={{ backgroundColor: "#E7F1FF" }}
-  data-aos="fade-up"
->
-  <div className="relative overflow-hidden">
-    <img
-      src={property.photos[0] ? property.photos[0].replace(/\\/g, "/") : "/placeholder-property.jpg"}
-      alt={property.property_type}
-      className="w-full h-36 object-cover transform transition-transform duration-300 hover:scale-105"
-    />
+      className="border rounded-lg shadow-sm overflow-hidden w-full max-w-[360px] mx-auto relative transform transition duration-300 hover:scale-[1.02] hover:shadow-lg"
+      style={{ backgroundColor: "#E7F1FF" }}
+      data-aos="fade-up"
+    >
+      <div className="relative overflow-hidden">
+        <img
+          src={property.photos[0] ? property.photos[0].replace(/\\/g, "/") : "/placeholder-property.jpg"}
+          alt={property.property_type}
+          className="w-full h-36 object-cover transform transition-transform duration-300 hover:scale-105"
+        />
 
         <div
           className="absolute top-2 left-2 bg-[#EAF2FF] text-xs text-gray-600 font-semibold px-2 py-1 rounded cursor-pointer hover:bg-[#D5E3FF]"

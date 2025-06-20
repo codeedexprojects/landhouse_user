@@ -32,7 +32,7 @@ function AddPropertyVendor() {
     address: '',
     zipcode: '',
     isFeatured: false,
-    isLatest: false
+    isLatest: true
   });
 
   // Separate state for coordinates

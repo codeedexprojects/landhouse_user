@@ -1,9 +1,61 @@
 import { useEffect, useState } from 'react';
-import { Mail, User, Phone, Lock } from 'lucide-react';
+import { Mail, User, Phone, Lock, Heart, Share2, MapPin } from 'lucide-react';
 import image1 from "../assets/Sign up.png";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { sendRegistrationOTP, verifyRegistrationOTP, resendOTP } from '../services/allApi/userAllApi';
 import { Toast } from '../Components/Toast';
+import axios from 'axios';
+import { BASE_URL } from '../services/baseUrl';
+
+// Property Card Component
+const PropertyCard = ({
+  property,
+  showLoginButton = true,
+  onViewDetails,
+  onFavorite,
+  onShare
+}) => {
+  return (
+    <div className="bg-white/10 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden border border-white/20">
+      {/* Image Section */}
+      <div className="relative">
+        <img
+          src={property.photos[0]}
+          alt={property.productCode}
+          className="w-full h-40 object-cover"
+        />
+
+        {/* Login to view price overlay */}
+        {showLoginButton && (
+          <div className="absolute top-3 left-3">
+            <button className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium text-gray-700 hover:bg-white transition-colors">
+              Login to view Price
+            </button>
+          </div>
+        )}
+
+        {/* Action buttons */}
+        
+      </div>
+
+      {/* Content Section */}
+      <div className="p-3">
+        <h3 className="text-sm font-semibold text-black mb-2">{property.property_type} - {property.productCode}</h3>
+
+        <div className="flex items-center text-black/80 mb-2">
+          <span className="text-xs">{property.beds} Beds | {property.baths} Baths | {property.area} sqft</span>
+        </div>
+
+        <div className="flex items-start mb-3">
+          <MapPin className="w-3 h-3 text-black/60 mt-0.5 mr-1 flex-shrink-0" />
+          <span className="text-xs text-black/80 leading-relaxed">{property.address}</span>
+        </div>
+
+       
+      </div>
+    </div>
+  );
+};
 
 export default function LandouseSignupForm() {
   const [formData, setFormData] = useState({
@@ -20,9 +72,10 @@ export default function LandouseSignupForm() {
   const [step, setStep] = useState(1); // 1 = form, 2 = OTP
   const [loading, setLoading] = useState(false);
   const [canResend, setCanResend] = useState(false);
+  const [toast, setToast] = useState({ message: '', type: '' });
+  const [featuredProperties, setFeaturedProperties] = useState([]);
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const [toast, setToast] = useState({ message: '', type: '' });
   const referralCode = queryParams.get('referralCode');
   const productId = queryParams.get('productId');
   const navigate = useNavigate();
@@ -43,6 +96,27 @@ export default function LandouseSignupForm() {
       setFormData(prev => ({ ...prev, invitationCode: referralCode }));
     }
   }, [referralCode]);
+
+  // Fetch featured properties
+  useEffect(() => {
+    const fetchFeaturedProperties = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/user/property/get`);
+        console.log('API Response:', response.data);
+
+        if (response.data.success) {
+          const featured = response.data.properties
+            .filter(prop => prop.isFeatured)
+            .slice(0, 3);
+          setFeaturedProperties(featured);
+        }
+      } catch (error) {
+        console.error('Error fetching properties:', error);
+      }
+    };
+
+    fetchFeaturedProperties();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -92,7 +166,12 @@ export default function LandouseSignupForm() {
     setLoading(true);
 
     try {
-      const data = await verifyRegistrationOTP(formData, formData.otp);
+      const registrationData = {
+        ...formData,
+        productId: productId || null
+      };
+
+      const data = await verifyRegistrationOTP(registrationData, formData.otp);
       localStorage.setItem('token', data.token);
       localStorage.setItem('userId', data.userId);
       localStorage.setItem('referralId', data.referralCode);
@@ -106,6 +185,18 @@ export default function LandouseSignupForm() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleViewDetails = (propertyId) => {
+    console.log(`View details for property ${propertyId}`);
+  };
+
+  const handleFavorite = (propertyId) => {
+    console.log(`Toggle favorite for property ${propertyId}`);
+  };
+
+  const handleShare = (propertyId) => {
+    console.log(`Share property ${propertyId}`);
   };
 
   return (
@@ -122,8 +213,9 @@ export default function LandouseSignupForm() {
           <img src={image1} alt="Modern luxury home" className="w-full h-full object-cover" />
         </div>
 
-        <div className="relative z-10 p-6 md:p-12 lg:p-16 flex justify-center lg:justify-start">
-          <div className="w-full max-w-md lg:max-w-lg xl:max-w-xl py-8">
+        <div className="relative z-10 p-6 md:p-12 lg:p-16 flex flex-col lg:flex-row justify-between gap-8">
+          {/* Form Section */}
+          <div className="w-full lg:w-1/2 max-w-2xl py-8">
             <h1 className="text-4xl font-bold text-black mb-2">Create Your <br /> Landouse <br /> Account</h1>
             <p className="text-black/90 mb-8">View prices, save your favorite properties, and more.</p>
 
@@ -281,6 +373,25 @@ export default function LandouseSignupForm() {
               )}
             </form>
           </div>
+
+          {/* Property Cards Section - Only visible on larger screens */}
+          {featuredProperties.length > 0 && (
+            <div className="w-full lg:w-1/2 max-w-md py-8 lg:pl-8">
+              <h2 className="text-2xl font-bold text-black mb-6">Featured Properties</h2>
+              <div className="flex lg:flex-col gap-4 lg:gap-6 overflow-x-auto lg:overflow-x-visible pb-4 lg:pb-0">
+                {featuredProperties.map((property) => (
+                  <div key={property._id} className="flex-shrink-0 w-64 lg:w-full">
+                    <PropertyCard
+                      property={property}
+                      onViewDetails={() => handleViewDetails(property._id)}
+                      onFavorite={() => handleFavorite(property._id)}
+                      onShare={() => handleShare(property._id)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

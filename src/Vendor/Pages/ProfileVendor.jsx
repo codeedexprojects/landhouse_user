@@ -103,23 +103,45 @@ function ProfileVendor() {
       
       const response = await updateVendorProfile(vendorId, formData);
       
-      if (response && response.success) {
+      // Enhanced response logging and handling
+      console.log('Update API Response:', response);
+      console.log('Response status:', response?.status);
+      console.log('Response data:', response?.data);
+      
+      // Check for different possible success indicators
+      const isSuccess = response && (
+        response.success === true ||
+        response.status === 200 ||
+        response.status === 'success' ||
+        (response.data && response.data.success === true) ||
+        response.message === 'Profile updated successfully' ||
+        response.message?.includes('success') ||
+        response.message?.includes('updated')
+      );
+      
+      if (isSuccess) {
         setMessage({ type: 'success', text: 'Profile updated successfully!' });
+        // Clear selected image after successful update
+        setSelectedImage(null);
+        setImagePreview(null);
         // Refresh profile data
-        fetchProfile();
+        await fetchProfile();
       } else {
-        throw new Error('Update failed');
+        // Log the exact response structure for debugging
+        console.warn('Update response structure:', JSON.stringify(response, null, 2));
+        throw new Error(`Update failed - Response: ${JSON.stringify(response)}`);
       }
     } catch (error) {
       console.error('Error updating profile:', error);
+      console.error('Error details:', error.message);
       setMessage({ type: 'error', text: 'Failed to update profile' });
     } finally {
       setUpdateLoading(false);
       
-      // Clear message after 3 seconds
+      // Clear message after 5 seconds (increased from 3)
       setTimeout(() => {
         setMessage({ type: '', text: '' });
-      }, 3000);
+      }, 5000);
     }
   };
 

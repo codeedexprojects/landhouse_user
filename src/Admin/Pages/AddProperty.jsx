@@ -30,7 +30,7 @@ const AddProperty = () => {
     description: '',
     address: '',
     zipcode: '',
-    isFeatured: false,
+    isFeatured: true,
     isLatest: false
   });
   // Separate state for coordinates
