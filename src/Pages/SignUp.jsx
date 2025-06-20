@@ -215,6 +215,26 @@ export default function LandouseSignupForm() {
 
         <div className="relative z-10 p-6 md:p-12 lg:p-16 flex flex-col lg:flex-row justify-between gap-8">
           {/* Form Section */}
+          
+
+          {/* Property Cards Section - Only visible on larger screens */}
+          {featuredProperties.length > 0 && (
+            <div className="w-full lg:w-1/2 max-w-md py-8 lg:pl-8">
+              <h2 className="text-2xl font-bold text-black mb-6">Featured Properties</h2>
+              <div className="flex lg:flex-col gap-4 lg:gap-6 overflow-x-auto lg:overflow-x-visible pb-4 lg:pb-0">
+                {featuredProperties.map((property) => (
+                  <div key={property._id} className="flex-shrink-0 w-64 lg:w-full">
+                    <PropertyCard
+                      property={property}
+                      onViewDetails={() => handleViewDetails(property._id)}
+                      onFavorite={() => handleFavorite(property._id)}
+                      onShare={() => handleShare(property._id)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="w-full lg:w-1/2 max-w-2xl py-8">
             <h1 className="text-4xl font-bold text-black mb-2">Create Your <br /> Landouse <br /> Account</h1>
             <p className="text-black/90 mb-8">View prices, save your favorite properties, and more.</p>
@@ -373,25 +393,6 @@ export default function LandouseSignupForm() {
               )}
             </form>
           </div>
-
-          {/* Property Cards Section - Only visible on larger screens */}
-          {featuredProperties.length > 0 && (
-            <div className="w-full lg:w-1/2 max-w-md py-8 lg:pl-8">
-              <h2 className="text-2xl font-bold text-black mb-6">Featured Properties</h2>
-              <div className="flex lg:flex-col gap-4 lg:gap-6 overflow-x-auto lg:overflow-x-visible pb-4 lg:pb-0">
-                {featuredProperties.map((property) => (
-                  <div key={property._id} className="flex-shrink-0 w-64 lg:w-full">
-                    <PropertyCard
-                      property={property}
-                      onViewDetails={() => handleViewDetails(property._id)}
-                      onFavorite={() => handleFavorite(property._id)}
-                      onShare={() => handleShare(property._id)}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
