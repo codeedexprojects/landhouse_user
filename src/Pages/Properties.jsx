@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Header from "../Components/Header";
@@ -22,6 +22,7 @@ const Properties = () => {
   const [referralLink, setReferralLink] = useState("");
   const [loadingFavorites, setLoadingFavorites] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,14 +39,78 @@ const Properties = () => {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [showPriceModal, setShowPriceModal] = useState(false);
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
+  
+  // Ref to store scroll position
+  const scrollPositionRef = useRef(0);
+  const hasRestoredScroll = useRef(false);
 
   useEffect(() => {
     AOS.init({ duration: 800, once: true });
+    
+    // Restore state from sessionStorage if coming back from SingleView
+    const savedState = sessionStorage.getItem('propertiesPageState');
+    const shouldRestoreScroll = sessionStorage.getItem('shouldRestoreScroll') === 'true';
+    
+    if (savedState && (location.state?.fromSingleView || shouldRestoreScroll)) {
+      const parsedState = JSON.parse(savedState);
+      
+      // Restore all filter states
+      setSearchTerm(parsedState.searchTerm || "");
+      setBedsFilter(parsedState.bedsFilter || "");
+      setBathsFilter(parsedState.bathsFilter || "");
+      setPropertyTypeFilter(parsedState.propertyTypeFilter || "");
+      setPlaceFilter(parsedState.placeFilter || "");
+      setSubPlaceFilter(parsedState.subPlaceFilter || "");
+      setNearbyPlaceFilter(parsedState.nearbyPlaceFilter || "");
+      setMinPrice(parsedState.minPrice || "");
+      setMaxPrice(parsedState.maxPrice || "");
+      
+      scrollPositionRef.current = parsedState.scrollPosition || 0;
+    }
+    
     fetchPropertyData();
     fetchUserFavorites();
     fetchPlaces();
+    
+    // Cleanup function to handle page unload
+    const handleBeforeUnload = () => {
+      // Clear the restore flag if user is leaving the site completely
+      if (!document.referrer.includes(window.location.origin)) {
+        sessionStorage.removeItem('shouldRestoreScroll');
+        sessionStorage.removeItem('propertiesPageState');
+      }
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, []);
+
+  // Restore scroll position after data is loaded and component is rendered
+  useEffect(() => {
+    if (!loading && !hasRestoredScroll.current) {
+      const timer = setTimeout(() => {
+        // Check if we should restore scroll position
+        const shouldRestoreScroll = location.state?.fromSingleView || 
+                                   sessionStorage.getItem('shouldRestoreScroll') === 'true';
+        
+        if (shouldRestoreScroll && scrollPositionRef.current > 0) {
+          window.scrollTo({
+            top: scrollPositionRef.current,
+            behavior: 'instant'
+          });
+          hasRestoredScroll.current = true;
+          // Clear the flag after restoring
+          sessionStorage.removeItem('shouldRestoreScroll');
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [loading, filteredProperties, location.state]);
 
   useEffect(() => {
     filterProperties();
@@ -93,6 +158,25 @@ const Properties = () => {
       setNearbyPlaceFilter("");
     }
   }, [subPlaceFilter, availableSubPlaces]);
+
+  // Save current state before navigation
+  const saveCurrentState = () => {
+    const currentState = {
+      searchTerm,
+      bedsFilter,
+      bathsFilter,
+      propertyTypeFilter,
+      placeFilter,
+      subPlaceFilter,
+      nearbyPlaceFilter,
+      minPrice,
+      maxPrice,
+      scrollPosition: window.pageYOffset || document.documentElement.scrollTop
+    };
+    
+    sessionStorage.setItem('propertiesPageState', JSON.stringify(currentState));
+    sessionStorage.setItem('shouldRestoreScroll', 'true');
+  };
 
   const fetchPlaces = async () => {
     try {
@@ -234,7 +318,13 @@ const Properties = () => {
 
     setIsLoading(true);
     try {
-      navigate(`/single/${propertyId}`);
+      // Save current state before navigating
+      saveCurrentState();
+      
+      // Navigate with state indicating we're going to SingleView
+      navigate(`/single/${propertyId}`, { 
+        state: { fromProperties: true }
+      });
       window.scrollTo(0, 0);
     } finally {
       setIsLoading(false);
@@ -360,7 +450,6 @@ const Properties = () => {
                 <span className="text-600">property prices !</span>
               </h1>
             ) : null}
-
 
             <PropertyFilters
               searchTerm={searchTerm}
